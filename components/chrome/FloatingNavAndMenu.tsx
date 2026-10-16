@@ -1,56 +1,58 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { CONTENT } from "@/lib/content";
 import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
-import { ScrambleText } from "@/components/motion/IglooMotionPrimitives";
 
 const MENU_ITEMS = [
   {
     index: "01",
     title: "Home",
     href: "#top",
-    previewSrc: "/siya/siya-portrait.jpg",
-    previewSub: "Siya Pawar (@heartsfromsiya) · Pune, India",
+    previewSrc: "/siya/previews/preview-home.png",
+    previewLabel: "Siya. · Hero",
   },
   {
     index: "02",
     title: "Work",
     href: "#work",
-    previewSrc: "/siya/reels/reel-neighbours-poster.jpg",
-    previewSub: "1.8M+ & 319K-Like Reels · PharmEasy · Mokobara",
+    previewSrc: "/siya/previews/preview-work.png",
+    previewLabel: "Selected Reels",
   },
   {
     index: "03",
     title: "Pricing",
     href: "#services",
-    previewSrc: "/siya/reels/reel-02-poster.jpg",
-    previewSub: "Deliverables, Collaborations & Monthly Retainers",
+    previewSrc: "/siya/previews/preview-pricing.png",
+    previewLabel: "₹3K / ₹24K Rates",
   },
   {
     index: "04",
     title: "About",
     href: "#about",
-    previewSrc: "/siya/reels/reel-weather-poster.jpg",
-    previewSub: "Behind the camera · Golden hour in Pune",
+    previewSrc: "/siya/previews/preview-about.png",
+    previewLabel: "Behind the Camera",
   },
   {
     index: "05",
     title: "Contact",
     href: "#contact",
-    previewSrc: "/siya/reels/reel-05-poster.jpg",
-    previewSub: "siyapawar@gmail.com · Direct Brand Collaborations",
+    previewSrc: "/siya/previews/preview-contact.png",
+    previewLabel: "Direct Inquiry",
   },
 ];
 
 export function FloatingNavAndMenu({
   onRequestMediaKit: _onRequestMediaKit,
+  onNavigateSection,
 }: {
   onRequestMediaKit: (packageName?: string) => void;
+  onNavigateSection?: (href: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(0);
   const [localTime, setLocalTime] = useState<string>("10:15 PM");
   const { scrollTo } = useSmoothScroll();
 
@@ -83,63 +85,68 @@ export function FloatingNavAndMenu({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isOpen]);
 
-  const handleNavigate = (href: string) => {
+  const navigateWithCurtain = (href: string) => {
     setIsOpen(false);
-    window.setTimeout(() => {
-      scrollTo(href);
-    }, 220);
+    if (onNavigateSection) {
+      onNavigateSection(href);
+    } else {
+      window.setTimeout(() => {
+        scrollTo(href);
+      }, 220);
+    }
   };
 
   return (
     <>
-      {/* Minimal Top-Center Frosted Glass Capsule */}
-      <header className="fixed top-5 left-1/2 z-[120] -translate-x-1/2">
-        <div className="glass-pill flex items-center gap-1 rounded-full p-1 text-xs">
+      {/* High-Contrast Smoked Frosted Glass Top-Center Capsule */}
+      <header className="fixed top-4 left-1/2 z-[120] -translate-x-1/2 sm:top-5">
+        <div
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(18, 10, 15, 0.88) 0%, rgba(9, 6, 9, 0.94) 100%)",
+            backdropFilter: "blur(32px) saturate(200%)",
+            WebkitBackdropFilter: "blur(32px) saturate(200%)",
+          }}
+          className="glass-nav-capsule flex items-center gap-1 rounded-full border border-white/22 p-1 text-xs whitespace-nowrap shadow-[0_18px_44px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(255,255,255,0.35)]"
+        >
           <button
             type="button"
             data-cursor-box
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              setHoveredIdx(0);
+              setIsOpen(true);
+            }}
             aria-expanded={isOpen}
             aria-controls="fullscreen-menu-overlay"
-            className="group inline-flex items-center gap-2 rounded-full px-4 py-2 font-sans font-semibold text-white transition-colors hover:bg-white/10"
+            className="group inline-flex items-center gap-2 rounded-full px-4 py-2 font-sans font-semibold whitespace-nowrap text-white transition-colors hover:bg-white/12"
           >
             <svg
               viewBox="0 0 12 12"
               aria-hidden="true"
-              className="h-3 w-3 fill-current text-white transition-transform duration-300 group-hover:rotate-90"
+              className="h-3 w-3 shrink-0 fill-current text-white transition-transform duration-300 group-hover:rotate-90"
             >
               <circle cx="3" cy="3" r="1.3" />
               <circle cx="9" cy="3" r="1.3" />
               <circle cx="3" cy="9" r="1.3" />
               <circle cx="9" cy="9" r="1.3" />
             </svg>
-            <ScrambleText
-              text="Menu"
-              scrambleOnMount={false}
-              scrambleOnHover={true}
-              durationMs={280}
-            />
+            <span>Menu</span>
           </button>
 
-          <span className="h-3.5 w-[1px] bg-white/15" aria-hidden="true" />
+          <span className="h-3.5 w-[1px] shrink-0 bg-white/20" aria-hidden="true" />
 
           <button
             type="button"
             data-cursor-box
-            onClick={() => scrollTo("#services")}
-            className="rounded-full px-4 py-2 font-sans text-xs font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            onClick={() => navigateWithCurtain("#services")}
+            className="rounded-full px-4 py-2 font-sans text-xs font-medium whitespace-nowrap text-white/90 transition-colors hover:bg-white/12 hover:text-white"
           >
-            <ScrambleText
-              text="View Pricing"
-              scrambleOnMount={false}
-              scrambleOnHover={true}
-              durationMs={280}
-            />
+            View Pricing
           </button>
         </div>
       </header>
 
-      {/* Deep Smoked-Glass Fullscreen Menu Overlay */}
+      {/* Inset Framed Menu Overlay with Breathing Space on All 4 Sides */}
       <AnimatePresence>
         {isOpen ? (
           <motion.div
@@ -147,196 +154,204 @@ export function FloatingNavAndMenu({
             role="dialog"
             aria-modal="true"
             aria-label="Site navigation menu"
-            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(36px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-[150] flex p-2.5 sm:p-4 md:p-5"
             style={{
-              background: "rgba(8, 6, 7, 0.86)",
-              backdropFilter: "blur(36px) saturate(165%)",
+              background: "rgba(5, 3, 5, 0.28)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
             }}
-            className="fixed inset-0 z-[150] flex flex-col justify-between overflow-hidden px-7 py-6 text-white sm:px-12 sm:py-8"
           >
-            {/* Top Bar: Minimal Label + Close Pill */}
-            <div className="relative z-10 flex items-center justify-between gap-4">
-              <span className="glass-pill rounded-full px-4 py-1.5 font-sans text-xs font-medium text-white/85">
-                Navigation
-              </span>
-
-              <button
-                type="button"
-                data-cursor-box
-                onClick={() => setIsOpen(false)}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 font-sans text-xs font-semibold text-[#080808] transition-transform duration-300 hover:scale-[1.03]"
-              >
-                <span>Close</span>
-                <span aria-hidden="true" className="text-[11px]">
-                  ✕
+            <motion.div
+              initial={{ scale: 0.985, opacity: 0, y: 8 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.985, opacity: 0, y: 6 }}
+              transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background:
+                  "linear-gradient(160deg, rgba(11, 7, 10, 0.92) 0%, rgba(6, 5, 7, 0.95) 100%)",
+                backdropFilter: "blur(44px) saturate(195%)",
+                WebkitBackdropFilter: "blur(44px) saturate(195%)",
+              }}
+              className="relative flex h-full w-full flex-col justify-between overflow-y-auto rounded-[24px] border border-white/16 px-6 py-6 text-white shadow-[0_32px_100px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.22)] sm:rounded-[30px] sm:px-10 sm:py-8 lg:px-14"
+            >
+              {/* Top Bar: Minimal "Menu" Label + White Close Pill */}
+              <div className="relative z-20 flex items-center justify-between gap-4">
+                <span className="font-sans text-xs font-semibold tracking-tight text-white/90 sm:text-sm">
+                  Menu
                 </span>
-              </button>
-            </div>
 
-            {/* Center: Monumental Left-Aligned Navigation + Double-Bezel Frosted Glass Preview */}
-            <div className="relative z-10 my-auto grid grid-cols-1 items-center lg:grid-cols-12">
-              <nav
-                aria-label="Fullscreen Navigation"
-                onMouseLeave={() => setHoveredIdx(null)}
-                className="flex flex-col items-start lg:col-span-7"
-              >
-                {MENU_ITEMS.map((item, idx) => {
-                  const isHovered = hoveredIdx === idx;
-                  const isDimmed = hoveredIdx !== null && hoveredIdx !== idx;
+                <button
+                  type="button"
+                  data-cursor-box
+                  onClick={() => setIsOpen(false)}
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 font-sans text-xs font-semibold text-[#080808] shadow-lg transition-transform duration-300 hover:scale-[1.04]"
+                >
+                  <span>Close</span>
+                  <span aria-hidden="true" className="text-[11px]">
+                    ✕
+                  </span>
+                </button>
+              </div>
 
-                  return (
-                    <motion.button
-                      key={item.href}
-                      type="button"
-                      data-no-magnet
-                      initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
-                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, y: 12, filter: "blur(6px)" }}
-                      transition={{
-                        duration: 0.48,
-                        delay: 0.045 * idx,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                      onMouseEnter={() => setHoveredIdx(idx)}
-                      onClick={() => handleNavigate(item.href)}
-                      className="group relative flex items-start gap-6 py-0.5 text-left sm:gap-10"
-                    >
-                      <span className="mt-3 font-mono text-[10px] text-white/40">
-                        {item.index}
-                      </span>
+              {/* Center: Monumental Left-Aligned Navigation + Shoulder-Anchored Real Section Previews */}
+              <div className="relative z-10 my-auto py-4">
+                <nav
+                  aria-label="Fullscreen Navigation"
+                  onMouseLeave={() => setHoveredIdx(null)}
+                  className="flex flex-col items-start"
+                >
+                  {MENU_ITEMS.map((item, idx) => {
+                    const isHovered = hoveredIdx === idx;
+                    const isDimmed = hoveredIdx !== null && hoveredIdx !== idx;
 
-                      <span
-                        className={`relative inline-flex items-center font-display text-[clamp(3.1rem,6.8vw,5.8rem)] leading-[0.94] font-semibold tracking-[-0.045em] transition-all duration-300 ${
-                          isDimmed ? "text-white/25" : "text-white"
-                        }`}
+                    return (
+                      <motion.button
+                        key={item.href}
+                        type="button"
+                        data-menu-item
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{
+                          duration: 0.4,
+                          delay: 0.035 * idx,
+                          ease: [0.22, 1, 0.36, 1],
+                        }}
+                        onMouseEnter={() => setHoveredIdx(idx)}
+                        onFocus={() => setHoveredIdx(idx)}
+                        onClick={() => navigateWithCurtain(item.href)}
+                        className="group relative flex items-start gap-5 py-0.5 text-left sm:gap-9"
                       >
-                        <ScrambleText
-                          text={item.title}
-                          scrambleOnMount={true}
-                          scrambleOnHover={true}
-                          durationMs={340}
-                        />
-
-                        {/* Interactive Frosted Glass ↗ Pill Badge on Hover */}
-                        <span
-                          className={`ml-4 inline-flex items-center transition-all duration-300 ${
-                            isHovered
-                              ? "translate-x-0 scale-100 opacity-100"
-                              : "-translate-x-3 scale-95 opacity-0"
-                          }`}
-                        >
-                          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-medium text-[#080808] shadow-lg">
-                            ↗
-                          </span>
+                        <span className="mt-3 font-mono text-[10px] text-white/35 sm:mt-4">
+                          {item.index}
                         </span>
-                      </span>
-                    </motion.button>
-                  );
-                })}
-              </nav>
 
-              {/* Double-Bezel Frosted Glass Preview Card on Desktop Hover */}
-              <div className="hidden lg:col-span-5 lg:flex lg:justify-start">
-                <AnimatePresence mode="wait">
-                  {hoveredIdx !== null ? (
-                    <motion.div
-                      key={MENU_ITEMS[hoveredIdx].href}
-                      initial={{
-                        opacity: 0,
-                        y: 18,
-                        scale: 0.94,
-                        filter: "blur(10px)",
-                      }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                        scale: 1,
-                        filter: "blur(0px)",
-                      }}
-                      exit={{
-                        opacity: 0,
-                        y: 10,
-                        scale: 0.95,
-                        filter: "blur(8px)",
-                      }}
-                      transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                      className="glass-portrait-bezel w-80 overflow-hidden p-2.5"
-                    >
-                      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={MENU_ITEMS[hoveredIdx].previewSrc}
-                          alt={MENU_ITEMS[hoveredIdx].title}
-                          className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-105"
-                        />
-                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                      </div>
-                      <div className="px-3 pt-3.5 pb-2">
-                        <p className="font-sans text-xs font-medium text-white/85">
-                          {MENU_ITEMS[hoveredIdx].previewSub}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-              </div>
-            </div>
+                        <span className="relative inline-flex items-center">
+                          <span
+                            style={{ fontSize: "clamp(2.5rem, 6.6vw, 5.5rem)" }}
+                            className={`font-display leading-[0.96] font-semibold tracking-[-0.045em] transition-all duration-300 ${
+                              isDimmed
+                                ? "text-white/25"
+                                : "translate-x-1 text-white"
+                            }`}
+                          >
+                            {item.title}
+                          </span>
 
-            {/* Bottom Frosted Glass Bar */}
-            <div className="relative z-10 flex flex-wrap items-end justify-between gap-6 border-t border-white/10 pt-5 text-xs">
-              <div>
-                <p className="text-[11px] text-white/45">Direct Inbox</p>
-                <a
-                  href={`mailto:${CONTENT.profile.email}?cc=${CONTENT.profile.ccEmail}&subject=${encodeURIComponent(
-                    "Brand Collaboration Inquiry — Siya Pawar (@heartsfromsiya)"
-                  )}`}
-                  data-cursor-box
-                  className="mt-0.5 inline-block font-sans text-xs font-medium text-white underline decoration-white/30 underline-offset-4 hover:text-[#ff8a70]"
-                >
-                  {CONTENT.profile.email}
-                </a>
+                          {/* Reference-Style Shoulder Badge ([↗] + [GO]) + Real Section Preview Card */}
+                          <AnimatePresence>
+                            {isHovered ? (
+                              <motion.span
+                                initial={{ opacity: 0, x: -12, scale: 0.92 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: -8, scale: 0.94 }}
+                                transition={{
+                                  duration: 0.26,
+                                  ease: [0.22, 1, 0.36, 1],
+                                }}
+                                className="pointer-events-none relative ml-3 inline-flex items-center sm:ml-4"
+                              >
+                                {/* Floating Real Section Screenshot Thumbnail Behind/Beside the [↗][GO] Pills */}
+                                <span className="relative hidden sm:inline-block">
+                                  <span className="relative -mt-10 ml-3 block h-32 w-52 overflow-hidden rounded-[20px] border border-white/22 bg-[#12090e] p-1 shadow-[0_24px_60px_rgba(0,0,0,0.92)] lg:h-36 lg:w-60">
+                                    <span className="relative block h-full w-full overflow-hidden rounded-[15px]">
+                                      <Image
+                                        src={item.previewSrc}
+                                        alt={`${item.title} section preview`}
+                                        fill
+                                        sizes="240px"
+                                        className="object-cover object-top"
+                                      />
+                                      <span className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+                                    </span>
+                                  </span>
+
+                                  {/* Overlapping [↗] + [GO] Pills on the Bottom-Left Corner of the Preview (Matching Reference) */}
+                                  <span className="absolute -bottom-1 -left-2 z-20 inline-flex items-center gap-1.5">
+                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[11px] font-bold text-[#080808] shadow-lg">
+                                      ↗
+                                    </span>
+                                    <span className="rounded-full border border-white/22 bg-[#141115]/92 px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wider text-white/95 uppercase shadow-lg backdrop-blur-md">
+                                      GO
+                                    </span>
+                                  </span>
+                                </span>
+
+                                {/* Compact [↗] Pill for Mobile Screens */}
+                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-bold text-[#080808] shadow-lg sm:hidden">
+                                  ↗
+                                </span>
+                              </motion.span>
+                            ) : null}
+                          </AnimatePresence>
+                        </span>
+                      </motion.button>
+                    );
+                  })}
+                </nav>
               </div>
 
-              <div className="flex flex-wrap items-center gap-5 text-[11px] text-white/65">
-                <a
-                  href={CONTENT.profile.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-cursor-box
-                  className="transition-colors hover:text-white"
-                >
-                  Instagram ({CONTENT.profile.handle})
-                </a>
-                <a
-                  href={CONTENT.profile.instagramDumpUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-cursor-box
-                  className="transition-colors hover:text-white"
-                >
-                  {CONTENT.profile.secondaryHandle}
-                </a>
-                <a
-                  href={CONTENT.profile.youtubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-cursor-box
-                  className="transition-colors hover:text-white"
-                >
-                  YouTube
-                </a>
-              </div>
+              {/* Bottom Minimal Bar */}
+              <div className="relative z-20 flex flex-wrap items-end justify-between gap-5 border-t border-white/10 pt-4 text-xs">
+                <div>
+                  <p className="text-[11px] text-white/40">Say hello</p>
+                  <a
+                    href={`mailto:${CONTENT.profile.email}?cc=${CONTENT.profile.ccEmail}&subject=${encodeURIComponent(
+                      "Brand Collaboration Inquiry — Siya Pawar (@heartsfromsiya)"
+                    )}`}
+                    data-cursor-box
+                    className="mt-0.5 inline-block font-sans text-xs font-medium text-white underline decoration-white/30 underline-offset-4 transition-colors hover:text-[#f5b88f]"
+                  >
+                    {CONTENT.profile.email}
+                  </a>
+                </div>
 
-              <div className="glass-pill rounded-full px-3.5 py-1 text-[11px] text-white/75">
-                {localTime} · Pune, India
+                <div className="flex flex-wrap items-center gap-4 text-[11px] text-white/65 sm:gap-6">
+                  <a
+                    href={CONTENT.profile.instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor-box
+                    className="transition-colors hover:text-white"
+                  >
+                    Instagram ({CONTENT.profile.handle})
+                  </a>
+                  <a
+                    href={CONTENT.profile.instagramDumpUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor-box
+                    className="transition-colors hover:text-white"
+                  >
+                    {CONTENT.profile.secondaryHandle}
+                  </a>
+                  <a
+                    href={CONTENT.profile.youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-cursor-box
+                    className="transition-colors hover:text-white"
+                  >
+                    YouTube
+                  </a>
+                </div>
+
+                <div className="font-mono text-[11px] text-white/65">
+                  {localTime} · Pune, India
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         ) : null}
       </AnimatePresence>
     </>
   );
 }
+
+

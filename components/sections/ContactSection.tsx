@@ -9,7 +9,6 @@ import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
 import {
   AnimatedHairline,
   RefractivePlate,
-  ScrambleText,
 } from "@/components/motion/IglooMotionPrimitives";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
@@ -49,11 +48,13 @@ export function ContactSection({
   selectedPackage,
   prefilledNote,
   formInputRef,
+  onNavigateSection,
 }: {
   selectedPackage: string;
   prefilledNote?: string;
   perkCode: string | null;
   formInputRef: React.RefObject<HTMLInputElement | null>;
+  onNavigateSection?: (href: string) => void;
 }) {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [name, setName] = useState("");
@@ -63,16 +64,55 @@ export function ContactSection({
   );
   const [customSubject, setCustomSubject] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [licenseOpen, setLicenseOpen] = useState(false);
   const [note, setNote] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  const FOOTER_HANDLE_TEXT = "@HEARTSFROMSIYA";
+  const [footerTypedChars, setFooterTypedChars] = useState<number>(
+    FOOTER_HANDLE_TEXT.length
+  );
+  const [footerIsTyping, setFooterIsTyping] = useState(false);
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
   const consoleRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const footerWordmarkRef = useRef<HTMLDivElement | null>(null);
 
   const { scrollTo } = useSmoothScroll();
   const reducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (reducedMotion || !footerWordmarkRef.current) return;
+
+    let intervalId: number | null = null;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          observer.disconnect();
+          setFooterIsTyping(true);
+          setFooterTypedChars(0);
+          let count = 0;
+          intervalId = window.setInterval(() => {
+            count += 1;
+            setFooterTypedChars(count);
+            if (count >= FOOTER_HANDLE_TEXT.length) {
+              if (intervalId !== null) window.clearInterval(intervalId);
+              setFooterIsTyping(false);
+            }
+          }, 48);
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(footerWordmarkRef.current);
+    return () => {
+      observer.disconnect();
+      if (intervalId !== null) window.clearInterval(intervalId);
+    };
+  }, [reducedMotion]);
 
   useEffect(() => {
     if (selectedPackage) {
@@ -106,6 +146,7 @@ export function ContactSection({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setDropdownOpen(false);
+        setLicenseOpen(false);
       }
     };
     window.addEventListener("mousedown", onPointerDown);
@@ -123,13 +164,12 @@ export function ContactSection({
       if (headlineRef.current) {
         gsap.fromTo(
           headlineRef.current,
-          { y: 32, opacity: 0, filter: "blur(8px)" },
+          { y: 24, opacity: 0 },
           {
             y: 0,
             opacity: 1,
-            filter: "blur(0px)",
-            duration: 1.15,
-            ease: "expo.out",
+            duration: 0.95,
+            ease: "power3.out",
             scrollTrigger: {
               trigger: headlineRef.current,
               start: "top 88%",
@@ -142,13 +182,13 @@ export function ContactSection({
       if (consoleRef.current) {
         gsap.fromTo(
           consoleRef.current,
-          { y: 40, opacity: 0, filter: "blur(8px)" },
+          { y: 28, opacity: 0, scale: 0.985 },
           {
             y: 0,
             opacity: 1,
-            filter: "blur(0px)",
-            duration: 1.25,
-            ease: "expo.out",
+            scale: 1,
+            duration: 0.95,
+            ease: "power3.out",
             scrollTrigger: {
               trigger: consoleRef.current,
               start: "top 88%",
@@ -207,53 +247,48 @@ export function ContactSection({
       id="contact"
       ref={sectionRef}
       aria-label="Contact Siya Pawar and Book Collaboration"
-      className="relative overflow-hidden bg-transparent pt-28 pb-14 text-[#FAF5F0] md:pt-36 md:pb-20"
+      className="relative overflow-hidden bg-transparent pt-20 pb-12 text-[#FAF6F2] sm:pt-28 sm:pb-16 md:pt-36 md:pb-20"
     >
-      <div className="mx-auto max-w-[1380px] px-7 sm:px-12 lg:px-16">
+      <div className="mx-auto max-w-[1380px] px-5 sm:px-10 lg:px-16">
         <AnimatedHairline />
 
-        <div className="grid grid-cols-1 gap-14 pt-16 lg:grid-cols-12 lg:items-start">
+        <div className="grid grid-cols-1 gap-12 pt-12 sm:pt-16 lg:grid-cols-12 lg:items-start lg:gap-14">
           {/* Left Column (5 Cols): Direct Contact & Frosted Glass Email Vessel */}
           <div className="flex flex-col justify-between lg:col-span-5">
             <div>
-              <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] text-white/75">
-                (04) · Direct Collaborations
+              <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] text-white/80">
+                (05) · Direct Collaborations
               </span>
 
               <h2
                 ref={headlineRef}
-                className="mt-4 font-display text-[clamp(2.5rem,5vw,4.4rem)] leading-[0.98] font-semibold tracking-[-0.04em] text-white will-change-transform"
+                className="mt-4 font-display text-[clamp(2.15rem,5vw,4.4rem)] leading-[1.06] font-semibold tracking-[-0.04em] text-white will-change-transform"
               >
                 Let&apos;s make something people{" "}
-                <em className="font-serif font-normal italic text-[#ff8a70]">
+                <em className="font-serif font-normal italic text-[#f5b88f] pr-1.5">
                   watch
                 </em>
                 .
               </h2>
 
-              <p className="mt-5 max-w-md font-sans text-sm leading-relaxed text-white/65">
+              <p className="mt-5 max-w-md font-sans text-sm leading-relaxed text-white/70">
                 Whether you&apos;re launching a product, scaling a consumer
                 brand, or looking for monthly content management—select your
                 collaboration below and drop a note.
               </p>
 
               {/* Frosted Glass Direct Email Card */}
-              <div className="mt-9">
-                <RefractivePlate maxTilt={2.2} className="glass-card p-6">
-                  <p className="text-xs text-white/50">Direct creator inbox</p>
+              <div className="mt-8 sm:mt-9">
+                <RefractivePlate maxTilt={2.0} className="glass-card p-5 sm:p-6">
+                  <p className="text-xs text-white/55">Direct creator inbox</p>
 
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
                     <a
                       href={mailtoHref}
                       data-cursor-box
-                      className="font-display text-lg font-semibold tracking-[-0.02em] text-white transition-colors hover:text-[#ff8a70] sm:text-xl"
+                      className="break-all font-display text-lg font-semibold tracking-[-0.02em] text-white transition-colors hover:text-[#f5b88f] sm:break-normal sm:text-xl"
                     >
-                      <ScrambleText
-                        text={CONTENT.profile.email}
-                        scrambleOnMount={false}
-                        scrambleOnHover={true}
-                        durationMs={340}
-                      />
+                      {CONTENT.profile.email}
                     </a>
                     <button
                       type="button"
@@ -268,7 +303,7 @@ export function ContactSection({
               </div>
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3 text-xs">
+            <div className="mt-7 flex flex-wrap items-center gap-2.5 text-xs sm:mt-8 sm:gap-3">
               <a
                 href={CONTENT.profile.instagramUrl}
                 target="_blank"
@@ -276,12 +311,7 @@ export function ContactSection({
                 data-cursor-box
                 className="glass-pill rounded-full px-4 py-2 text-white/85 hover:text-white"
               >
-                <ScrambleText
-                  text={`Instagram (${CONTENT.profile.handle}) ↗`}
-                  scrambleOnMount={false}
-                  scrambleOnHover={true}
-                  durationMs={320}
-                />
+                Instagram ({CONTENT.profile.handle}) ↗
               </a>
               <a
                 href={CONTENT.profile.instagramDumpUrl}
@@ -290,12 +320,7 @@ export function ContactSection({
                 data-cursor-box
                 className="glass-pill rounded-full px-4 py-2 text-white/85 hover:text-white"
               >
-                <ScrambleText
-                  text={`${CONTENT.profile.secondaryHandle} ↗`}
-                  scrambleOnMount={false}
-                  scrambleOnHover={true}
-                  durationMs={320}
-                />
+                {CONTENT.profile.secondaryHandle} ↗
               </a>
               <a
                 href={CONTENT.profile.youtubeUrl}
@@ -304,29 +329,24 @@ export function ContactSection({
                 data-cursor-box
                 className="glass-pill rounded-full px-4 py-2 text-white/85 hover:text-white"
               >
-                <ScrambleText
-                  text="YouTube ↗"
-                  scrambleOnMount={false}
-                  scrambleOnHover={true}
-                  durationMs={320}
-                />
+                YouTube ↗
               </a>
             </div>
           </div>
 
           {/* Right Column (7 Cols): Signature Frosted Glass Inquiry Console with Auto-Filled Subject */}
           <div ref={consoleRef} className="will-change-transform lg:col-span-7">
-            <RefractivePlate maxTilt={1.5} className="glass-card p-7 sm:p-10">
+            <RefractivePlate maxTilt={1.4} className="glass-card p-6 sm:p-9 lg:p-10">
               {submitted ? (
                 <div className="py-6">
-                  <span className="glass-pill inline-flex items-center rounded-full px-3.5 py-1 text-xs text-[#ff8a70]">
+                  <span className="glass-pill inline-flex items-center rounded-full px-3.5 py-1 text-xs text-[#f5b88f]">
                     Inquiry Prepared
                   </span>
-                  <p className="mt-5 font-serif text-3xl italic text-white">
+                  <p className="mt-5 font-serif text-2xl italic text-white sm:text-3xl">
                     “Thank you for reaching out—your email draft with the
                     auto-filled subject is ready to send.”
                   </p>
-                  <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/75">
+                  <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-white/80">
                     <p>
                       <strong className="text-white">To:</strong>{" "}
                       {CONTENT.profile.email}
@@ -340,7 +360,7 @@ export function ContactSection({
                     <a
                       href={mailtoHref}
                       data-cursor-box
-                      className="rounded-full bg-white px-7 py-3 text-xs font-semibold text-[#080708] shadow-lg transition-colors hover:bg-[#ff8a70]"
+                      className="rounded-full bg-white px-7 py-3 text-xs font-semibold text-[#080708] shadow-lg transition-colors hover:bg-[#f5b88f]"
                     >
                       Open in Email App ↗
                     </a>
@@ -360,7 +380,7 @@ export function ContactSection({
                     <div>
                       <label
                         htmlFor="founder-name"
-                        className="block text-xs font-medium text-white/65"
+                        className="block text-xs font-medium text-white/70"
                       >
                         Your Name &amp; Brand
                       </label>
@@ -372,14 +392,14 @@ export function ContactSection({
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Riya · Brand Lead"
-                        className="glass-input mt-2 w-full px-4 py-3 font-sans text-sm text-white placeholder:text-white/30"
+                        className="glass-input mt-2 w-full px-4 py-3 font-sans text-base text-white placeholder:text-white/35 sm:text-sm"
                       />
                     </div>
 
                     <div>
                       <label
                         htmlFor="founder-email"
-                        className="block text-xs font-medium text-white/65"
+                        className="block text-xs font-medium text-white/70"
                       >
                         Work Email
                       </label>
@@ -390,7 +410,7 @@ export function ContactSection({
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="riya@brand.com"
-                        className="glass-input mt-2 w-full px-4 py-3 font-sans text-sm text-white placeholder:text-white/30"
+                        className="glass-input mt-2 w-full px-4 py-3 font-sans text-base text-white placeholder:text-white/35 sm:text-sm"
                       />
                     </div>
                   </div>
@@ -399,7 +419,7 @@ export function ContactSection({
                   <div ref={dropdownRef} className="relative">
                     <label
                       id="package-dropdown-label"
-                      className="block text-xs font-medium text-white/65"
+                      className="block text-xs font-medium text-white/70"
                     >
                       Collaboration Format
                     </label>
@@ -417,14 +437,14 @@ export function ContactSection({
                         <span className="block font-sans text-sm font-medium text-white">
                           {activePackageOption.label}
                         </span>
-                        <span className="mt-0.5 block font-sans text-xs text-white/45">
+                        <span className="mt-0.5 block font-sans text-xs text-white/50">
                           {activePackageOption.sub}
                         </span>
                       </div>
 
                       <span
                         aria-hidden="true"
-                        className={`glass-pill ml-4 flex h-7 w-7 items-center justify-center rounded-full text-xs text-white/80 transition-transform duration-300 ${
+                        className={`glass-pill ml-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs text-white/80 transition-transform duration-300 ${
                           dropdownOpen ? "rotate-180" : "rotate-0"
                         }`}
                       >
@@ -441,22 +461,19 @@ export function ContactSection({
                             opacity: 0,
                             y: -8,
                             scale: 0.98,
-                            filter: "blur(8px)",
                           }}
                           animate={{
                             opacity: 1,
                             y: 0,
                             scale: 1,
-                            filter: "blur(0px)",
                           }}
                           exit={{
                             opacity: 0,
                             y: -6,
                             scale: 0.98,
-                            filter: "blur(6px)",
                           }}
                           transition={{
-                            duration: 0.22,
+                            duration: 0.2,
                             ease: [0.22, 1, 0.36, 1],
                           }}
                           className="glass-Popover absolute inset-x-0 z-50 mt-2 overflow-hidden p-2"
@@ -480,20 +497,20 @@ export function ContactSection({
                                   className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-all ${
                                     isSelected
                                       ? "glass-pill text-white"
-                                      : "text-white/70 hover:bg-white/5 hover:text-white"
+                                      : "text-white/75 hover:bg-white/5 hover:text-white"
                                   }`}
                                 >
                                   <div>
                                     <span className="block font-sans text-sm font-medium">
                                       {option.label}
                                     </span>
-                                    <span className="mt-0.5 block font-sans text-xs text-white/45">
+                                    <span className="mt-0.5 block font-sans text-xs text-white/50">
                                       {option.sub}
                                     </span>
                                   </div>
 
                                   {isSelected ? (
-                                    <span className="ml-3 shrink-0 font-mono text-xs text-[#ff8a70]">
+                                    <span className="ml-3 shrink-0 font-mono text-xs text-[#f5b88f]">
                                       ✓
                                     </span>
                                   ) : null}
@@ -511,7 +528,7 @@ export function ContactSection({
                     <div className="flex items-center justify-between">
                       <label
                         htmlFor="inquiry-subject"
-                        className="block text-xs font-medium text-white/65"
+                        className="block text-xs font-medium text-white/70"
                       >
                         Subject Line
                       </label>
@@ -519,12 +536,12 @@ export function ContactSection({
                         <button
                           type="button"
                           onClick={() => setCustomSubject(null)}
-                          className="font-mono text-[10px] text-[#ff8a70] hover:underline"
+                          className="font-mono text-[10px] text-[#f5b88f] hover:underline"
                         >
                           Reset to auto-fill
                         </button>
                       ) : (
-                        <span className="font-mono text-[10px] text-white/45">
+                        <span className="font-mono text-[10px] text-white/50">
                           Auto-filled
                         </span>
                       )}
@@ -534,14 +551,14 @@ export function ContactSection({
                       type="text"
                       value={finalSubject}
                       onChange={(e) => setCustomSubject(e.target.value)}
-                      className="glass-input mt-2 w-full px-4 py-3 font-mono text-xs text-[#ff9e88]"
+                      className="glass-input mt-2 w-full px-4 py-3 font-mono text-base text-[#f5b88f] sm:text-xs"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="founder-note"
-                      className="block text-xs font-medium text-white/65"
+                      className="block text-xs font-medium text-white/70"
                     >
                       Project Note &amp; Timeline
                     </label>
@@ -551,25 +568,20 @@ export function ContactSection({
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       placeholder="Tell me what you're launching and what deliverables you have in mind..."
-                      className="glass-input mt-2 w-full resize-none px-4 py-3 font-sans text-sm text-white placeholder:text-white/30"
+                      className="glass-input mt-2 w-full resize-none px-4 py-3 font-sans text-base text-white placeholder:text-white/35 sm:text-sm"
                     />
                   </div>
 
                   <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-5">
-                    <span className="text-xs text-white/50">
+                    <span className="text-xs text-white/55">
                       Direct to {CONTENT.profile.email}
                     </span>
                     <button
                       type="submit"
                       data-cursor-box
-                      className="inline-flex items-center rounded-full bg-white px-7 py-3 font-sans text-xs font-semibold text-[#080708] shadow-xl transition-all hover:scale-105 hover:bg-[#ff8a70]"
+                      className="inline-flex items-center rounded-full bg-white px-7 py-3 font-sans text-xs font-semibold text-[#080708] shadow-xl transition-all hover:scale-105 hover:bg-[#f5b88f]"
                     >
-                      <ScrambleText
-                        text="Send Inquiry →"
-                        scrambleOnMount={false}
-                        scrambleOnHover={true}
-                        durationMs={320}
-                      />
+                      Send Inquiry →
                     </button>
                   </div>
                 </form>
@@ -579,57 +591,72 @@ export function ContactSection({
         </div>
 
         {/* ARCHITECTURAL GLASS & KINETIC STUDIO FOOTER */}
-        <footer id="footer" className="mt-28 pt-12">
+        <footer id="footer" className="mt-20 pt-10 sm:mt-28 sm:pt-12">
           <AnimatedHairline />
 
-          {/* Giant Edge-to-Edge Kinetic Signature Wordmark */}
-          <div className="glass-card mt-12 overflow-hidden px-6 py-10 text-center sm:py-14">
+          {/* Giant Edge-to-Edge Signature Wordmark with Scroll-Triggered Typing */}
+          <div
+            ref={footerWordmarkRef}
+            className="glass-card mt-10 overflow-hidden px-4 py-9 text-center sm:mt-12 sm:px-6 sm:py-14"
+          >
             <a
               href={CONTENT.profile.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               data-cursor-box
-              className="group inline-block"
+              aria-label={FOOTER_HANDLE_TEXT}
+              className="group inline-block max-w-full"
             >
-              <span className="block font-mono text-[10px] tracking-[0.26em] text-white/45 uppercase">
+              <span className="block font-mono text-[10px] tracking-[0.2em] text-white/50 uppercase sm:tracking-[0.26em]">
                 Siya Pawar · Pune, India · 10M+ Monthly Views
               </span>
               <span
-                style={{ fontSize: "clamp(2.4rem, 8.2vw, 7.6rem)" }}
-                className="mt-3 block font-display leading-[0.9] font-bold tracking-[-0.05em] text-white transition-colors duration-300 group-hover:text-[#ff8a70]"
+                style={{ fontSize: "clamp(1.25rem, 6.2vw, 7.2rem)" }}
+                className="mt-3 inline-flex items-center justify-center font-display leading-[1.02] font-bold tracking-[-0.045em] text-white transition-colors duration-300 group-hover:text-[#f5b88f]"
               >
-                <ScrambleText
-                  text="@HEARTSFROMSIYA"
-                  scrambleOnMount={false}
-                  scrambleOnHover={true}
-                  durationMs={420}
+                <span>{FOOTER_HANDLE_TEXT.slice(0, footerTypedChars)}</span>
+                <span
+                  aria-hidden="true"
+                  className={`ml-1 inline-block h-[0.82em] w-[3px] rounded-full bg-[#f5b88f] sm:w-[5px] ${
+                    footerIsTyping ? "" : "opacity-80 group-hover:opacity-100"
+                  }`}
                 />
               </span>
             </a>
           </div>
 
-          {/* Bottom Copyright, Back to Top & Developer Attribution Bar */}
-          <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-white/55 sm:flex-row">
-            <p>
-              © 2026 Siya Pawar (
-              <a
-                href={CONTENT.profile.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/85 transition-colors hover:text-white"
+          {/* Bottom Copyright, License & Developer Attribution Bar */}
+          <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-center text-xs text-white/60 sm:flex-row sm:text-left">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <p>
+                © 2026 Siya Pawar (
+                <a
+                  href={CONTENT.profile.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/90 transition-colors hover:text-white"
+                >
+                  {CONTENT.profile.handle}
+                </a>
+                ). All rights reserved.
+              </p>
+              <span className="text-white/25">·</span>
+              <button
+                type="button"
+                onClick={() => setLicenseOpen((prev) => !prev)}
+                className="text-white/75 underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#f5b88f]"
               >
-                {CONTENT.profile.handle}
-              </a>
-              ). All rights reserved.
-            </p>
+                Copyright &amp; License
+              </button>
+            </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:justify-end">
               <a
                 href={CONTENT.profile.developerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-cursor-box
-                className="glass-pill rounded-full px-4 py-2 font-sans text-xs text-white/80 transition-colors hover:text-white"
+                className="glass-pill rounded-full px-4 py-2 font-sans text-xs text-white/85 transition-colors hover:text-white"
               >
                 Designed &amp; Developed by{" "}
                 <strong className="font-medium text-white">
@@ -641,18 +668,81 @@ export function ContactSection({
               <button
                 type="button"
                 data-cursor-box
-                onClick={() => scrollTo(0)}
+                onClick={() =>
+                  onNavigateSection ? onNavigateSection("#top") : scrollTo(0)
+                }
                 className="glass-pill rounded-full px-4 py-2 font-sans text-xs text-white/85 hover:text-white"
               >
-                <ScrambleText
-                  text="Back to top ↑"
-                  scrambleOnMount={false}
-                  scrambleOnHover={true}
-                  durationMs={280}
-                />
+                Back to top ↑
               </button>
             </div>
           </div>
+
+          {/* Expandable Frosted Glass Copyright & License Notice */}
+          <AnimatePresence>
+            {licenseOpen ? (
+              <motion.div
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="glass-card p-5 text-xs leading-relaxed text-white/75 sm:p-6">
+                  <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-3">
+                    <span className="font-mono text-[11px] font-semibold text-[#f5b88f] uppercase">
+                      Copyright &amp; Intellectual Property License (2026)
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href="/copyright"
+                        className="glass-pill rounded-full px-3 py-1 text-[11px] text-[#f5b88f] hover:text-white"
+                      >
+                        Full Legal Page ↗
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setLicenseOpen(false)}
+                        className="glass-pill rounded-full px-3 py-1 text-[11px] text-white/80 hover:text-white"
+                      >
+                        Close ✕
+                      </button>
+                    </div>
+                  </div>
+                  <p className="mt-3">
+                    <strong className="text-white">
+                      1. Media, Likeness &amp; Original Reels:
+                    </strong>{" "}
+                    All photographs, portraits, video reels, audio recordings,
+                    captions, and the{" "}
+                    <span className="text-white">@heartsfromsiya</span> /{" "}
+                    <span className="text-white">@siyasideup</span> brand
+                    identity are the exclusive copyright of{" "}
+                    <strong className="text-white">Siya Pawar</strong> (© 2026
+                    Siya Pawar. All Rights Reserved). Unauthorized reproduction,
+                    redistribution, AI training, or commercial usage without
+                    written licensing consent is strictly prohibited.
+                  </p>
+                  <p className="mt-2">
+                    <strong className="text-white">
+                      2. Software Architecture &amp; Design System:
+                    </strong>{" "}
+                    Bespoke WebGL shaders, optical glassmorphism interface, and
+                    source code are engineered and licensed by{" "}
+                    <a
+                      href={CONTENT.profile.developerUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white underline decoration-white/30 underline-offset-4 hover:text-[#f5b88f]"
+                    >
+                      Aryan Dani (www.aryandani.com)
+                    </a>{" "}
+                    under the MIT Source License (excluding creator media
+                    assets).
+                  </p>
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
         </footer>
       </div>
     </section>

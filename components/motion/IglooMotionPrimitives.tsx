@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePrefersReducedMotion } from "@/lib/hooks";
@@ -9,21 +9,15 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const UPPER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-const LOWER_GLYPHS = "abcdefghijklmnopqrstuvwxyz0123456789";
-
 /**
- * Kinetic Glyph Scrambler
- * Uses an inline-grid sizer so the bounding box width never jitters during scramble,
- * keeping magnetic cursor locks 100% steady.
+ * Clean Editorial Text Primitive
+ * Renders crisp, un-glitched typography with zero alphanumeric cipher scrambling,
+ * ensuring 100% legibility at all times and steady bounding boxes for magnetic cursor locks.
  */
 export function ScrambleText({
   text,
   as: Tag = "span",
   className = "",
-  scrambleOnHover = true,
-  scrambleOnMount = true,
-  durationMs = 420,
 }: {
   text: string;
   as?: "span" | "p" | "div" | "h3" | "h4";
@@ -32,105 +26,7 @@ export function ScrambleText({
   scrambleOnMount?: boolean;
   durationMs?: number;
 }) {
-  const [display, setDisplay] = useState<string>(text);
-  const elRef = useRef<HTMLElement | null>(null);
-  const rafRef = useRef<number>(0);
-  const reducedMotion = usePrefersReducedMotion();
-
-  const triggerScramble = useCallback(() => {
-    if (reducedMotion) {
-      setDisplay(text);
-      return;
-    }
-    cancelAnimationFrame(rafRef.current);
-    const start = performance.now();
-    const len = text.length;
-
-    const step = (now: number) => {
-      const elapsed = now - start;
-      const progress = Math.min(1, elapsed / durationMs);
-      const revealedCount = Math.floor(progress * len);
-
-      let out = "";
-      for (let i = 0; i < len; i++) {
-        const ch = text[i];
-        if (
-          ch === " " ||
-          ch === "·" ||
-          ch === "—" ||
-          ch === "↗" ||
-          ch === "→" ||
-          ch === "↓" ||
-          ch === "↑" ||
-          ch === "@" ||
-          ch === "|"
-        ) {
-          out += ch;
-        } else if (i < revealedCount || progress >= 1) {
-          out += ch;
-        } else {
-          const isUpper = ch >= "A" && ch <= "Z";
-          const pool = isUpper ? UPPER_GLYPHS : LOWER_GLYPHS;
-          const randIdx = Math.floor((now * 0.14 + i * 11) % pool.length);
-          out += pool[randIdx];
-        }
-      }
-
-      setDisplay(out);
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(step);
-      } else {
-        setDisplay(text);
-      }
-    };
-
-    rafRef.current = requestAnimationFrame(step);
-  }, [durationMs, reducedMotion, text]);
-
-  useEffect(() => {
-    setDisplay(text);
-  }, [text]);
-
-  useEffect(() => {
-    if (!scrambleOnMount || reducedMotion || !elRef.current) return;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: elRef.current,
-        start: "top 92%",
-        once: true,
-        onEnter: () => triggerScramble(),
-      });
-    }, elRef);
-
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      ctx.revert();
-    };
-  }, [reducedMotion, scrambleOnMount, triggerScramble]);
-
-  return (
-    <Tag
-      ref={
-        elRef as React.RefObject<
-          HTMLSpanElement &
-            HTMLParagraphElement &
-            HTMLDivElement &
-            HTMLHeadingElement
-        >
-      }
-      onMouseEnter={scrambleOnHover ? triggerScramble : undefined}
-      className={`inline-grid text-left ${className}`}
-    >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none invisible col-start-1 row-start-1 select-none"
-      >
-        {text}
-      </span>
-      <span className="col-start-1 row-start-1">{display}</span>
-    </Tag>
-  );
+  return <Tag className={`inline-block ${className}`}>{text}</Tag>;
 }
 
 /**
@@ -178,7 +74,7 @@ export function AnimatedHairline({
       style={{
         height: "1px",
         background:
-          "linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.03) 100%)",
+          "linear-gradient(90deg, rgba(255,255,255,0.02) 0%, rgba(245,208,175,0.28) 35%, rgba(255,255,255,0.32) 50%, rgba(242,128,148,0.28) 65%, rgba(255,255,255,0.02) 100%)",
       }}
       className={`w-full will-change-transform ${className}`}
     />
@@ -203,12 +99,12 @@ export function VelocitySkewLayer({
  * Interactive Luxury Glassmorphism Vessel (RefractivePlate)
  * Features:
  * - Cursor-tracking radial specular sheen & rim illumination
- * - Damped 3D perspective spring tilt
+ * - Damped 3D perspective spring tilt on desktop pointers (disabled on touch devices for crisp scrolling)
  */
 export function RefractivePlate({
   children,
   className = "",
-  maxTilt = 3.2,
+  maxTilt = 2.8,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -224,32 +120,51 @@ export function RefractivePlate({
 }) {
   const plateRef = useRef<HTMLDivElement | null>(null);
   const glareRef = useRef<HTMLDivElement | null>(null);
+  const rectRef = useRef<DOMRect | null>(null);
   const reducedMotion = usePrefersReducedMotion();
+
+  const handlePointerEnter = useCallback(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.innerWidth >= 1024 &&
+      plateRef.current
+    ) {
+      rectRef.current = plateRef.current.getBoundingClientRect();
+    }
+    onMouseEnter?.();
+  }, [onMouseEnter]);
 
   const handlePointerMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      if (typeof window !== "undefined" && window.innerWidth < 1024) return;
       const el = plateRef.current;
       if (!el) return;
 
-      const rect = el.getBoundingClientRect();
+      const rect = rectRef.current || el.getBoundingClientRect();
+      rectRef.current = rect;
+
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const nx = x / Math.max(1, rect.width) - 0.5;
       const ny = y / Math.max(1, rect.height) - 0.5;
 
       if (glareRef.current) {
-        glareRef.current.style.background = `radial-gradient(480px circle at ${x}px ${y}px, rgba(255, 240, 235, 0.16), rgba(255, 138, 112, 0.06) 38%, transparent 72%)`;
+        glareRef.current.style.background = `radial-gradient(480px circle at ${Math.round(
+          x
+        )}px ${Math.round(
+          y
+        )}px, rgba(255, 246, 238, 0.15), rgba(245, 200, 166, 0.07) 36%, rgba(242, 128, 148, 0.04) 55%, transparent 74%)`;
         glareRef.current.style.opacity = "1";
       }
 
       if (!reducedMotion && maxTilt > 0) {
         gsap.to(el, {
-          rotateY: nx * maxTilt * 2,
-          rotateX: -ny * maxTilt * 2,
-          y: -3,
-          duration: 0.55,
+          rotateY: nx * maxTilt * 1.6,
+          rotateX: -ny * maxTilt * 1.6,
+          y: -2,
+          duration: 0.42,
           ease: "power3.out",
-          transformPerspective: 1100,
+          transformPerspective: 1200,
           overwrite: "auto",
         });
       }
@@ -258,6 +173,7 @@ export function RefractivePlate({
   );
 
   const handlePointerLeave = useCallback(() => {
+    rectRef.current = null;
     const el = plateRef.current;
     if (glareRef.current) {
       glareRef.current.style.opacity = "0";
@@ -267,8 +183,8 @@ export function RefractivePlate({
         rotateY: 0,
         rotateX: 0,
         y: 0,
-        duration: 0.75,
-        ease: "expo.out",
+        duration: 0.65,
+        ease: "power3.out",
         overwrite: "auto",
       });
     }
@@ -280,7 +196,7 @@ export function RefractivePlate({
       ref={plateRef}
       onClick={onClick}
       onMouseMove={handlePointerMove}
-      onMouseEnter={onMouseEnter}
+      onMouseEnter={handlePointerEnter}
       onMouseLeave={handlePointerLeave}
       className={`group/plate relative will-change-transform ${className}`}
     >
@@ -299,28 +215,35 @@ export function RefractivePlate({
 
 /**
  * Ambient Glass Backlight Field
- * Soft, slow-drifting crimson and rosewood light spheres behind the page so frosted
- * glass surfaces (`backdrop-filter: blur(28px)`) refract rich studio light.
+ * High-contrast localized champagne gold, soft blush rose, and velvet plum spheres
+ * that drift behind the page so frosted glass surfaces (`backdrop-filter: blur(36px)`)
+ * visibly refract defined light edges against the deep obsidian canvas.
  */
 export function AmbientGlassBacklight() {
   const orbPrimaryRef = useRef<HTMLDivElement | null>(null);
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (reducedMotion || !orbPrimaryRef.current) return;
+    if (
+      reducedMotion ||
+      !orbPrimaryRef.current ||
+      (typeof window !== "undefined" && window.innerWidth < 768)
+    ) {
+      return;
+    }
 
     const xTo = gsap.quickTo(orbPrimaryRef.current, "x", {
-      duration: 1.8,
+      duration: 2.0,
       ease: "power3.out",
     });
     const yTo = gsap.quickTo(orbPrimaryRef.current, "y", {
-      duration: 1.8,
+      duration: 2.0,
       ease: "power3.out",
     });
 
     const onMove = (e: MouseEvent) => {
-      const nx = (e.clientX / window.innerWidth - 0.5) * 140;
-      const ny = (e.clientY / window.innerHeight - 0.5) * 140;
+      const nx = (e.clientX / window.innerWidth - 0.5) * 160;
+      const ny = (e.clientY / window.innerHeight - 0.5) * 160;
       xTo(nx);
       yTo(ny);
     };
@@ -334,26 +257,28 @@ export function AmbientGlassBacklight() {
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
+      {/* Warm Champagne-Peach Refractive Lobe */}
       <div
         ref={orbPrimaryRef}
         style={{
-          width: "540px",
-          height: "540px",
+          width: "520px",
+          height: "520px",
           background:
-            "radial-gradient(circle, rgba(225, 29, 72, 0.14) 0%, transparent 70%)",
-          filter: "blur(90px)",
+            "radial-gradient(circle, rgba(245, 200, 160, 0.14) 0%, rgba(232, 122, 144, 0.06) 45%, transparent 72%)",
+          filter: "blur(75px)",
         }}
-        className="absolute top-1/5 left-1/5 rounded-full will-change-transform"
+        className="absolute top-[12%] left-[16%] rounded-full will-change-transform"
       />
+      {/* Soft Rose-Plum Refractive Lobe */}
       <div
         style={{
-          width: "580px",
-          height: "580px",
+          width: "560px",
+          height: "560px",
           background:
-            "radial-gradient(circle, rgba(255, 138, 112, 0.1) 0%, transparent 70%)",
-          filter: "blur(100px)",
+            "radial-gradient(circle, rgba(212, 82, 118, 0.13) 0%, rgba(110, 32, 68, 0.06) 48%, transparent 72%)",
+          filter: "blur(85px)",
         }}
-        className="absolute right-1/6 bottom-1/6 rounded-full"
+        className="absolute right-[10%] bottom-[12%] rounded-full"
       />
     </div>
   );

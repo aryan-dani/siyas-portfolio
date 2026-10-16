@@ -1,13 +1,18 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   SmoothScrollProvider,
   useSmoothScroll,
 } from "@/components/motion/SmoothScrollProvider";
 import { IglooWebGLStage } from "@/components/motion/IglooWebGLStage";
 import { AmbientGlassBacklight } from "@/components/motion/IglooMotionPrimitives";
+import {
+  IntroTypingPreloader,
+  NavTransitionMeta,
+  SECTION_TRANSITION_META,
+  SectionNavigationCurtain,
+} from "@/components/motion/StudioIntroAndTransitions";
 import { CustomCursor } from "@/components/chrome/CustomCursor";
 import { FloatingNavAndMenu } from "@/components/chrome/FloatingNavAndMenu";
 import { HeroSection } from "@/components/sections/HeroSection";
@@ -20,16 +25,25 @@ import { ContactSection } from "@/components/sections/ContactSection";
 function PortfolioInner() {
   const [selectedPackage, setSelectedPackage] = useState<string>("single-reel");
   const [prefilledNote, setPrefilledNote] = useState<string>("");
-  const [transitionPulse, setTransitionPulse] = useState(false);
+  const [activeTransitionMeta, setActiveTransitionMeta] =
+    useState<NavTransitionMeta | null>(null);
   const formInputRef = useRef<HTMLInputElement | null>(null);
   const { scrollTo } = useSmoothScroll();
 
-  const triggerGlassScroll = (target: string | number) => {
-    setTransitionPulse(true);
-    scrollTo(target);
+  const navigateToSection = (target: string | number) => {
+    const key = typeof target === "number" ? "#top" : target;
+    const meta =
+      SECTION_TRANSITION_META[key] ?? SECTION_TRANSITION_META["#top"];
+
+    setActiveTransitionMeta(meta);
+
     window.setTimeout(() => {
-      setTransitionPulse(false);
-    }, 520);
+      scrollTo(target === "#top" ? 0 : target);
+    }, 240);
+
+    window.setTimeout(() => {
+      setActiveTransitionMeta(null);
+    }, 680);
   };
 
   const handleRequestMediaKit = (
@@ -40,37 +54,30 @@ function PortfolioInner() {
     if (customNote !== undefined) {
       setPrefilledNote(customNote);
     }
-    triggerGlassScroll("#contact");
+    navigateToSection("#contact");
     window.setTimeout(() => {
       formInputRef.current?.focus({ preventScroll: true });
-    }, 900);
+    }, 1050);
   };
 
   return (
     <div className="relative min-h-screen bg-[#080708] text-[#FAF5F0]">
+      {/* Opening Monumental @HEARTSFROMSIYA Typing Intro & Curtain Reveal */}
+      <IntroTypingPreloader />
+
+      {/* Section-to-Section Smoked-Glass Curtain Transition */}
+      <SectionNavigationCurtain activeMeta={activeTransitionMeta} />
+
       {/* Subtle 3D Floating Glass Prism Stage + Ambient Caustics */}
       <IglooWebGLStage />
       <AmbientGlassBacklight />
       <CustomCursor />
 
-      {/* Subtle Frosted Glass Transition Veil on Section Jumps */}
-      <AnimatePresence>
-        {transitionPulse ? (
-          <motion.div
-            aria-hidden="true"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-none fixed inset-0 z-[115] bg-white/5 backdrop-blur-md"
-          />
-        ) : null}
-      </AnimatePresence>
-
       <FloatingNavAndMenu
         onRequestMediaKit={(pkg) =>
           handleRequestMediaKit(pkg || "single-reel")
         }
+        onNavigateSection={(href) => navigateToSection(href)}
       />
 
       <main className="relative z-10 overflow-x-hidden">
@@ -78,6 +85,7 @@ function PortfolioInner() {
           onRequestMediaKit={(pkg) =>
             handleRequestMediaKit(pkg || "single-reel")
           }
+          onNavigateSection={(href) => navigateToSection(href)}
         />
         <WorkSection
           onRequestMediaKit={() => handleRequestMediaKit("single-reel")}
@@ -96,6 +104,7 @@ function PortfolioInner() {
           prefilledNote={prefilledNote}
           perkCode={null}
           formInputRef={formInputRef}
+          onNavigateSection={(href) => navigateToSection(href)}
         />
       </main>
     </div>
@@ -109,4 +118,5 @@ export function SiyaPortfolioApp() {
     </SmoothScrollProvider>
   );
 }
+
 

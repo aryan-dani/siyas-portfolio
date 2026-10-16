@@ -5,11 +5,13 @@ import * as THREE from "three";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 /**
- * IglooWebGLStage — Silky Volumetric Light & Caustic Refraction Shader Stage
- * Renders a smooth, organic, fluid-light field on the GPU that shifts with
- * scroll depth and pointer movement. Zero jagged wireframes or polygon edges—
- * designed specifically to make frosted glass surfaces (.glass-card, .glass-pill)
- * glow with deep obsidian, warm crimson, and rose-champagne caustics.
+ * IglooWebGLStage — Obsidian, Champagne-Pearl & Velvet Rose Caustic Light Stage
+ * Designed specifically for two goals:
+ * 1. Maximum typographic contrast: Deep obsidian-espresso base (#070609) so white
+ *    and champagne-coral typography reads with crystal clarity.
+ * 2. True optical glassmorphism: Sculpted, high-contrast ribbons of champagne gold,
+ *    soft rose quartz, and velvet merlot pass behind .glass-card and .glass-pill
+ *    surfaces so backdrop-filter blur visibly refracts luminous light forms.
  */
 export function IglooWebGLStage() {
   const mountRef = useRef<HTMLDivElement | null>(null);
@@ -30,7 +32,8 @@ export function IglooWebGLStage() {
       return;
     }
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const isMobile = window.innerWidth < 768;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.0 : 1.35);
     renderer.setPixelRatio(dpr);
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.innerHTML = "";
@@ -57,20 +60,22 @@ export function IglooWebGLStage() {
     `;
 
     const fragmentShader = `
-      precision highp float;
+      precision mediump float;
       varying vec2 vUv;
       uniform float uTime;
       uniform float uScroll;
       uniform vec2 uMouse;
       uniform vec2 uResolution;
 
-      // Smooth 2D simplex-style trigonometric flow
-      float silkWave(vec2 p, float t) {
-        float v = 0.0;
-        v += sin((p.x * 1.6 + t * 0.35) + cos(p.y * 1.4 - t * 0.25)) * 0.5;
-        v += sin((p.y * 2.1 - t * 0.28) + sin(p.x * 1.9 + t * 0.32)) * 0.25;
-        v += cos((p.x * 1.1 + p.y * 1.3) - t * 0.2) * 0.25;
-        return v * 0.5 + 0.5;
+      // Sculpted liquid caustic ribbon function
+      float causticRibbon(vec2 p, float t) {
+        vec2 q = p;
+        q.x += 0.28 * sin(p.y * 2.3 + t * 0.42);
+        q.y += 0.24 * cos(p.x * 2.1 - t * 0.36);
+        float w1 = sin(q.x * 2.8 + q.y * 1.9 + t * 0.5);
+        float w2 = cos(q.x * 1.7 - q.y * 2.6 - t * 0.38);
+        float ridge = 1.0 - abs(w1 * 0.55 + w2 * 0.45);
+        return pow(clamp(ridge, 0.0, 1.0), 3.4);
       }
 
       void main() {
@@ -79,44 +84,52 @@ export function IglooWebGLStage() {
         vec2 p = (uv - 0.5) * vec2(aspect, 1.0);
         vec2 m = (uMouse - 0.5) * vec2(aspect, 1.0);
 
-        float t = uTime * 0.55 + uScroll * 2.2;
+        float t = uTime * 0.48 + uScroll * 2.6;
 
-        // Soft domain warping for liquid silk caustics
-        vec2 q = p;
-        q.x += sin(p.y * 2.2 + t * 0.4) * 0.18;
-        q.y += cos(p.x * 2.0 - t * 0.35) * 0.18;
+        // Two intersecting silk-light caustic ribbons
+        float r1 = causticRibbon(p * 1.15 - m * 0.22, t);
+        float r2 = causticRibbon(p * 1.55 + vec2(0.35, -0.25) + m * 0.15, -t * 0.75);
 
-        float wave1 = silkWave(q * 1.35, t);
-        float wave2 = silkWave(q * 2.1 - m * 0.45, -t * 0.7);
-        float ribbon = smoothstep(0.22, 0.88, wave1 * 0.65 + wave2 * 0.35);
-
-        // Center-weighted studio aura that breathes gently with scroll
-        vec2 centerOffset = vec2(
-          sin(uScroll * 3.14159) * 0.14 + m.x * 0.18,
-          cos(uScroll * 2.0) * 0.08 - m.y * 0.18
+        // Localized studio light orbs that drift with scroll depth
+        vec2 orb1Pos = vec2(
+          sin(t * 0.32) * 0.28 + m.x * 0.22,
+          cos(t * 0.25) * 0.18 - m.y * 0.22
         );
-        float distCenter = length(p - centerOffset);
-        float coreAura = exp(-distCenter * distCenter * 2.4);
+        vec2 orb2Pos = vec2(
+          -0.38 * aspect + cos(uScroll * 3.14159) * 0.22,
+          0.24 - sin(uScroll * 3.14159) * 0.28
+        );
+        vec2 orb3Pos = vec2(
+          0.36 * aspect - sin(uScroll * 2.4) * 0.2,
+          -0.26 + cos(uScroll * 2.4) * 0.22
+        );
 
-        // Secondary soft ambient lobe
-        vec2 lobePos = vec2(-0.35 * aspect, 0.25 - mod(uScroll * 0.6, 0.5));
-        float distLobe = length(p - lobePos);
-        float lobeAura = exp(-distLobe * distLobe * 3.2);
+        float orb1 = exp(-length(p - orb1Pos) * length(p - orb1Pos) * 2.8);
+        float orb2 = exp(-length(p - orb2Pos) * length(p - orb2Pos) * 3.6);
+        float orb3 = exp(-length(p - orb3Pos) * length(p - orb3Pos) * 3.4);
 
-        // Studio palette: Deep Obsidian -> Velvet Burgundy -> Warm Rose Glow
-        vec3 obsidian = vec3(0.031, 0.024, 0.028);     // #080607
-        vec3 deepWine = vec3(0.165, 0.027, 0.067);     // #2a0711
-        vec3 crimsonGlow = vec3(0.58, 0.075, 0.21);    // #941336
-        vec3 roseChampagne = vec3(0.88, 0.32, 0.36);   // #e0525c
+        // Deep Obsidian night base for 100% crisp text legibility
+        vec3 obsidian = vec3(0.027, 0.022, 0.031);      // #070608
+        vec3 velvetPlum = vec3(0.18, 0.045, 0.095);     // #2e0b18
+        vec3 roseQuartz = vec3(0.76, 0.22, 0.35);       // #c23859
+        vec3 champagneGold = vec3(0.96, 0.72, 0.56);    // #f5b88f
 
         vec3 col = obsidian;
-        col = mix(col, deepWine, ribbon * 0.68 + lobeAura * 0.45);
-        col = mix(col, crimsonGlow, coreAura * 0.52 + pow(ribbon, 2.4) * 0.24);
-        col += roseChampagne * pow(coreAura, 2.6) * 0.16;
 
-        // Subtle vignette so edges stay deep and editorial
-        float vignette = smoothstep(1.35, 0.25, length(p * vec2(0.82, 0.95)));
-        col *= mix(0.55, 1.0, vignette);
+        // Soft ambient plum underglow
+        col = mix(col, velvetPlum, clamp(orb1 * 0.65 + orb2 * 0.55 + orb3 * 0.45, 0.0, 0.85));
+
+        // Sculpted rose-quartz silk folds
+        float roseMask = r1 * (0.42 + 0.58 * orb1) + orb2 * 0.32;
+        col = mix(col, roseQuartz, clamp(roseMask * 0.52, 0.0, 0.55));
+
+        // Crisp champagne-gold caustic highlights for glass refraction
+        float champagneMask = r2 * (0.35 + 0.65 * (orb1 + orb3 * 0.6)) + pow(r1, 2.0) * 0.25;
+        col += champagneGold * champagneMask * 0.24;
+
+        // Gentle edge vignette to frame the editorial layout
+        float vignette = smoothstep(1.45, 0.22, length(p * vec2(0.78, 0.92)));
+        col *= mix(0.68, 1.0, vignette);
 
         gl_FragColor = vec4(col, 1.0);
       }
@@ -155,6 +168,10 @@ export function IglooWebGLStage() {
     };
 
     const onResize = () => {
+      const mobileNow = window.innerWidth < 768;
+      renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio || 1, mobileNow ? 1.0 : 1.35)
+      );
       renderer.setSize(window.innerWidth, window.innerHeight);
       uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
     };
@@ -172,7 +189,7 @@ export function IglooWebGLStage() {
       if (document.hidden) return;
 
       const elapsed = clock.getElapsedTime();
-      currentScroll += (targetScroll - currentScroll) * 0.06;
+      currentScroll += (targetScroll - currentScroll) * 0.065;
       currentMouseX += (targetMouseX - currentMouseX) * 0.05;
       currentMouseY += (targetMouseY - currentMouseY) * 0.05;
 

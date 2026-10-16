@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 420" fill="none">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#B3213F"/>
+        <stop offset="100%" stop-color="#F2A93B"/>
+      </linearGradient>
+    </defs>
+    <rect width="480" height="420" fill="url(#g)"/>
+    
+      <circle cx="240" cy="200" r="118" fill="#F6EBDD" fill-opacity="0.18"/>
+      <path d="M240 275 C240 275 155 215 155 162 C155 132 180 112 206 112 C224 112 240 126 240 140 C240 126 256 112 274 112 C300 112 325 132 325 162 C325 215 240 275 240 275 Z" fill="#F6EBDD"/>
+      <text x="240" y="365" text-anchor="middle" fill="#F6EBDD" font-family="Georgia, serif" font-style="italic" font-size="26">from @siyasideup camera roll</text>
+    
+  </svg>

@@ -1,26 +1,248 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* High-Contrast Studio Crimson & Obsidian Palette */
+  --espresso: #080708;
+  --wine: #4c0b1d;
+  --cranberry: #e11d48;
+  --marigold: #ff6b4a;
+  --cream: #faf5f0;
+  --ivy: #10b981;
+
+  --ease-siya: cubic-bezier(0.22, 1, 0.36, 1);
+  --background: var(--espresso);
+  --foreground: var(--cream);
 }
 
 @theme inline {
+  --color-espresso: var(--espresso);
+  --color-wine: var(--wine);
+  --color-cranberry: var(--cranberry);
+  --color-marigold: var(--marigold);
+  --color-cream: var(--cream);
+  --color-ivy: var(--ivy);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --font-display: var(--font-inter-tight);
+  --font-sans: var(--font-inter-tight);
+  --font-serif: var(--font-instrument);
+  --font-mono: var(--font-jetbrains-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  background-color: var(--espresso);
+  color: var(--cream);
+  scroll-padding-top: 5rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Unconditionally hide native cursor on devices with hover/fine pointer */
+@media (hover: hover), (pointer: fine) {
+  html,
+  body,
+  *,
+  *::before,
+  *::after,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  label,
+  [role="button"] {
+    cursor: none !important;
   }
 }
 
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--espresso);
+  color: var(--cream);
+  font-family: var(--font-inter-tight), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--cranberry);
+  color: var(--cream);
+}
+
+:focus-visible {
+  outline: 2px solid var(--cranberry);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ==========================================================================
+   Luxury Studio Glassmorphism System
+   ========================================================================== */
+
+/* Primary Frosted Glass Card / Vessel */
+.glass-card {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.075) 0%,
+    rgba(255, 255, 255, 0.025) 55%,
+    rgba(255, 138, 112, 0.02) 100%
+  );
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 28px;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.26),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.04),
+    0 28px 70px -12px rgba(0, 0, 0, 0.65);
+  transition:
+    border-color 0.35s var(--ease-siya),
+    box-shadow 0.35s var(--ease-siya),
+    background 0.35s var(--ease-siya);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.34),
+    inset 0 -1px 0 0 rgba(255, 138, 112, 0.08),
+    0 34px 85px -12px rgba(0, 0, 0, 0.75);
+}
+
+/* Hero Double-Bezel Portrait Glass Frame */
+.glass-portrait-bezel {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 60%,
+    rgba(225, 29, 72, 0.08) 100%
+  );
+  backdrop-filter: blur(32px) saturate(170%);
+  -webkit-backdrop-filter: blur(32px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 32px;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.08),
+    0 40px 100px -15px rgba(0, 0, 0, 0.72);
+}
+
+/* Floating Navigation & Tag Pills */
+.glass-pill {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.085) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.24),
+    0 12px 32px -6px rgba(0, 0, 0, 0.48);
+  transition:
+    border-color 0.3s var(--ease-siya),
+    background 0.3s var(--ease-siya),
+    transform 0.3s var(--ease-siya);
+}
+
+.glass-pill:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.13) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+}
+
+/* Smoked-Glass Dock (Overlaid on Reels & Photos) */
+.glass-dock {
+  background: linear-gradient(
+    145deg,
+    rgba(20, 9, 13, 0.68) 0%,
+    rgba(10, 5, 7, 0.82) 100%
+  );
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+    0 18px 44px -8px rgba(0, 0, 0, 0.65);
+}
+
+/* Tactile Frosted Glass Input & Dropdown Trigger */
+.glass-input {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+  transition: all 0.28s var(--ease-siya);
+}
+
+.glass-input:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(255, 138, 112, 0.55);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+    0 0 0 3px rgba(225, 29, 72, 0.15);
+  outline: none;
+}
+
+/* Deep Smoked-Glass Dropdown & Lightbox Surface */
+.glass-Popover {
+  background: linear-gradient(
+    155deg,
+    rgba(24, 11, 16, 0.92) 0%,
+    rgba(12, 6, 8, 0.96) 100%
+  );
+  backdrop-filter: blur(36px) saturate(170%);
+  -webkit-backdrop-filter: blur(36px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+    0 28px 75px -10px rgba(0, 0, 0, 0.88);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080708;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4c0b1d;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e11d48;
 }

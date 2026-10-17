@@ -11,6 +11,7 @@ export function CustomCursor() {
   const activeTargetRef = useRef<HTMLElement | null>(null);
   const cachedRectRef = useRef<DOMRect | null>(null);
   const posRef = useRef({ x: 0, y: 0 });
+  const isVisibleRef = useRef(false);
 
   useEffect(() => {
     const isTouchOnly =
@@ -37,14 +38,14 @@ export function CustomCursor() {
       scale: 1,
     });
 
-    const dotX = gsap.quickTo(dot, "x", { duration: 0.03, ease: "none" });
-    const dotY = gsap.quickTo(dot, "y", { duration: 0.03, ease: "none" });
+    const dotX = gsap.quickTo(dot, "x", { duration: 0.025, ease: "none" });
+    const dotY = gsap.quickTo(dot, "y", { duration: 0.025, ease: "none" });
     const ringX = gsap.quickTo(ring, "x", {
-      duration: 0.14,
+      duration: 0.12,
       ease: "power3.out",
     });
     const ringY = gsap.quickTo(ring, "y", {
-      duration: 0.14,
+      duration: 0.12,
       ease: "power3.out",
     });
 
@@ -55,14 +56,14 @@ export function CustomCursor() {
       gsap.to(ring, {
         opacity: hovering ? 0 : 1,
         scale: hovering ? 0.25 : 1,
-        duration: 0.18,
+        duration: 0.16,
         ease: "power3.out",
         overwrite: "auto",
       });
       gsap.to(dot, {
         opacity: hovering ? 0 : 0.95,
         scale: hovering ? 0 : 1,
-        duration: 0.15,
+        duration: 0.14,
         ease: "power3.out",
         overwrite: "auto",
       });
@@ -73,7 +74,7 @@ export function CustomCursor() {
       gsap.to(el, {
         x: 0,
         y: 0,
-        duration: 0.42,
+        duration: 0.38,
         ease: "power3.out",
         overwrite: "auto",
       });
@@ -89,8 +90,8 @@ export function CustomCursor() {
       ringX(clientX);
       ringY(clientY);
 
-      // Reveal without resetting transform (opacity only on first show)
-      if (Number(gsap.getProperty(ring, "opacity")) < 0.05) {
+      if (!isVisibleRef.current) {
+        isVisibleRef.current = true;
         gsap.set(ring, { opacity: 1, scale: 1 });
         gsap.set(dot, { opacity: 0.95, scale: 1 });
       }

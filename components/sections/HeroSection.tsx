@@ -118,11 +118,10 @@ export function HeroSection({
         ref={glowRef}
         aria-hidden="true"
         style={{
-          width: "480px",
-          height: "480px",
+          width: "640px",
+          height: "640px",
           background:
-            "radial-gradient(circle, rgba(245, 184, 143, 0.22) 0%, rgba(212, 72, 108, 0.18) 45%, transparent 72%)",
-          filter: "blur(80px)",
+            "radial-gradient(circle, rgba(245, 184, 143, 0.18) 0%, rgba(212, 72, 108, 0.12) 34%, rgba(212, 72, 108, 0.04) 54%, transparent 72%)",
         }}
         className="pointer-events-none absolute top-1/2 left-1/2 z-0 -translate-x-1/2 -translate-y-1/2 rounded-full will-change-transform"
       />

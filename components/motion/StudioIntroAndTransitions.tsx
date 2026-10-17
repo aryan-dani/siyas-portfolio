@@ -76,7 +76,7 @@ export function IntroTypingPreloader({
     }
 
     const totalChars = INTRO_TARGET_TEXT.length;
-    const stepMs = 52;
+    const stepMs = 42;
     let current = 0;
 
     const interval = window.setInterval(() => {
@@ -108,7 +108,7 @@ export function IntroTypingPreloader({
     const holdTimer = window.setTimeout(() => {
       setPhase("done");
       onComplete?.();
-    }, 460);
+    }, 340);
     return () => window.clearTimeout(holdTimer);
   }, [onComplete, phase]);
 
@@ -127,7 +127,7 @@ export function IntroTypingPreloader({
           exit={{
             clipPath: "inset(0% 0% 100% 0%)",
             transition: {
-              duration: 0.82,
+              duration: 0.72,
               ease: [0.76, 0, 0.24, 1],
             },
           }}
@@ -137,11 +137,9 @@ export function IntroTypingPreloader({
           }}
           style={{
             background:
-              "radial-gradient(circle at 50% 45%, rgba(68, 16, 36, 0.58) 0%, rgba(12, 8, 11, 0.96) 62%, #070608 100%)",
-            backdropFilter: "blur(40px) saturate(185%)",
-            WebkitBackdropFilter: "blur(40px) saturate(185%)",
+              "radial-gradient(circle at 50% 45%, rgba(68, 16, 36, 0.88) 0%, rgba(12, 8, 11, 0.98) 62%, #070608 100%)",
           }}
-          className="fixed inset-0 z-[200] flex flex-col justify-between overflow-hidden px-6 py-8 text-[#FAF6F2] select-none sm:px-12 sm:py-10"
+          className="fixed inset-0 z-[200] flex flex-col justify-between overflow-hidden px-6 py-8 text-[#FAF6F2] will-change-[clip-path] select-none sm:px-12 sm:py-10"
         >
           {/* Top Studio Bar */}
           <div className="flex items-center justify-between text-xs text-white/60">
@@ -156,10 +154,10 @@ export function IntroTypingPreloader({
           {/* Center Monumental Footer-Style Glass Typing Card */}
           <div className="my-auto mx-auto w-full max-w-[1280px]">
             <motion.div
-              initial={{ opacity: 0, y: 18, scale: 0.97 }}
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -28, scale: 1.03 }}
-              transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ opacity: 0, y: -22, scale: 1.02 }}
+              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
               className="glass-card relative overflow-hidden px-5 py-12 text-center sm:px-10 sm:py-16"
             >
               {/* Subtle Specular Light Sweep When Typing Finishes */}
@@ -169,12 +167,12 @@ export function IntroTypingPreloader({
                 animate={{
                   x: phase === "hold" ? "120%" : "-120%",
                 }}
-                transition={{ duration: 0.65, ease: "easeInOut" }}
+                transition={{ duration: 0.55, ease: "easeInOut" }}
                 style={{
                   background:
                     "linear-gradient(90deg, transparent 0%, rgba(245, 184, 143, 0.16) 50%, transparent 100%)",
                 }}
-                className="pointer-events-none absolute inset-0"
+                className="pointer-events-none absolute inset-0 will-change-transform"
               />
 
               <span className="block font-mono text-[10px] tracking-[0.24em] text-white/50 uppercase sm:tracking-[0.28em]">
@@ -202,7 +200,7 @@ export function IntroTypingPreloader({
                   opacity: typedCount >= 3 ? 1 : 0,
                   y: typedCount >= 3 ? 0 : 8,
                 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
+                transition={{ duration: 0.32, ease: "easeOut" }}
                 className="mt-5 font-serif text-lg italic text-[#f5b88f] sm:text-2xl"
               >
                 Warm stories people actually finish.
@@ -233,7 +231,7 @@ export function IntroTypingPreloader({
 
 /**
  * SectionNavigationCurtain
- * Full-screen smoked-glass interstitial with monumental kinetic typography
+ * Full-screen smoked-obsidian interstitial with monumental kinetic typography
  * whenever the user navigates between sections.
  */
 export function SectionNavigationCurtain({
@@ -250,19 +248,17 @@ export function SectionNavigationCurtain({
           initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
           animate={{
             clipPath: "inset(0% 0% 0% 0%)",
-            transition: { duration: 0.38, ease: [0.76, 0, 0.24, 1] },
+            transition: { duration: 0.34, ease: [0.76, 0, 0.24, 1] },
           }}
           exit={{
             clipPath: "inset(0% 0% 100% 0%)",
-            transition: { duration: 0.46, ease: [0.76, 0, 0.24, 1] },
+            transition: { duration: 0.4, ease: [0.76, 0, 0.24, 1] },
           }}
           style={{
             background:
-              "radial-gradient(circle at 50% 50%, rgba(62, 15, 34, 0.82) 0%, rgba(9, 6, 9, 0.96) 70%)",
-            backdropFilter: "blur(36px) saturate(185%)",
-            WebkitBackdropFilter: "blur(36px) saturate(185%)",
+              "radial-gradient(circle at 50% 50%, rgba(62, 15, 34, 0.94) 0%, rgba(8, 6, 9, 0.99) 70%)",
           }}
-          className="pointer-events-none fixed inset-0 z-[180] flex flex-col items-center justify-center px-6 text-center text-[#FAF6F2]"
+          className="pointer-events-none fixed inset-0 z-[180] flex flex-col items-center justify-center px-6 text-center text-[#FAF6F2] will-change-[clip-path]"
         >
           <motion.div
             initial={{ opacity: 0, y: 22, scale: 0.96 }}

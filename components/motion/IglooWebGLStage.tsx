@@ -33,7 +33,7 @@ export function IglooWebGLStage() {
     }
 
     const isMobile = window.innerWidth < 768;
-    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.0 : 1.35);
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 0.65 : 0.85);
     renderer.setPixelRatio(dpr);
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.innerHTML = "";
@@ -67,15 +67,16 @@ export function IglooWebGLStage() {
       uniform vec2 uMouse;
       uniform vec2 uResolution;
 
-      // Sculpted liquid caustic ribbon function
+      // Sculpted liquid caustic ribbon function (polynomial fast-path, zero pow/sqrt)
       float causticRibbon(vec2 p, float t) {
         vec2 q = p;
         q.x += 0.28 * sin(p.y * 2.3 + t * 0.42);
         q.y += 0.24 * cos(p.x * 2.1 - t * 0.36);
         float w1 = sin(q.x * 2.8 + q.y * 1.9 + t * 0.5);
         float w2 = cos(q.x * 1.7 - q.y * 2.6 - t * 0.38);
-        float ridge = 1.0 - abs(w1 * 0.55 + w2 * 0.45);
-        return pow(clamp(ridge, 0.0, 1.0), 3.4);
+        float ridge = clamp(1.0 - abs(w1 * 0.55 + w2 * 0.45), 0.0, 1.0);
+        float r2 = ridge * ridge;
+        return r2 * ridge;
       }
 
       void main() {
@@ -91,22 +92,22 @@ export function IglooWebGLStage() {
         float r2 = causticRibbon(p * 1.55 + vec2(0.35, -0.25) + m * 0.15, -t * 0.75);
 
         // Localized studio light orbs that drift with scroll depth
-        vec2 orb1Pos = vec2(
+        vec2 d1 = p - vec2(
           sin(t * 0.32) * 0.28 + m.x * 0.22,
           cos(t * 0.25) * 0.18 - m.y * 0.22
         );
-        vec2 orb2Pos = vec2(
+        vec2 d2 = p - vec2(
           -0.38 * aspect + cos(uScroll * 3.14159) * 0.22,
           0.24 - sin(uScroll * 3.14159) * 0.28
         );
-        vec2 orb3Pos = vec2(
+        vec2 d3 = p - vec2(
           0.36 * aspect - sin(uScroll * 2.4) * 0.2,
           -0.26 + cos(uScroll * 2.4) * 0.22
         );
 
-        float orb1 = exp(-length(p - orb1Pos) * length(p - orb1Pos) * 2.8);
-        float orb2 = exp(-length(p - orb2Pos) * length(p - orb2Pos) * 3.6);
-        float orb3 = exp(-length(p - orb3Pos) * length(p - orb3Pos) * 3.4);
+        float orb1 = exp(-dot(d1, d1) * 2.8);
+        float orb2 = exp(-dot(d2, d2) * 3.6);
+        float orb3 = exp(-dot(d3, d3) * 3.4);
 
         // Deep Obsidian night base for 100% crisp text legibility
         vec3 obsidian = vec3(0.027, 0.022, 0.031);      // #070608
@@ -124,11 +125,12 @@ export function IglooWebGLStage() {
         col = mix(col, roseQuartz, clamp(roseMask * 0.52, 0.0, 0.55));
 
         // Crisp champagne-gold caustic highlights for glass refraction
-        float champagneMask = r2 * (0.35 + 0.65 * (orb1 + orb3 * 0.6)) + pow(r1, 2.0) * 0.25;
+        float champagneMask = r2 * (0.35 + 0.65 * (orb1 + orb3 * 0.6)) + (r1 * r1) * 0.25;
         col += champagneGold * champagneMask * 0.24;
 
         // Gentle edge vignette to frame the editorial layout
-        float vignette = smoothstep(1.45, 0.22, length(p * vec2(0.78, 0.92)));
+        vec2 vp = p * vec2(0.78, 0.92);
+        float vignette = smoothstep(2.1, 0.05, dot(vp, vp));
         col *= mix(0.68, 1.0, vignette);
 
         gl_FragColor = vec4(col, 1.0);
@@ -170,7 +172,7 @@ export function IglooWebGLStage() {
     const onResize = () => {
       const mobileNow = window.innerWidth < 768;
       renderer.setPixelRatio(
-        Math.min(window.devicePixelRatio || 1, mobileNow ? 1.0 : 1.35)
+        Math.min(window.devicePixelRatio || 1, mobileNow ? 0.65 : 0.85)
       );
       renderer.setSize(window.innerWidth, window.innerHeight);
       uniforms.uResolution.value.set(window.innerWidth, window.innerHeight);

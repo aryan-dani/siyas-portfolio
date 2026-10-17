@@ -257,28 +257,26 @@ export function AmbientGlassBacklight() {
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
-      {/* Warm Champagne-Peach Refractive Lobe */}
+      {/* Warm Champagne-Peach Refractive Lobe (Zero runtime blur filter overhead) */}
       <div
         ref={orbPrimaryRef}
         style={{
-          width: "520px",
-          height: "520px",
+          width: "680px",
+          height: "680px",
           background:
-            "radial-gradient(circle, rgba(245, 200, 160, 0.14) 0%, rgba(232, 122, 144, 0.06) 45%, transparent 72%)",
-          filter: "blur(75px)",
+            "radial-gradient(circle, rgba(245, 200, 160, 0.13) 0%, rgba(232, 122, 144, 0.06) 36%, rgba(232, 122, 144, 0.02) 56%, transparent 72%)",
         }}
-        className="absolute top-[12%] left-[16%] rounded-full will-change-transform"
+        className="absolute top-[8%] left-[12%] rounded-full will-change-transform"
       />
       {/* Soft Rose-Plum Refractive Lobe */}
       <div
         style={{
-          width: "560px",
-          height: "560px",
+          width: "720px",
+          height: "720px",
           background:
-            "radial-gradient(circle, rgba(212, 82, 118, 0.13) 0%, rgba(110, 32, 68, 0.06) 48%, transparent 72%)",
-          filter: "blur(85px)",
+            "radial-gradient(circle, rgba(212, 82, 118, 0.12) 0%, rgba(110, 32, 68, 0.06) 38%, rgba(110, 32, 68, 0.02) 58%, transparent 72%)",
         }}
-        className="absolute right-[10%] bottom-[12%] rounded-full"
+        className="absolute right-[6%] bottom-[8%] rounded-full"
       />
     </div>
   );

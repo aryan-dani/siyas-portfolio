@@ -91,11 +91,11 @@ export function ContactSection({
     if (footerTypingIntervalRef.current !== null) {
       window.clearInterval(footerTypingIntervalRef.current);
     }
-    const glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789✦·/@#";
+    const glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     setFooterIsTyping(true);
     setFooterDisplay("");
     let tick = 0;
-    const totalTicks = 22;
+    const totalTicks = 28;
     footerTypingIntervalRef.current = window.setInterval(() => {
       tick += 1;
       if (tick >= totalTicks) {
@@ -110,13 +110,17 @@ export function ContactSection({
       }
       const p = tick / totalTicks;
       const lockedCount = Math.floor(p * FOOTER_HANDLE_TEXT.length);
-      const frontier = Math.min(3, FOOTER_HANDLE_TEXT.length - lockedCount);
+      const frontier = Math.min(2, FOOTER_HANDLE_TEXT.length - lockedCount);
       let scrambled = "";
       for (let i = 0; i < frontier; i++) {
-        scrambled += glyphs[(tick * 5 + i * 7) % glyphs.length];
+        const ch = FOOTER_HANDLE_TEXT[lockedCount + i];
+        scrambled +=
+          ch === "@"
+            ? "@"
+            : glyphs[(tick * 5 + i * 7 + lockedCount * 3) % glyphs.length];
       }
       setFooterDisplay(FOOTER_HANDLE_TEXT.slice(0, lockedCount) + scrambled);
-    }, 28);
+    }, 44);
   }, [reducedMotion]);
 
   useEffect(() => {

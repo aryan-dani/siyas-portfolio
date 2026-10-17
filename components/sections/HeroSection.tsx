@@ -143,13 +143,9 @@ export function HeroSection({
           </h1>
 
           <div className="mt-3 flex flex-wrap items-center gap-2 font-sans text-xs font-medium text-white/85 sm:gap-2.5 sm:text-sm">
-            <span>
-              <KineticTypewriter text="Creator" speedMs={32} replayOnHover />
-            </span>
+            <span>Creator</span>
             <span className="text-white/30">·</span>
-            <span>
-              <KineticTypewriter text="Storyteller" speedMs={28} replayOnHover />
-            </span>
+            <span>Storyteller</span>
             <span className="text-white/30">·</span>
             <a
               href={CONTENT.profile.instagramUrl}
@@ -158,11 +154,7 @@ export function HeroSection({
               data-cursor-box
               className="glass-pill rounded-full px-3.5 py-1 text-white transition-colors hover:text-[#f5b88f]"
             >
-              <KineticTypewriter
-                text={CONTENT.profile.handle}
-                speedMs={24}
-                replayOnHover
-              />
+              {CONTENT.profile.handle}
             </a>
           </div>
         </div>
@@ -172,8 +164,8 @@ export function HeroSection({
           <p className="font-serif font-normal italic text-[#f5b88f] pr-1">
             <KineticTypewriter
               text="finished."
-              speedMs={45}
-              startDelayMs={220}
+              speedMs={55}
+              startDelayMs={380}
               replayOnHover
             />
           </p>
@@ -208,20 +200,15 @@ export function HeroSection({
                 href={CONTENT.profile.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-cursor-box
                 className="font-sans font-medium text-white/95 transition-colors hover:text-[#f5b88f]"
               >
-                <KineticTypewriter
-                  text={CONTENT.profile.handle}
-                  speedMs={24}
-                  replayOnHover
-                />
+                {CONTENT.profile.handle}
               </a>
               <span className="font-serif italic text-[#f5b88f] pr-1">
                 <KineticTypewriter
                   text="10M+ monthly views"
-                  speedMs={28}
-                  startDelayMs={320}
+                  speedMs={40}
+                  startDelayMs={480}
                   replayOnHover
                 />
               </span>
@@ -245,19 +232,15 @@ export function HeroSection({
           finish.
         </p>
 
-        <div className="flex w-full flex-col items-start gap-3 sm:w-auto sm:items-end sm:text-right">
+        <div className="flex w-full flex-col items-start gap-3.5 sm:w-auto sm:items-end sm:text-right">
           <div className="hidden font-sans text-xs leading-snug text-white/85 sm:block">
             <p className="text-[11px] text-white/50">Local time</p>
             <p className="font-mono text-xs font-medium text-white/90">
-              <KineticTypewriter
-                text={`${localTime} · Pune, India`}
-                speedMs={24}
-                replayOnHover
-              />
+              {localTime} · Pune, India
             </p>
           </div>
 
-          <div className="flex w-full flex-wrap items-center gap-2.5 sm:w-auto sm:justify-end">
+          <div className="flex w-full flex-wrap items-center gap-3.5 sm:w-auto sm:justify-end">
             <button
               type="button"
               data-cursor-box
@@ -268,11 +251,7 @@ export function HeroSection({
               }
               className="glass-pill flex-1 rounded-full px-5 py-2.5 text-center font-sans text-xs font-medium text-white/90 transition-colors hover:bg-white/12 hover:text-white sm:flex-initial"
             >
-              <KineticTypewriter
-                text="View Pricing ↓"
-                speedMs={26}
-                replayOnHover
-              />
+              View Pricing ↓
             </button>
 
             <button
@@ -285,11 +264,7 @@ export function HeroSection({
                 aria-hidden="true"
                 className="h-2 w-2 rounded-full bg-[#ff5a4f] transition-colors duration-200 group-hover:bg-white"
               />
-              <KineticTypewriter
-                text="Talk now"
-                speedMs={30}
-                replayOnHover
-              />
+              <span>Collaborate →</span>
             </button>
           </div>
         </div>

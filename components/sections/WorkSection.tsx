@@ -451,18 +451,10 @@ export function WorkSection({
                 <div className="glass-dock mt-3 flex flex-col gap-2.5 px-4 py-3.5">
                   <div className="flex items-center justify-between gap-2 text-[11px] text-white/60">
                     <span className="truncate font-mono text-[10px] tracking-[0.06em] uppercase">
-                      <KineticTypewriter
-                        text={reel.category}
-                        speedMs={22}
-                        replayOnHover
-                      />
+                      {reel.category}
                     </span>
                     <span className="glass-pill shrink-0 rounded-full px-2.5 py-0.5 font-serif text-xs italic text-[#f5b88f] pr-3">
-                      <KineticTypewriter
-                        text={reel.views}
-                        speedMs={26}
-                        replayOnHover
-                      />
+                      <KineticTypewriter text={reel.views} speedMs={38} />
                     </span>
                   </div>
 
@@ -482,12 +474,12 @@ export function WorkSection({
                       </h3>
                     )}
 
-                    <div className="flex shrink-0 items-center gap-1.5">
+                    <div className="flex shrink-0 items-center gap-2.5">
                       <button
                         type="button"
                         onClick={() => setActiveReel(reel)}
                         data-cursor-box
-                        className="glass-pill rounded-full px-2.5 py-1 text-[11px] font-medium text-white/80 hover:text-white"
+                        className="glass-pill rounded-full px-3 py-1 text-[11px] font-medium text-white/80 hover:text-white"
                       >
                         Notes
                       </button>
@@ -496,7 +488,7 @@ export function WorkSection({
                         target="_blank"
                         rel="noopener noreferrer"
                         data-cursor-box
-                        className="glass-pill rounded-full px-2.5 py-1 text-[11px] font-medium text-[#f5b88f] hover:text-white"
+                        className="glass-pill rounded-full px-3 py-1 text-[11px] font-medium text-[#f5b88f] hover:text-white"
                       >
                         IG ↗
                       </a>

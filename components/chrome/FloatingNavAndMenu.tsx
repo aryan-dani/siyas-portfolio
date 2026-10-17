@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { CONTENT } from "@/lib/content";
-import { KineticTypewriter } from "@/components/motion/IglooMotionPrimitives";
 import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
 
 const MENU_ITEMS = [
@@ -144,7 +143,7 @@ export function FloatingNavAndMenu({
               <circle cx="3" cy="9" r="1.3" />
               <circle cx="9" cy="9" r="1.3" />
             </svg>
-            <KineticTypewriter text="Menu" speedMs={28} replayOnHover />
+            <span>Menu</span>
           </button>
 
           <span className="h-3.5 w-[1px] shrink-0 bg-white/20" aria-hidden="true" />
@@ -159,11 +158,7 @@ export function FloatingNavAndMenu({
               aria-hidden="true"
               className="h-1.5 w-1.5 rounded-full bg-[#ff7e6b] shadow-[0_0_8px_#ff7e6b]"
             />
-            <KineticTypewriter
-              text="Open for Collaborations · View Rates"
-              speedMs={18}
-              replayOnHover
-            />
+            <span>View Pricing</span>
           </button>
         </div>
       </header>

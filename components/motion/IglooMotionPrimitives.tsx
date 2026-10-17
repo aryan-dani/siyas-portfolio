@@ -9,22 +9,37 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789✦·/@#";
+const LOWER_GLYPHS = "abcdefghijklmnopqrstuvwxyz";
+const UPPER_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const DIGIT_GLYPHS = "0123456789";
+
+function scrambleCharCaseAware(ch: string, seed: number): string {
+  if (ch >= "a" && ch <= "z") {
+    return LOWER_GLYPHS[seed % LOWER_GLYPHS.length];
+  }
+  if (ch >= "A" && ch <= "Z") {
+    return UPPER_GLYPHS[seed % UPPER_GLYPHS.length];
+  }
+  if (ch >= "0" && ch <= "9") {
+    return DIGIT_GLYPHS[seed % DIGIT_GLYPHS.length];
+  }
+  return ch;
+}
 
 /**
- * KineticTypewriter / ScrambleText — Zero-Reflow Cipher Scramble + Typewriter Reveal
+ * KineticTypewriter / ScrambleText — Zero-Reflow Case-Aware Scramble + Typewriter Reveal
  * - Reserves exact final bounding box via an invisible sizer span (`CLS = 0`, zero magnetic cursor jitter)
- * - Progressively locks real characters from left to right while scrambling the 4-character
- *   leading frontier through editorial glyphs alongside a glowing `#f5b88f` cursor bar.
+ * - Progressively locks real characters from left to right while softly scrambling the 2-character
+ *   leading frontier with matching case (`a-z`, `A-Z`, `0-9`) alongside a glowing `#f5b88f` cursor bar.
  * - Strictly time-bounded (`performance.now()` + hard failsafe timeout) so it never loops infinitely.
  */
 export function KineticTypewriter({
   text,
   as: Tag = "span",
   className = "",
-  speedMs = 24,
+  speedMs = 36,
   startDelayMs = 0,
-  replayOnHover = true,
+  replayOnHover = false,
   showCursorWhenDone = false,
 }: {
   text: string;
@@ -68,14 +83,15 @@ export function KineticTypewriter({
         return;
       }
       const now = performance.now();
-      if (now - lastRunTimeRef.current < 850) return;
+      if (now - lastRunTimeRef.current < 1600) return;
       lastRunTimeRef.current = now;
 
       clearTimers();
 
+      // Slow, poised, editorial cadence (680ms - 1150ms)
       const totalDuration = Math.min(
-        820,
-        Math.max(360, text.length * Math.min(26, speedMs))
+        1150,
+        Math.max(680, text.length * Math.max(32, speedMs))
       );
 
       const startAnimation = () => {
@@ -89,7 +105,7 @@ export function KineticTypewriter({
           clearTimers();
           setDisplayText(text);
           setIsTyping(false);
-        }, totalDuration + 90);
+        }, totalDuration + 100);
 
         const step = (timestamp: number) => {
           const elapsed = timestamp - startTime;
@@ -103,21 +119,18 @@ export function KineticTypewriter({
           }
 
           const lockedCount = Math.floor(progress * text.length);
-          const frontierLen = Math.min(4, text.length - lockedCount);
+          const frontierLen = Math.min(2, text.length - lockedCount);
 
-          if (timestamp - lastScrambleTick > 30 || !cachedScramble) {
+          if (timestamp - lastScrambleTick > 52 || !cachedScramble) {
             lastScrambleTick = timestamp;
             let scramblePart = "";
+            const tick = Math.floor(timestamp / 52);
             for (let i = 0; i < frontierLen; i++) {
               const targetChar = text[lockedCount + i];
-              if (targetChar === " " || targetChar === "·") {
-                scramblePart += targetChar;
-              } else {
-                const glyphIndex =
-                  (Math.floor(timestamp / 30) + i * 7 + lockedCount * 3) %
-                  SCRAMBLE_GLYPHS.length;
-                scramblePart += SCRAMBLE_GLYPHS[glyphIndex];
-              }
+              scramblePart += scrambleCharCaseAware(
+                targetChar,
+                tick + i * 5 + lockedCount * 3
+              );
             }
             cachedScramble = scramblePart;
           }
@@ -154,7 +167,7 @@ export function KineticTypewriter({
           runScrambleTyping(startDelayMs);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.35 }
     );
 
     io.observe(el);

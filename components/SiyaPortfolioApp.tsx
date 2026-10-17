@@ -54,17 +54,17 @@ function PortfolioInner() {
     if (typeof target === "string" && target.startsWith("/")) {
       window.setTimeout(() => {
         router.push(target);
-      }, 280);
+      }, 360);
       return;
     }
 
     window.setTimeout(() => {
       scrollTo(target === "#top" ? 0 : target, true);
-    }, 260);
+    }, 340);
 
     window.setTimeout(() => {
       setActiveTransitionMeta(null);
-    }, 580);
+    }, 760);
   };
 
   const handleRequestMediaKit = (

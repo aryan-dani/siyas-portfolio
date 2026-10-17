@@ -191,6 +191,7 @@ export function CopyrightPage() {
                     src="/siya/siya-portrait.jpg"
                     alt={CONTENT.profile.fullName}
                     fill
+                    priority
                     sizes="48px"
                     className="object-cover"
                   />
@@ -366,7 +367,7 @@ export function CopyrightPage() {
                 Request Usage License ({CONTENT.profile.email}) ↗
               </a>
               <Link
-                href="/#pricing"
+                href="/#services"
                 data-cursor-box
                 className="glass-pill rounded-full px-5 py-3.5 font-sans text-xs font-medium text-white/90 hover:text-white"
               >

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -647,8 +648,16 @@ export function ContactSection({
                 onClick={() => setLicenseOpen((prev) => !prev)}
                 className="text-white/75 underline decoration-white/25 underline-offset-4 transition-colors hover:text-[#f5b88f]"
               >
-                Copyright &amp; License
+                Quick License Summary
               </button>
+              <span className="text-white/25">·</span>
+              <Link
+                href="/copyright"
+                data-cursor-box
+                className="text-[#f5b88f] underline decoration-[#f5b88f]/35 underline-offset-4 transition-colors hover:text-white"
+              >
+                Copyright &amp; IP Dossier ↗
+              </Link>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-2.5 sm:justify-end">
@@ -694,12 +703,12 @@ export function ContactSection({
                       Copyright &amp; Intellectual Property License (2026)
                     </span>
                     <div className="flex items-center gap-2">
-                      <a
+                      <Link
                         href="/copyright"
                         className="glass-pill rounded-full px-3 py-1 text-[11px] text-[#f5b88f] hover:text-white"
                       >
                         Full Legal Page ↗
-                      </a>
+                      </Link>
                       <button
                         type="button"
                         onClick={() => setLicenseOpen(false)}

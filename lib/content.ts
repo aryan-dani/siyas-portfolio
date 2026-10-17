@@ -268,7 +268,7 @@ export const CONTENT = {
         turnaround: "5–7 days turnaround",
         ctaLabel: "Book 3 Reels (₹8,000)",
         rateNote: "₹8,000 / 3 reels",
-        inquiryKey: "single-reel-3k",
+        inquiryKey: "single-reel",
       },
       {
         id: "service-monthly",
@@ -288,7 +288,7 @@ export const CONTENT = {
         turnaround: "Monthly retainer · Adjustable",
         ctaLabel: "Book Monthly Management (₹24k)",
         rateNote: "₹24k / month (adjustable)",
-        inquiryKey: "monthly-management-24k",
+        inquiryKey: "account-management",
       },
       {
         id: "service-custom-bundle",
@@ -308,7 +308,7 @@ export const CONTENT = {
         turnaround: "5–7 days · Custom scope",
         ctaLabel: "Build Custom Bundle",
         rateNote: "₹8K base · +₹2K / reel",
-        inquiryKey: "multi-reel-bundle",
+        inquiryKey: "multi-reel-campaign",
       },
     ] as ServiceItem[],
   },

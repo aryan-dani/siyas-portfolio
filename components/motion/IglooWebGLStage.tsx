@@ -182,13 +182,13 @@ export function IglooWebGLStage() {
     onScroll();
 
     let rafId = 0;
-    const clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       rafId = window.requestAnimationFrame(animate);
       if (document.hidden) return;
 
-      const elapsed = clock.getElapsedTime();
+      const elapsed = (performance.now() - startTime) * 0.001;
       currentScroll += (targetScroll - currentScroll) * 0.065;
       currentMouseX += (targetMouseX - currentMouseX) * 0.05;
       currentMouseY += (targetMouseY - currentMouseY) * 0.05;

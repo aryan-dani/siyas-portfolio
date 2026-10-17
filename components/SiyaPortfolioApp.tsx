@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   SmoothScrollProvider,
   useSmoothScroll,
@@ -29,6 +29,18 @@ function PortfolioInner() {
     useState<NavTransitionMeta | null>(null);
   const formInputRef = useRef<HTMLInputElement | null>(null);
   const { scrollTo } = useSmoothScroll();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (hash && hash.length > 1) {
+      const normalized = hash === "#pricing" ? "#services" : hash;
+      const timer = window.setTimeout(() => {
+        scrollTo(normalized);
+      }, 120);
+      return () => window.clearTimeout(timer);
+    }
+  }, [scrollTo]);
 
   const navigateToSection = (target: string | number) => {
     const key = typeof target === "number" ? "#top" : target;

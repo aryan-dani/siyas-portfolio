@@ -1,7 +1,7 @@
 # Siya Pawar (`@heartsfromsiya`) — Creator & Brand Collaborations Portfolio
 
 > **Warm stories people *actually* finish watching.**  
-> Official creator portfolio, viral reel showcase, and transparent booking console for **Siya Pawar** ([@heartsfromsiya](https://www.instagram.com/heartsfromsiya/) · [@siyas_dumpyard](https://www.instagram.com/siyas_dumpyard/) · [YouTube](https://www.youtube.com/@heartsfromsiya)).
+> Official creator portfolio, playable vertical reel showcase, and transparent booking console for **Siya Pawar** ([@heartsfromsiya](https://www.instagram.com/heartsfromsiya/) · [@siyasideup](https://www.instagram.com/siyasideup/) · [YouTube](https://m.youtube.com/@heartsfromsiya)).
 
 **Designed & Developed by [Aryan Dani](https://www.aryandani.com)** (`www.aryandani.com`)
 
@@ -10,19 +10,20 @@
 ## ✨ Key Highlights
 
 ### 1. Transparent 2026 Creator Rates & Instant Scope Estimator
-- **Per Video / Reel**: **`₹3,000`** per video or `/reel` (includes concept, script, shoot, edit, and high-retention ad/brand cut).
+- **3-Reel Starter**: **`₹8,000`** for 3 custom reels (includes concept, script, shoot, edit, and high-retention ad/brand cut).
+- **Multi-Reel Campaign**: **`+₹2,000` per extra reel** beyond the 3-reel starter (`4 reels = ₹10,000`, `5 reels = ₹12,000`, etc.).
 - **Monthly Account Management**: **`₹24,000 / month` (`24k`)** — full monthly content strategy, scripting, shooting, editing, and account management (**adjustable according to what you actually require**).
-- **Interactive Rate & Scope Configurator**: Brands can toggle between per-reel bundles (`1–8 reels × ₹3,000`) and the `₹24,000/mo` adjustable retainer, then click **Lock Scope & Auto-fill Inquiry** to pre-populate the contact console.
+- **Interactive Rate & Scope Configurator**: Brands can toggle between multi-reel packs (`3–8 reels`) and the `₹24,000/mo` adjustable retainer, then click **Lock Scope & Auto-fill Inquiry** to pre-populate the contact console.
 
-### 2. Smart Inquiry Console (`siyapawar@gmail.com` + Auto-CC & Dynamic Subject)
+### 2. Smart Inquiry Console (`siyapawar@gmail.com` + Dynamic Subject Autofill)
 - **Primary Creator Inbox**: `siyapawar@gmail.com`
-- **Automatic CC Routing**: Every inquiry submission and `mailto:` action automatically includes `daniaryan212@gmail.com` in `cc`.
-- **Dynamic Subject Autofill**: Selecting any collaboration format (`Single Video / Reel — ₹3,000`, `Monthly Account Management — ₹24,000/mo (Adjustable)`, `Multi-Reel Campaign Bundle`, or `2026 Media Kit`) dynamically updates the email subject line in real time alongside the sender's name/brand.
+- **Dynamic Subject & Note Autofill**: Selecting any collaboration format (`3-Reel Starter — ₹8,000`, `Monthly Account Management — ₹24,000/mo (Adjustable)`, `Multi-Reel Pack`, or `2026 Media Kit`) dynamically updates the email subject line and scope brief in real time alongside the sender's name/brand.
 
-### 3. Subtle 3D Floating Glass Prism Stage & Luxury Studio Glassmorphism
-- **Igloo-Inspired 3D WebGL Stage (`components/motion/IglooWebGLStage.tsx`)**: A custom Three.js scene featuring a sculpted refractive crystal prism and 5 orbiting satellite glass shards illuminated by warm crimson, rose-gold, and champagne lights. Choreographed to scroll progress and pointer parallax while pausing automatically when the tab is hidden.
-- **Refractive Glassmorphism System (`app/globals.css`)**: Multi-layered frosted glass cards (`.glass-card`, `.glass-portrait-bezel`, `.glass-pill`, `.glass-dock`, `.glass-input`, `.glass-Popover`) with `backdrop-filter: blur(28px) saturate(165%)`, top/left specular inner rims, and cursor-tracked radial glare (`RefractivePlate`).
-- **Kinetic Typography & Custom Cursor**: Zero-layout-shift `ScrambleText` hover decoding and a crisp, blur-free magnetic corner-bracket cursor (`CustomCursor.tsx`).
+### 3. VisionOS-Grade Optical Glassmorphism & Choreographed Motion
+- **Obsidian, Champagne-Pearl & Velvet Rose Caustic WebGL Stage (`components/motion/IglooWebGLStage.tsx`)**: A custom Three.js GLSL shader scene sculpting silk-light caustic ribbons that refract through `.glass-card`, `.glass-nav-capsule`, and `.glass-reel-pill` surfaces while maintaining 100% typographic contrast.
+- **4-Sided Inset Menu with Live Section Previews (`components/chrome/FloatingNavAndMenu.tsx`)**: Frosted top capsule (`Menu | View Pricing`) and a 4-sided inset menu overlay featuring real section preview cards (`public/siya/previews/preview-*.png`) and `[↗] [GO]` shoulder pills.
+- **Disappearing Magnetic Cursor (`components/chrome/CustomCursor.tsx`)**: Smooth GSAP `quickTo` pointer that vanishes into interactive pills, buttons, and menu items while magnetically pulling the target toward the cursor.
+- **Dedicated Legal & IP Dossier (`app/copyright/page.tsx`)**: Architectural glassmorphism copyright & licensing dossier covering creator likeness, brand whitelisting, and AI dataset opt-out rules.
 
 ---
 
@@ -30,30 +31,37 @@
 
 ```text
 ├── app/
-│   ├── globals.css                  # Luxury Studio Glassmorphism CSS tokens & utilities
+│   ├── copyright/page.tsx           # Dedicated /copyright legal & licensing route
+│   ├── globals.css                  # Optical Studio Glassmorphism CSS tokens & utilities
 │   ├── layout.tsx                   # Next.js 16 RootLayout, SEO metadata & Person JSON-LD
-│   └── page.tsx                     # Root entry mounting SiyaPortfolioApp
+│   ├── not-found.tsx                # Custom frosted-glass 404 page
+│   ├── page.tsx                     # Root entry mounting SiyaPortfolioApp
+│   └── robots.ts                    # Crawler & AI dataset protection rules
 ├── components/
 │   ├── SiyaPortfolioApp.tsx         # Master shell orchestrating WebGL stage, nav & sections
 │   ├── chrome/
-│   │   ├── CustomCursor.tsx         # Blur-free magnetic corner-bracket cursor
-│   │   └── FloatingNavAndMenu.tsx   # Top glass studio dock & fullscreen smoked-glass menu
+│   │   ├── CustomCursor.tsx         # Disappearing magnetic cursor
+│   │   └── FloatingNavAndMenu.tsx   # Top frosted capsule & 4-sided inset menu with live previews
 │   ├── motion/
-│   │   ├── IglooMotionPrimitives.tsx# ScrambleText, RefractivePlate, AmbientGlassBacklight
-│   │   ├── IglooWebGLStage.tsx      # Three.js floating crystal prism & satellite shards
-│   │   └── SmoothScrollProvider.tsx # Lenis smooth scroll synced with GSAP ScrollTrigger
+│   │   ├── IglooMotionPrimitives.tsx# RefractivePlate, AnimatedHairline, AmbientGlassBacklight
+│   │   ├── IglooWebGLStage.tsx      # Three.js GLSL caustic ribbon stage
+│   │   ├── SmoothScrollProvider.tsx # Lenis smooth scroll synced with GSAP ScrollTrigger
+│   │   └── StudioIntroAndTransitions.tsx # Monumental @HEARTSFROMSIYA typing intro & section curtains
+│   ├── pages/
+│   │   └── CopyrightPage.tsx        # Architectural glassmorphism legal & IP dossier
 │   └── sections/
-│       ├── HeroSection.tsx          # Asymmetric editorial hero + transparent rate cards
-│       ├── WorkSection.tsx          # Interactive 9:16 vertical reel showcase & lightbox
-│       ├── ProofSection.tsx         # Verified analytics (10M+ views, 319K likes, PharmEasy, Mokobara)
-│       ├── AboutRoomSection.tsx     # Behind-the-scenes portrait & creative philosophy
-│       ├── ServicesSection.tsx      # ₹3,000/reel & ₹24,000/mo cards + Instant Rate Estimator
-│       └── ContactSection.tsx       # Auto-filled subject console, CC routing & monumental footer
+│       ├── HeroSection.tsx          # Editorial hero + double-bezel portrait frame
+│       ├── WorkSection.tsx          # Playable 9:16 vertical reel showcase, scrub bar & modal
+│       ├── ProofSection.tsx         # Animated analytics (10M+ views, 319K likes, PharmEasy, Mokobara)
+│       ├── AboutRoomSection.tsx     # Behind-the-scenes Pune golden-hour gallery
+│       ├── ServicesSection.tsx      # ₹8,000/3 reels & ₹24,000/mo cards + Instant Rate Estimator
+│       └── ContactSection.tsx       # Auto-filled subject console & kinetic typing footer
 ├── lib/
 │   ├── content.ts                   # Single source of truth for rates, reels, links & metadata
-│   └── hooks.ts                     # Reduced-motion & responsive hooks
+│   ├── hooks.ts                     # Reduced-motion & responsive hooks
+│   └── pricing.ts                   # Reel pack pricing calculator (₹8,000 base + ₹2,000/extra)
 └── public/
-    └── siya/                        # High-res portraits, favicons & 9:16 reel video/poster assets
+    └── siya/                        # High-res portraits, section previews & 9:16 MP4/poster assets
 ```
 
 ---
@@ -74,8 +82,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 🌐 Deploying on Vercel (Zero-Configuration Ready)
 
-This repository is pre-configured for immediate first deployment on **Vercel**:
-
 1. Push this repository to GitHub / GitLab / Bitbucket.
 2. Go to [vercel.com/new](https://vercel.com/new) and import the repository.
 3. **Framework Preset**: `Next.js` (auto-detected).
@@ -83,11 +89,9 @@ This repository is pre-configured for immediate first deployment on **Vercel**:
 5. **Output Directory**: `.next` (default).
 6. Click **Deploy**.
 
-> **Optional Custom Domain**: Once deployed, add your custom domain in **Vercel → Project Settings → Domains** and update `CONTENT.meta.siteUrl` in `lib/content.ts` if desired.
-
 ---
 
 ## 📬 Contact & Credits
 
-- **Creator**: Siya Pawar — [siyapawar@gmail.com](mailto:siyapawar@gmail.com?cc=daniaryan212@gmail.com) · [@heartsfromsiya](https://www.instagram.com/heartsfromsiya/)
-- **Designed & Developed by**: **[Aryan Dani](https://www.aryandani.com)** (`daniaryan212@gmail.com`)
+- **Creator**: Siya Pawar — `siyapawar@gmail.com` · [@heartsfromsiya](https://www.instagram.com/heartsfromsiya/) · [@siyasideup](https://www.instagram.com/siyasideup/)
+- **Designed & Developed by**: **[Aryan Dani](https://www.aryandani.com)** (`www.aryandani.com`)

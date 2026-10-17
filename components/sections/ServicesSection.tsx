@@ -177,7 +177,7 @@ export function ServicesSection({
 
                     <ul className="mt-6 space-y-2.5 border-t border-white/10 pt-5">
                       {service.deliverables.map((item, dIdx) => {
-                        const hasHandle = item.includes("@heartsfromsiya");
+                        const parts = item.split("@heartsfromsiya");
                         return (
                           <li
                             key={dIdx}
@@ -186,9 +186,9 @@ export function ServicesSection({
                             <span className="shrink-0 font-mono text-xs text-white/40">
                               —
                             </span>
-                            {hasHandle ? (
+                            {parts.length > 1 ? (
                               <span>
-                                Instagram Reel post (
+                                {parts[0]}
                                 <a
                                   href={CONTENT.profile.instagramUrl}
                                   target="_blank"
@@ -197,7 +197,7 @@ export function ServicesSection({
                                 >
                                   @heartsfromsiya
                                 </a>
-                                ) or Collab drop + Story
+                                {parts[1]}
                               </span>
                             ) : (
                               <span>{item}</span>
@@ -216,7 +216,15 @@ export function ServicesSection({
                     <button
                       type="button"
                       data-cursor-box
-                      onClick={() => onSelectService(service.inquiryKey)}
+                      onClick={() => {
+                        const defaultNote =
+                          service.inquiryKey === "account-management"
+                            ? "Interested in the ₹24,000/month Account Management retainer (adjustable according to our deliverable requirements)."
+                            : service.inquiryKey === "multi-reel-campaign"
+                              ? "Interested in a Multi-Reel Campaign pack (₹8,000 for 3 reels + ₹2,000 per extra reel)."
+                              : "Interested in the 3-Reel Starter pack at ₹8,000.";
+                        onSelectService(service.inquiryKey, defaultNote);
+                      }}
                       className="rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-[#080708] shadow-lg transition-all hover:scale-105 hover:bg-[#f5b88f]"
                     >
                       Inquire →

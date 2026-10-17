@@ -104,7 +104,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     name: "Siya Pawar",
-    alternateName: ["@heartsfromsiya", "@siyas_dumpyard"],
+    alternateName: [CONTENT.profile.handle, CONTENT.profile.secondaryHandle],
     jobTitle: "Content Creator, Storyteller & Brand Collaborator",
     email: CONTENT.profile.email,
     url: CONTENT.profile.instagramUrl,

@@ -67,7 +67,9 @@ export function IntroTypingPreloader({
   const [phase, setPhase] = useState<"typing" | "hold" | "done">("typing");
 
   useEffect(() => {
-    if (reducedMotion) {
+    const hasHashTarget =
+      typeof window !== "undefined" && window.location.hash.length > 1;
+    if (reducedMotion || hasHashTarget) {
       setPhase("done");
       onComplete?.();
       return;
@@ -88,6 +90,18 @@ export function IntroTypingPreloader({
 
     return () => window.clearInterval(interval);
   }, [onComplete, reducedMotion]);
+
+  useEffect(() => {
+    if (phase === "done") return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+        setPhase("done");
+        onComplete?.();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onComplete, phase]);
 
   useEffect(() => {
     if (phase !== "hold") return;
@@ -208,7 +222,7 @@ export function IntroTypingPreloader({
           <div className="flex items-center justify-between text-[11px] text-white/45">
             <span>Creator · Storyteller · Brand Collaborations</span>
             <span className="font-mono text-[10px] tracking-wider uppercase">
-              Click anywhere to skip
+              Click or press Esc to skip
             </span>
           </div>
         </motion.div>

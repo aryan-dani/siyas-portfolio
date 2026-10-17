@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { CONTENT } from "@/lib/content";
 import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
@@ -82,7 +83,15 @@ export function FloatingNavAndMenu({
       }
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const navigateWithCurtain = (href: string) => {
@@ -340,6 +349,14 @@ export function FloatingNavAndMenu({
                   >
                     YouTube
                   </a>
+                  <Link
+                    href="/copyright"
+                    onClick={() => setIsOpen(false)}
+                    data-cursor-box
+                    className="text-[#f5b88f] transition-colors hover:text-white"
+                  >
+                    Copyright &amp; IP
+                  </Link>
                 </div>
 
                 <div className="font-mono text-[11px] text-white/65">

@@ -21,6 +21,7 @@ function ReelFrame({
   isPlaying,
   isMuted,
   shouldLoadVideo,
+  priority = false,
   onTogglePlay,
   onToggleMute,
 }: {
@@ -28,6 +29,7 @@ function ReelFrame({
   isPlaying: boolean;
   isMuted: boolean;
   shouldLoadVideo: boolean;
+  priority?: boolean;
   onTogglePlay: () => void;
   onToggleMute: (e: React.MouseEvent) => void;
 }) {
@@ -61,6 +63,25 @@ function ReelFrame({
     setProgress((vid.currentTime / vid.duration) * 100);
   };
 
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const vid = videoRef.current;
+    if (!vid || !vid.duration) {
+      onTogglePlay();
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.min(
+      1,
+      Math.max(0, (e.clientX - rect.left) / Math.max(1, rect.width))
+    );
+    vid.currentTime = ratio * vid.duration;
+    setProgress(ratio * 100);
+    if (!isPlaying) {
+      onTogglePlay();
+    }
+  };
+
   return (
     <RefractivePlate maxTilt={2.6} className="glass-card p-2 sm:p-2.5 select-none">
       <div
@@ -83,6 +104,7 @@ function ReelFrame({
               src={reel.posterSrc}
               alt={`${reel.brand} — ${reel.captionSans}`}
               fill
+              priority={priority}
               sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 25vw"
               className={`object-cover transition-transform duration-700 ease-out ${
                 isPlaying ? "scale-[1.03]" : "scale-100"
@@ -157,7 +179,7 @@ function ReelFrame({
           </div>
         </div>
 
-        {/* Bottom Smoked Glass Caption Dock + Unclipped Scrub Progress Bar */}
+        {/* Bottom Smoked Glass Caption Dock + Interactive Scrub Progress Bar */}
         <div className="glass-dock relative z-20 mt-auto flex flex-col gap-1.5 p-3.5">
           <div className="flex items-center justify-between gap-2">
             <p className="font-serif text-[15px] leading-snug italic text-[#f5c6aa] pr-1">
@@ -171,20 +193,23 @@ function ReelFrame({
             {reel.captionSans}
           </p>
 
-          {/* Unclipped Internal Progress Bar */}
+          {/* Interactive Unclipped Internal Progress Bar */}
           <div
-            aria-hidden="true"
-            className="mt-1.5 h-[3px] w-full overflow-hidden rounded-full bg-white/12"
+            onClick={handleSeek}
+            title="Click to seek video"
+            className="mt-1.5 flex h-3 w-full items-center"
           >
-            <div
-              style={{ width: `${isPlaying ? Math.max(10, progress) : 22}%` }}
-              className={`h-full rounded-full bg-gradient-to-r from-[#f5b88f] to-[#ff8a70] transition-[width,opacity] duration-150 ease-linear ${
-                isPlaying ? "opacity-100" : "opacity-45"
-              }`}
-            />
+            <div className="h-[3px] w-full overflow-hidden rounded-full bg-white/15">
+              <div
+                style={{ width: `${isPlaying ? Math.max(10, progress) : 22}%` }}
+                className={`h-full rounded-full bg-gradient-to-r from-[#f5b88f] to-[#ff8a70] transition-[width,opacity] duration-150 ease-linear ${
+                  isPlaying ? "opacity-100" : "opacity-45"
+                }`}
+              />
+            </div>
           </div>
 
-          <div className="mt-1 flex items-center justify-between pt-1 text-[11px] text-white/65">
+          <div className="mt-0.5 flex items-center justify-between pt-0.5 text-[11px] text-white/65">
             <span className="truncate pr-2">♪ {reel.audioName}</span>
             <a
               href={reel.instagramUrl}
@@ -291,7 +316,15 @@ export function WorkSection({
       }
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    if (activeReel) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [activeReel]);
 
   const handleTogglePlay = (id: string) => {
@@ -397,6 +430,7 @@ export function WorkSection({
                   isPlaying={isPlaying}
                   isMuted={isMuted}
                   shouldLoadVideo={shouldLoadVideos}
+                  priority={idx < 2}
                   onTogglePlay={() => handleTogglePlay(reel.id)}
                   onToggleMute={(e) => handleToggleMute(reel.id, e)}
                 />

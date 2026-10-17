@@ -19,9 +19,9 @@ if (typeof window !== "undefined") {
 const PACKAGE_OPTIONS = [
   {
     value: "single-reel",
-    label: "Single Video / Reel — ₹3,000 / reel",
-    sub: "1 custom concept, script, shoot, edit + raw cut for brand/ad usage",
-    subjectPrefix: "Inquiry: Single Video / Reel (₹3,000/reel)",
+    label: "3-Reel Starter — ₹8,000",
+    sub: "3 custom concepts, scripts, shoots & edits for brand/ad usage",
+    subjectPrefix: "Inquiry: 3-Reel Starter (₹8,000)",
   },
   {
     value: "account-management",
@@ -32,9 +32,10 @@ const PACKAGE_OPTIONS = [
   },
   {
     value: "multi-reel-campaign",
-    label: "Multi-Reel Campaign Bundle — ₹3,000 × Reels",
-    sub: "Multi-video creator storytelling & paid social hook variations",
-    subjectPrefix: "Inquiry: Multi-Reel Campaign Bundle (₹3,000/reel)",
+    label: "Multi-Reel Pack — ₹8,000 / 3 · +₹2,000 each extra",
+    sub: "4 = ₹10k · 5 = ₹12k · scaled creator storytelling & hook variations",
+    subjectPrefix:
+      "Inquiry: Multi-Reel Pack (₹8,000/3 · +₹2,000/extra)",
   },
   {
     value: "media-kit",

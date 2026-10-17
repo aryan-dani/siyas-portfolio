@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CONTENT } from "@/lib/content";
+import { formatInr, reelPackPrice } from "@/lib/pricing";
 import { RefractivePlate } from "@/components/motion/IglooMotionPrimitives";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
@@ -11,7 +12,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const REEL_COUNTS = [1, 2, 3, 4, 5, 8];
+const REEL_COUNTS = [3, 4, 5, 6, 8];
 
 export function ServicesSection({
   onSelectService,
@@ -19,7 +20,7 @@ export function ServicesSection({
   onSelectService: (packageName: string, customNote?: string) => void;
 }) {
   const [calcMode, setCalcMode] = useState<"reels" | "monthly">("reels");
-  const [reelCount, setReelCount] = useState<number>(2);
+  const [reelCount, setReelCount] = useState<number>(3);
   const sectionRef = useRef<HTMLElement | null>(null);
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
   const cardsRef = useRef<Array<HTMLDivElement | null>>([]);
@@ -70,7 +71,7 @@ export function ServicesSection({
     return () => ctx.revert();
   }, [reducedMotion]);
 
-  const estimatedReelTotal = (reelCount * 3000).toLocaleString("en-IN");
+  const estimatedReelTotal = formatInr(reelPackPrice(reelCount));
 
   const handleCalculatorBook = () => {
     if (calcMode === "monthly") {
@@ -78,15 +79,15 @@ export function ServicesSection({
         "account-management",
         "Interested in the ₹24,000/month Account Management retainer (adjustable according to our exact deliverable requirements)."
       );
-    } else if (reelCount === 1) {
+    } else if (reelCount === 3) {
       onSelectService(
         "single-reel",
-        "Interested in booking 1 Video / Reel at ₹3,000."
+        "Interested in the 3-Reel Starter pack at ₹8,000."
       );
     } else {
       onSelectService(
         "multi-reel-campaign",
-        `Interested in a ${reelCount}-Reel campaign bundle (${reelCount} × ₹3,000 = ₹${estimatedReelTotal}).`
+        `Interested in a ${reelCount}-Reel campaign pack (₹8,000 for 3 + ₹2,000 × ${reelCount - 3} extra = ₹${estimatedReelTotal}).`
       );
     }
   };
@@ -253,7 +254,7 @@ export function ServicesSection({
                         : "text-white/75 hover:text-white"
                     }`}
                   >
-                    Per Video / Reel (₹3,000 / reel)
+                    Reel Packs (₹8,000 / 3 · +₹2,000 each)
                   </button>
                   <button
                     type="button"
@@ -272,7 +273,7 @@ export function ServicesSection({
                 {calcMode === "reels" ? (
                   <div className="mt-6">
                     <p className="font-sans text-xs font-medium text-white/70">
-                      How many videos / reels do you need?
+                      How many reels do you need? (starts at 3 for ₹8,000)
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {REEL_COUNTS.map((count) => {
@@ -319,7 +320,9 @@ export function ServicesSection({
                   <span className="glass-pill rounded-full px-3 py-0.5 font-mono text-[10px] text-[#f5b88f]">
                     {calcMode === "monthly"
                       ? "Adjustable Retainer"
-                      : `${reelCount} × ₹3,000`}
+                      : reelCount === 3
+                        ? "3-reel starter"
+                        : `3 + ${reelCount - 3} extra`}
                   </span>
                 </div>
 
@@ -332,7 +335,7 @@ export function ServicesSection({
                   <span className="ml-2 font-sans text-xs text-white/65">
                     {calcMode === "monthly"
                       ? "/ month (adjustable)"
-                      : `for ${reelCount} ${reelCount === 1 ? "video/reel" : "videos/reels"}`}
+                      : `for ${reelCount} reels`}
                   </span>
                 </div>
 

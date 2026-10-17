@@ -26,7 +26,7 @@ const MENU_ITEMS = [
     title: "Pricing",
     href: "#services",
     previewSrc: "/siya/previews/preview-pricing.png",
-    previewLabel: "₹3K / ₹24K Rates",
+    previewLabel: "₹8K/3 · ₹24K Rates",
   },
   {
     index: "04",

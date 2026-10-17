@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CONTENT } from "@/lib/content";
@@ -62,13 +61,16 @@ function AnimatedStatValue({
   reducedMotion: boolean;
 }) {
   const [display, setDisplay] = useState(fallback);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
-    if (reducedMotion || !active) {
+    if (reducedMotion) {
       setDisplay(fallback);
       return;
     }
+    if (!active || hasAnimatedRef.current) return;
 
+    hasAnimatedRef.current = true;
     let rafId = 0;
     const duration = 1150;
     const start = performance.now();
@@ -181,7 +183,7 @@ export function ProofSection({
       <div className="mx-auto max-w-[1380px] px-5 sm:px-10 lg:px-16">
         {/* 4-Column Frosted Glass Bento Stat Bar */}
         <div ref={statBarRef} className="will-change-transform">
-          <RefractivePlate maxTilt={1.6} className="glass-card overflow-hidden p-2">
+          <RefractivePlate maxTilt={0} className="glass-card overflow-hidden p-2">
             <div
               onMouseLeave={() => setHoveredStat(null)}
               className="grid grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-white/10"
@@ -196,17 +198,12 @@ export function ProofSection({
                       idx >= 2 ? "border-t border-white/10 lg:border-t-0" : ""
                     } ${idx % 2 === 1 ? "border-l border-white/10 lg:border-l-0" : ""}`}
                   >
-                    {isHovered ? (
-                      <motion.div
-                        layoutId="statGlassHover"
-                        transition={{
-                          type: "spring",
-                          stiffness: 320,
-                          damping: 30,
-                        }}
-                        className="glass-pill pointer-events-none absolute inset-1.5 rounded-2xl"
-                      />
-                    ) : null}
+                    <div
+                      aria-hidden="true"
+                      className={`glass-pill pointer-events-none absolute inset-1.5 rounded-2xl transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        isHovered ? "opacity-100" : "opacity-0"
+                      }`}
+                    />
 
                     <div className="relative z-10">
                       <p
@@ -276,7 +273,7 @@ export function ProofSection({
           </div>
 
           <div className="lg:col-span-7">
-            <RefractivePlate maxTilt={2.0} className="glass-card p-2.5 sm:p-4">
+            <RefractivePlate maxTilt={0} className="glass-card p-2.5 sm:p-4">
               <div className="divide-y divide-white/10">
                 {CONTENT.proof.brands.map((brand) => {
                   const isActive = hoveredBrand === brand.id;
@@ -286,20 +283,19 @@ export function ProofSection({
                       onMouseEnter={() => setHoveredBrand(brand.id)}
                       className="group relative flex flex-col justify-between gap-3.5 px-4 py-6 sm:flex-row sm:items-baseline sm:gap-5 sm:px-7 sm:py-7"
                     >
-                      {isActive ? (
-                        <motion.div
-                          layoutId="brandRowGlass"
-                          transition={{
-                            type: "spring",
-                            stiffness: 320,
-                            damping: 30,
-                          }}
-                          className="glass-pill pointer-events-none absolute inset-1.5 rounded-2xl"
-                        />
-                      ) : null}
+                      <div
+                        aria-hidden="true"
+                        className={`glass-pill pointer-events-none absolute inset-1.5 rounded-2xl transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                          isActive ? "opacity-100" : "opacity-0"
+                        }`}
+                      />
 
                       <div className="relative z-10 shrink-0 sm:w-44">
-                        <h3 className="font-display text-xl font-semibold tracking-[-0.02em] text-white transition-colors group-hover:text-[#f5b88f]">
+                        <h3
+                          className={`font-display text-xl font-semibold tracking-[-0.02em] transition-colors duration-300 ${
+                            isActive ? "text-[#f5b88f]" : "text-white"
+                          }`}
+                        >
                           {brand.name}
                         </h3>
                         <p className="mt-0.5 text-xs text-white/50">

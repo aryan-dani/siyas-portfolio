@@ -42,7 +42,7 @@ export const SECTION_TRANSITION_META: Record<string, NavTransitionMeta> = {
     chapter: "04 · TRANSPARENT RATES",
     titleBefore: "WAYS TO ",
     titleAccent: "COLLABORATE.",
-    sub: "₹3,000 / Reel · ₹24,000 / Month Account Management",
+    sub: "₹8,000 / 3 Reels · +₹2,000 each · ₹24,000 / Month",
   },
   "#contact": {
     chapter: "05 · DIRECT INBOX",

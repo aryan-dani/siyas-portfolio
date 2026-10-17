@@ -57,7 +57,7 @@ export const CONTENT = {
     siteTitle:
       "Siya Pawar (@heartsfromsiya) — Creator, Storyteller & Brand Collaborations",
     siteDescription:
-      "Warm, high-retention reels, UGC, and monthly account management by Siya Pawar (@heartsfromsiya). 10M peak monthly views, multiple 1M+ reels, ₹3,000/reel & ₹24k/mo account management.",
+      "Warm, high-retention reels, UGC, and monthly account management by Siya Pawar (@heartsfromsiya). 10M peak monthly views, multiple 1M+ reels, from ₹8,000/3 reels & ₹24k/mo account management.",
     siteUrl: "https://www.instagram.com/heartsfromsiya/",
     ogImage: "/siya/siya-portrait.jpg",
   },
@@ -78,8 +78,9 @@ export const CONTENT = {
     instagramReelsUrl: "https://www.instagram.com/heartsfromsiya/reels/",
     instagramDumpUrl: "https://www.instagram.com/siyasideup/",
     youtubeUrl: "https://m.youtube.com/@heartsfromsiya",
-    ratesPolicy: "₹3,000 / video or reel · ₹24,000 / month account management",
-    perReelRate: "₹3,000",
+    ratesPolicy:
+      "₹8,000 / 3 reels · +₹2,000 per extra reel · ₹24,000 / month account management",
+    perReelRate: "₹8,000 / 3 reels",
     monthlyRate: "₹24,000",
     mediaKitCta: "Book a Reel or Retainer",
     linkedinUrl: "https://www.linkedin.com/",
@@ -167,7 +168,7 @@ export const CONTENT = {
         featured: false,
         highlightQuote:
           "Helping fast-growing teams ship founder-friendly reels and full monthly social calendars without sounding like a corporate ad.",
-        deliverableType: "₹3K/reel · ₹24K/mo retainer",
+        deliverableType: "₹8K/3 reels · ₹24K/mo",
       },
     ] as BrandItem[],
   },
@@ -247,26 +248,26 @@ export const CONTENT = {
 
   services: {
     subcopy:
-      "Transparent, creator-direct rates with zero agency markups: ₹3,000 per video or reel, and ₹24,000/month for full account management (adjustable according to what you actually require).",
+      "Transparent, creator-direct rates with zero agency markups: ₹8,000 for 3 reels, +₹2,000 per extra reel, and ₹24,000/month for full account management (adjustable according to what you actually require).",
     items: [
       {
         id: "service-reels",
         index: "01",
-        titleBefore: "Single Video / ",
-        titleAccent: "Reel",
-        subtitle: "Creator-led brand reel or UGC video",
-        priceDisplay: "₹3,000",
-        priceSub: "per video or /reel",
+        titleBefore: "3-Reel ",
+        titleAccent: "Starter",
+        subtitle: "Creator-led brand reels or UGC pack",
+        priceDisplay: "₹8,000",
+        priceSub: "for 3 reels · starter pack",
         hoverSerifCaption:
           "Filmed in my space, watched like a FaceTime from a close friend.",
         deliverables: [
-          "Custom hook & conversational script in Siya's natural voice",
+          "Three custom hooks & conversational scripts in Siya's natural voice",
           "Golden-hour filming + warm editorial color grade & captions",
-          "Instagram Reel post (@heartsfromsiya) or clean 9:16 brand export",
+          "Instagram Reel posts (@heartsfromsiya) or clean 9:16 brand exports",
         ],
-        turnaround: "3–5 days turnaround",
-        ctaLabel: "Book a Reel (₹3,000)",
-        rateNote: "₹3,000 / video or reel",
+        turnaround: "5–7 days turnaround",
+        ctaLabel: "Book 3 Reels (₹8,000)",
+        rateNote: "₹8,000 / 3 reels",
         inquiryKey: "single-reel-3k",
       },
       {
@@ -294,19 +295,19 @@ export const CONTENT = {
         index: "03",
         titleBefore: "Multi-Reel ",
         titleAccent: "Campaign",
-        subtitle: "Custom bundle for launches & paid social",
-        priceDisplay: "₹3,000×",
-        priceSub: "per video · custom multi-reel bundles",
+        subtitle: "Scaled packs for launches & paid social",
+        priceDisplay: "+₹2,000",
+        priceSub: "per extra reel after the 3-reel starter",
         hoverSerifCaption:
           "Multiple hook variations and story arcs that beat ad fatigue.",
         deliverables: [
-          "Batch of 3, 5, or 8+ Reels at ₹3,000 per video with hook variations",
+          "4 reels = ₹10,000 · 5 reels = ₹12,000 · and +₹2,000 for each additional",
           "Selfie-led product storytimes, demos, and relatable everyday skits",
           "Ready-to-run 9:16 exports for both organic reels and Meta/Shorts ads",
         ],
         turnaround: "5–7 days · Custom scope",
         ctaLabel: "Build Custom Bundle",
-        rateNote: "₹3,000 / reel · Custom pack",
+        rateNote: "₹8K base · +₹2K / reel",
         inquiryKey: "multi-reel-bundle",
       },
     ] as ServiceItem[],

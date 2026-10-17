@@ -7,11 +7,10 @@ export function CustomCursor() {
   const ringRef = useRef<HTMLDivElement | null>(null);
   const dotRef = useRef<HTMLDivElement | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [isHoveringAction, setIsHoveringAction] = useState(false);
 
   const activeTargetRef = useRef<HTMLElement | null>(null);
   const cachedRectRef = useRef<DOMRect | null>(null);
+  const posRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const isTouchOnly =
@@ -28,9 +27,18 @@ export function CustomCursor() {
     const ring = ringRef.current;
     const dot = dotRef.current;
 
+    // Position via GSAP only — never fight React `transform` styles
+    gsap.set([ring, dot], {
+      xPercent: -50,
+      yPercent: -50,
+      x: -100,
+      y: -100,
+      opacity: 0,
+      scale: 1,
+    });
+
     const dotX = gsap.quickTo(dot, "x", { duration: 0.03, ease: "none" });
     const dotY = gsap.quickTo(dot, "y", { duration: 0.03, ease: "none" });
-
     const ringX = gsap.quickTo(ring, "x", {
       duration: 0.14,
       ease: "power3.out",
@@ -42,6 +50,23 @@ export function CustomCursor() {
 
     const INTERACTIVE_SELECTOR =
       "[data-cursor-box], [data-menu-item], a, button, [role='button'], input, textarea, select";
+
+    const setHoverVisual = (hovering: boolean) => {
+      gsap.to(ring, {
+        opacity: hovering ? 0 : 1,
+        scale: hovering ? 0.25 : 1,
+        duration: 0.18,
+        ease: "power3.out",
+        overwrite: "auto",
+      });
+      gsap.to(dot, {
+        opacity: hovering ? 0 : 0.95,
+        scale: hovering ? 0 : 1,
+        duration: 0.15,
+        ease: "power3.out",
+        overwrite: "auto",
+      });
+    };
 
     const releaseTarget = (el: HTMLElement | null) => {
       if (!el) return;
@@ -57,13 +82,18 @@ export function CustomCursor() {
     const onMouseMove = (e: MouseEvent) => {
       const clientX = e.clientX;
       const clientY = e.clientY;
-
-      setVisible((prev) => (prev ? prev : true));
+      posRef.current = { x: clientX, y: clientY };
 
       dotX(clientX);
       dotY(clientY);
       ringX(clientX);
       ringY(clientY);
+
+      // Reveal without resetting transform (opacity only on first show)
+      if (Number(gsap.getProperty(ring, "opacity")) < 0.05) {
+        gsap.set(ring, { opacity: 1, scale: 1 });
+        gsap.set(dot, { opacity: 0.95, scale: 1 });
+      }
 
       const target = e.target as HTMLElement | null;
       const interactiveEl = target?.closest(
@@ -76,15 +106,24 @@ export function CustomCursor() {
         if (interactiveEl) {
           activeTargetRef.current = interactiveEl;
           cachedRectRef.current = interactiveEl.getBoundingClientRect();
-          setIsHoveringAction(true);
+          setHoverVisual(true);
+
+          // Snap magnetic offset from rest — no long slide-in from a stale x
+          if (
+            !interactiveEl.hasAttribute("data-no-magnet") &&
+            cachedRectRef.current.width > 0 &&
+            cachedRectRef.current.width <= 520 &&
+            cachedRectRef.current.height <= 160
+          ) {
+            gsap.set(interactiveEl, { x: 0, y: 0 });
+          }
         } else {
           activeTargetRef.current = null;
           cachedRectRef.current = null;
-          setIsHoveringAction(false);
+          setHoverVisual(false);
         }
       }
 
-      // Apply smooth magnetic shift to hovered action without per-frame layout reads
       const currentEl = activeTargetRef.current;
       const rect = cachedRectRef.current;
       if (
@@ -111,7 +150,7 @@ export function CustomCursor() {
         gsap.to(currentEl, {
           x: pullX,
           y: pullY,
-          duration: 0.24,
+          duration: 0.18,
           ease: "power2.out",
           overwrite: "auto",
         });
@@ -123,7 +162,7 @@ export function CustomCursor() {
         releaseTarget(activeTargetRef.current);
         activeTargetRef.current = null;
         cachedRectRef.current = null;
-        setIsHoveringAction(false);
+        setHoverVisual(false);
       }
     };
 
@@ -131,11 +170,17 @@ export function CustomCursor() {
       releaseTarget(activeTargetRef.current);
       activeTargetRef.current = null;
       cachedRectRef.current = null;
-      setIsHoveringAction(false);
-      setVisible(false);
+      gsap.to([ring, dot], {
+        opacity: 0,
+        duration: 0.15,
+        overwrite: "auto",
+      });
     };
 
-    const onMouseEnter = () => setVisible(true);
+    const onMouseEnter = () => {
+      const { x, y } = posRef.current;
+      gsap.set([ring, dot], { x, y, opacity: 1, scale: 1 });
+    };
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -155,41 +200,30 @@ export function CustomCursor() {
 
   return (
     <>
-      {/* Outer Champagne Halo — Smoothly disappears when hovering any interactive action */}
       <div
         ref={ringRef}
         aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[9998] -translate-x-1/2 -translate-y-1/2 rounded-full will-change-transform"
+        className="pointer-events-none fixed top-0 left-0 z-[9998] rounded-full will-change-transform"
         style={{
           width: 22,
           height: 22,
-          opacity: visible ? (isHoveringAction ? 0 : 1) : 0,
-          transform: `translate(-50%, -50%) scale(${isHoveringAction ? 0.25 : 1})`,
           border: "1.5px solid rgba(250, 245, 240, 0.42)",
           background: "rgba(255, 255, 255, 0.02)",
           boxShadow: "0 0 12px rgba(245, 184, 143, 0.16)",
-          transition:
-            "opacity 180ms cubic-bezier(0.22, 1, 0.36, 1), transform 200ms cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       />
 
-      {/* Precision Center Dot — Disappears cleanly when hovering any interactive action */}
       <div
         ref={dotRef}
         aria-hidden="true"
-        className="pointer-events-none fixed top-0 left-0 z-[9999] -translate-x-1/2 -translate-y-1/2 rounded-full will-change-transform"
+        className="pointer-events-none fixed top-0 left-0 z-[9999] rounded-full will-change-transform"
         style={{
           width: 5,
           height: 5,
-          opacity: visible ? (isHoveringAction ? 0 : 0.95) : 0,
-          transform: `translate(-50%, -50%) scale(${isHoveringAction ? 0 : 1})`,
           backgroundColor: "#faf5f0",
           boxShadow: "0 0 8px rgba(255, 255, 255, 0.7)",
-          transition:
-            "opacity 150ms cubic-bezier(0.22, 1, 0.36, 1), transform 160ms cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       />
     </>
   );
 }
-

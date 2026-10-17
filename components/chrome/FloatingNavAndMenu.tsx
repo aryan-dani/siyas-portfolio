@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { CONTENT } from "@/lib/content";
+import { KineticTypewriter } from "@/components/motion/IglooMotionPrimitives";
 import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
 
 const MENU_ITEMS = [
@@ -143,7 +144,7 @@ export function FloatingNavAndMenu({
               <circle cx="3" cy="9" r="1.3" />
               <circle cx="9" cy="9" r="1.3" />
             </svg>
-            <span>Menu</span>
+            <KineticTypewriter text="Menu" speedMs={28} replayOnHover />
           </button>
 
           <span className="h-3.5 w-[1px] shrink-0 bg-white/20" aria-hidden="true" />
@@ -152,9 +153,17 @@ export function FloatingNavAndMenu({
             type="button"
             data-cursor-box
             onClick={() => navigateWithCurtain("#services")}
-            className="rounded-full px-4 py-2 font-sans text-xs font-medium whitespace-nowrap text-white/90 transition-colors hover:bg-white/12 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 font-sans text-xs font-medium whitespace-nowrap text-white/90 transition-colors hover:bg-white/12 hover:text-white"
           >
-            View Pricing
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-[#ff7e6b] shadow-[0_0_8px_#ff7e6b]"
+            />
+            <KineticTypewriter
+              text="Open for Collaborations · View Rates"
+              speedMs={18}
+              replayOnHover
+            />
           </button>
         </div>
       </header>

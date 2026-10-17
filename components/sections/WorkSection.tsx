@@ -451,10 +451,18 @@ export function WorkSection({
                 <div className="glass-dock mt-3 flex flex-col gap-2.5 px-4 py-3.5">
                   <div className="flex items-center justify-between gap-2 text-[11px] text-white/60">
                     <span className="truncate font-mono text-[10px] tracking-[0.06em] uppercase">
-                      {reel.category}
+                      <KineticTypewriter
+                        text={reel.category}
+                        speedMs={22}
+                        replayOnHover
+                      />
                     </span>
                     <span className="glass-pill shrink-0 rounded-full px-2.5 py-0.5 font-serif text-xs italic text-[#f5b88f] pr-3">
-                      {reel.views}
+                      <KineticTypewriter
+                        text={reel.views}
+                        speedMs={26}
+                        replayOnHover
+                      />
                     </span>
                   </div>
 

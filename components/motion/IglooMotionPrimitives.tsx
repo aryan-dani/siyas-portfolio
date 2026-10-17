@@ -9,18 +9,22 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+const SCRAMBLE_GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789✦·/@#";
+
 /**
- * KineticTypewriter — Zero-Reflow Scroll & Hover Typing Animation
- * Reserves exact final bounding box via an invisible sizer span (CLS = 0, zero cursor jitter)
- * and types out the real characters cleanly with a glowing champagne-coral cursor bar.
+ * KineticTypewriter / ScrambleText — Zero-Reflow Cipher Scramble + Typewriter Reveal
+ * - Reserves exact final bounding box via an invisible sizer span (`CLS = 0`, zero magnetic cursor jitter)
+ * - Progressively locks real characters from left to right while scrambling the 4-character
+ *   leading frontier through editorial glyphs alongside a glowing `#f5b88f` cursor bar.
+ * - Strictly time-bounded (`performance.now()` + hard failsafe timeout) so it never loops infinitely.
  */
 export function KineticTypewriter({
   text,
   as: Tag = "span",
   className = "",
-  speedMs = 26,
+  speedMs = 24,
   startDelayMs = 0,
-  replayOnHover = false,
+  replayOnHover = true,
   showCursorWhenDone = false,
 }: {
   text: string;
@@ -33,58 +37,109 @@ export function KineticTypewriter({
 }) {
   const reducedMotion = usePrefersReducedMotion();
   const containerRef = useRef<HTMLElement | null>(null);
-  const [charCount, setCharCount] = useState<number>(text.length);
+  const [displayText, setDisplayText] = useState<string>(text);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const hasTriggeredRef = useRef<boolean>(false);
   const lastRunTimeRef = useRef<number>(0);
-  const timerRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const delayTimerRef = useRef<number | null>(null);
+  const failsafeTimerRef = useRef<number | null>(null);
 
-  const runTyping = useCallback(
+  const clearTimers = useCallback(() => {
+    if (rafRef.current !== null) {
+      window.cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    if (delayTimerRef.current !== null) {
+      window.clearTimeout(delayTimerRef.current);
+      delayTimerRef.current = null;
+    }
+    if (failsafeTimerRef.current !== null) {
+      window.clearTimeout(failsafeTimerRef.current);
+      failsafeTimerRef.current = null;
+    }
+  }, []);
+
+  const runScrambleTyping = useCallback(
     (delay = 0) => {
-      if (reducedMotion) {
-        setCharCount(text.length);
+      if (reducedMotion || !text) {
+        setDisplayText(text);
         setIsTyping(false);
         return;
       }
       const now = performance.now();
-      if (now - lastRunTimeRef.current < 900) return;
+      if (now - lastRunTimeRef.current < 850) return;
       lastRunTimeRef.current = now;
 
-      if (timerRef.current !== null) {
-        window.clearTimeout(timerRef.current);
-        window.clearInterval(timerRef.current);
-      }
+      clearTimers();
 
-      const start = () => {
+      const totalDuration = Math.min(
+        820,
+        Math.max(360, text.length * Math.min(26, speedMs))
+      );
+
+      const startAnimation = () => {
         setIsTyping(true);
-        setCharCount(1);
-        let current = 1;
-        timerRef.current = window.setInterval(() => {
-          current += 1;
-          if (current >= text.length) {
-            setCharCount(text.length);
+        const startTime = performance.now();
+        let lastScrambleTick = 0;
+        let cachedScramble = "";
+
+        // Hard failsafe so text is 100% guaranteed to settle to `text`
+        failsafeTimerRef.current = window.setTimeout(() => {
+          clearTimers();
+          setDisplayText(text);
+          setIsTyping(false);
+        }, totalDuration + 90);
+
+        const step = (timestamp: number) => {
+          const elapsed = timestamp - startTime;
+          const progress = Math.min(1, elapsed / totalDuration);
+
+          if (progress >= 1) {
+            clearTimers();
+            setDisplayText(text);
             setIsTyping(false);
-            if (timerRef.current !== null) {
-              window.clearInterval(timerRef.current);
-              timerRef.current = null;
-            }
-          } else {
-            setCharCount(current);
+            return;
           }
-        }, speedMs);
+
+          const lockedCount = Math.floor(progress * text.length);
+          const frontierLen = Math.min(4, text.length - lockedCount);
+
+          if (timestamp - lastScrambleTick > 30 || !cachedScramble) {
+            lastScrambleTick = timestamp;
+            let scramblePart = "";
+            for (let i = 0; i < frontierLen; i++) {
+              const targetChar = text[lockedCount + i];
+              if (targetChar === " " || targetChar === "·") {
+                scramblePart += targetChar;
+              } else {
+                const glyphIndex =
+                  (Math.floor(timestamp / 30) + i * 7 + lockedCount * 3) %
+                  SCRAMBLE_GLYPHS.length;
+                scramblePart += SCRAMBLE_GLYPHS[glyphIndex];
+              }
+            }
+            cachedScramble = scramblePart;
+          }
+
+          setDisplayText(text.slice(0, lockedCount) + cachedScramble);
+          rafRef.current = window.requestAnimationFrame(step);
+        };
+
+        rafRef.current = window.requestAnimationFrame(step);
       };
 
       if (delay > 0) {
-        timerRef.current = window.setTimeout(start, delay);
+        delayTimerRef.current = window.setTimeout(startAnimation, delay);
       } else {
-        start();
+        startAnimation();
       }
     },
-    [reducedMotion, speedMs, text.length]
+    [clearTimers, reducedMotion, speedMs, text]
   );
 
   useEffect(() => {
-    setCharCount(text.length);
+    setDisplayText(text);
   }, [text]);
 
   useEffect(() => {
@@ -96,34 +151,34 @@ export function KineticTypewriter({
         if (entries[0]?.isIntersecting && !hasTriggeredRef.current) {
           hasTriggeredRef.current = true;
           io.disconnect();
-          runTyping(startDelayMs);
+          runScrambleTyping(startDelayMs);
         }
       },
-      { threshold: 0.35 }
+      { threshold: 0.3 }
     );
 
     io.observe(el);
     return () => {
       io.disconnect();
-      if (timerRef.current !== null) {
-        window.clearTimeout(timerRef.current);
-        window.clearInterval(timerRef.current);
-      }
+      clearTimers();
     };
-  }, [reducedMotion, runTyping, startDelayMs]);
+  }, [clearTimers, reducedMotion, runScrambleTyping, startDelayMs]);
 
   return (
     <Tag
       ref={containerRef as React.RefObject<never>}
-      onMouseEnter={replayOnHover ? () => runTyping(0) : undefined}
+      onMouseEnter={replayOnHover ? () => runScrambleTyping(0) : undefined}
       className={`relative inline-grid items-center ${className}`}
     >
       {/* Invisible sizer locks exact width & height so layout never shifts */}
-      <span aria-hidden="true" className="invisible col-start-1 row-start-1 select-none">
+      <span
+        aria-hidden="true"
+        className="invisible col-start-1 row-start-1 select-none"
+      >
         {text}
       </span>
       <span className="col-start-1 row-start-1 inline-flex items-center">
-        <span>{text.slice(0, charCount)}</span>
+        <span>{displayText}</span>
         <span
           aria-hidden="true"
           className={`ml-0.5 inline-block h-[0.85em] w-[2px] shrink-0 rounded-full bg-[#f5b88f] transition-opacity duration-200 ${
@@ -143,7 +198,7 @@ export function ScrambleText({
   text,
   as = "span",
   className = "",
-  scrambleOnHover = false,
+  scrambleOnHover = true,
 }: {
   text: string;
   as?: "span" | "p" | "div" | "h3" | "h4";

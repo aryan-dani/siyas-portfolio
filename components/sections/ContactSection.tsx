@@ -72,9 +72,7 @@ export function ContactSection({
   const [submitted, setSubmitted] = useState(false);
 
   const FOOTER_HANDLE_TEXT = "@HEARTSFROMSIYA";
-  const [footerTypedChars, setFooterTypedChars] = useState<number>(
-    FOOTER_HANDLE_TEXT.length
-  );
+  const [footerDisplay, setFooterDisplay] = useState<string>(FOOTER_HANDLE_TEXT);
   const [footerIsTyping, setFooterIsTyping] = useState(false);
   const footerTypingIntervalRef = useRef<number | null>(null);
   const footerLastReplayRef = useRef<number>(0);
@@ -93,21 +91,32 @@ export function ContactSection({
     if (footerTypingIntervalRef.current !== null) {
       window.clearInterval(footerTypingIntervalRef.current);
     }
+    const glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789✦·/@#";
     setFooterIsTyping(true);
-    setFooterTypedChars(0);
-    let count = 0;
+    setFooterDisplay("");
+    let tick = 0;
+    const totalTicks = 22;
     footerTypingIntervalRef.current = window.setInterval(() => {
-      count += 1;
-      setFooterTypedChars(count);
-      if (count >= FOOTER_HANDLE_TEXT.length) {
+      tick += 1;
+      if (tick >= totalTicks) {
         if (footerTypingIntervalRef.current !== null) {
           window.clearInterval(footerTypingIntervalRef.current);
           footerTypingIntervalRef.current = null;
         }
+        setFooterDisplay(FOOTER_HANDLE_TEXT);
         setFooterIsTyping(false);
         footerLastReplayRef.current = performance.now();
+        return;
       }
-    }, 42);
+      const p = tick / totalTicks;
+      const lockedCount = Math.floor(p * FOOTER_HANDLE_TEXT.length);
+      const frontier = Math.min(3, FOOTER_HANDLE_TEXT.length - lockedCount);
+      let scrambled = "";
+      for (let i = 0; i < frontier; i++) {
+        scrambled += glyphs[(tick * 5 + i * 7) % glyphs.length];
+      }
+      setFooterDisplay(FOOTER_HANDLE_TEXT.slice(0, lockedCount) + scrambled);
+    }, 28);
   }, [reducedMotion]);
 
   useEffect(() => {
@@ -653,7 +662,7 @@ export function ContactSection({
                   {FOOTER_HANDLE_TEXT}
                 </span>
                 <span className="col-start-1 row-start-1 inline-flex items-center">
-                  <span>{FOOTER_HANDLE_TEXT.slice(0, footerTypedChars)}</span>
+                  <span>{footerDisplay}</span>
                   <span
                     aria-hidden="true"
                     className={`ml-1 inline-block h-[0.82em] w-[3px] rounded-full bg-[#f5b88f] shadow-[0_0_12px_rgba(245,184,143,0.9)] sm:w-[5px] ${

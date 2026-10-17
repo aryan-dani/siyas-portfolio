@@ -7,6 +7,7 @@ import { CONTENT } from "@/lib/content";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 import {
   AnimatedHairline,
+  KineticTypewriter,
   RefractivePlate,
 } from "@/components/motion/IglooMotionPrimitives";
 
@@ -234,7 +235,7 @@ export function ProofSection({
         <div className="mt-20 grid grid-cols-1 gap-10 sm:mt-24 lg:grid-cols-12 lg:items-center lg:gap-12">
           <div className="lg:col-span-5">
             <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] text-white/80">
-              (02) · Audience &amp; Proof
+              <KineticTypewriter text="(02) · Audience & Proof" speedMs={24} />
             </span>
             <h2
               ref={headlineRef}
@@ -308,7 +309,10 @@ export function ProofSection({
                       </p>
 
                       <span className="glass-pill relative z-10 w-fit shrink-0 rounded-full px-3 py-1 font-serif text-sm italic text-[#f5b88f]">
-                        {brand.deliverableType}
+                        <KineticTypewriter
+                          text={brand.deliverableType}
+                          speedMs={26}
+                        />
                       </span>
                     </div>
                   );

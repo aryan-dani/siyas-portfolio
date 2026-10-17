@@ -5,7 +5,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CONTENT } from "@/lib/content";
 import { formatInr, reelPackPrice } from "@/lib/pricing";
-import { RefractivePlate } from "@/components/motion/IglooMotionPrimitives";
+import {
+  KineticTypewriter,
+  RefractivePlate,
+} from "@/components/motion/IglooMotionPrimitives";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 if (typeof window !== "undefined") {
@@ -103,7 +106,10 @@ export function ServicesSection({
         <div className="flex flex-col justify-between gap-6 pb-12 sm:pb-16 lg:flex-row lg:items-end">
           <div>
             <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] text-white/80">
-              (04) · Transparent Creator Rates
+              <KineticTypewriter
+                text="(04) · Transparent Creator Rates"
+                speedMs={22}
+              />
             </span>
             <h2
               ref={headlineRef}
@@ -148,7 +154,10 @@ export function ServicesSection({
                         {service.index}
                       </span>
                       <span className="glass-pill rounded-full px-3.5 py-1 font-sans text-[11px] font-medium text-[#f5b88f]">
-                        {service.rateNote}
+                        <KineticTypewriter
+                          text={service.rateNote}
+                          speedMs={24}
+                        />
                       </span>
                     </div>
 
@@ -243,7 +252,10 @@ export function ServicesSection({
               <div className="lg:col-span-7">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="glass-pill rounded-full px-3.5 py-1 font-mono text-[11px] text-[#f5b88f]">
-                    Instant Rate Estimator
+                    <KineticTypewriter
+                      text="Instant Rate Estimator"
+                      speedMs={24}
+                    />
                   </span>
                   <span className="font-sans text-xs text-white/60">
                     Select your scope to auto-fill the inquiry subject &amp; brief

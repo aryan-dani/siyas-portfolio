@@ -185,15 +185,33 @@ export function IglooWebGLStage() {
 
     let rafId = 0;
     const startTime = performance.now();
+    let lastRenderTime = 0;
 
     const animate = () => {
       rafId = window.requestAnimationFrame(animate);
-      if (document.hidden) return;
+      if (
+        document.hidden ||
+        document.documentElement.hasAttribute("data-overlay-active")
+      ) {
+        return;
+      }
 
-      const elapsed = (performance.now() - startTime) * 0.001;
-      currentScroll += (targetScroll - currentScroll) * 0.065;
-      currentMouseX += (targetMouseX - currentMouseX) * 0.05;
-      currentMouseY += (targetMouseY - currentMouseY) * 0.05;
+      const now = performance.now();
+      const scrollDelta = Math.abs(targetScroll - currentScroll);
+      const mouseDelta =
+        Math.abs(targetMouseX - currentMouseX) +
+        Math.abs(targetMouseY - currentMouseY);
+      const isActivelyInteracting = scrollDelta > 0.001 || mouseDelta > 0.002;
+
+      // Throttle to ~30fps when idle so backdrop-filter glass surfaces never thrash GPU cache
+      const minInterval = isActivelyInteracting ? 16 : 34;
+      if (now - lastRenderTime < minInterval) return;
+      lastRenderTime = now;
+
+      const elapsed = (now - startTime) * 0.001;
+      currentScroll += (targetScroll - currentScroll) * 0.08;
+      currentMouseX += (targetMouseX - currentMouseX) * 0.06;
+      currentMouseY += (targetMouseY - currentMouseY) * 0.06;
 
       uniforms.uTime.value = reducedMotion ? 0 : elapsed;
       uniforms.uScroll.value = currentScroll;
@@ -219,6 +237,7 @@ export function IglooWebGLStage() {
     <div
       ref={mountRef}
       aria-hidden="true"
+      style={{ transform: "translate3d(0,0,0)", backfaceVisibility: "hidden" }}
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     />
   );

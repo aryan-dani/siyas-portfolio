@@ -1,13 +1,21 @@
 "use client";
 
+import React, { useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CONTENT } from "@/lib/content";
 import { CustomCursor } from "@/components/chrome/CustomCursor";
 import { IglooWebGLStage } from "@/components/motion/IglooWebGLStage";
 import {
+  SECTION_TRANSITION_META,
+  SectionNavigationCurtain,
+  type NavTransitionMeta,
+} from "@/components/motion/StudioIntroAndTransitions";
+import {
   AmbientGlassBacklight,
   AnimatedHairline,
+  KineticTypewriter,
   RefractivePlate,
 } from "@/components/motion/IglooMotionPrimitives";
 
@@ -111,6 +119,26 @@ const CLAUSES = [
 ];
 
 export function CopyrightPage() {
+  const router = useRouter();
+  const [activeNavMeta, setActiveNavMeta] = useState<NavTransitionMeta | null>(
+    null
+  );
+
+  const navigateWithCurtain = useCallback(
+    (targetPath: string, curtainKey: string) => {
+      const meta = SECTION_TRANSITION_META[curtainKey] ?? {
+        index: "01",
+        title: "Home",
+        subtitle: "Warm stories people actually finish.",
+      };
+      setActiveNavMeta(meta);
+      window.setTimeout(() => {
+        router.push(targetPath);
+      }, 280);
+    },
+    [router]
+  );
+
   const permissionMailto = `mailto:${CONTENT.profile.email}?cc=${
     CONTENT.profile.ccEmail
   }&subject=${encodeURIComponent(
@@ -119,6 +147,7 @@ export function CopyrightPage() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#070608] text-[#FAF6F2]">
+      <SectionNavigationCurtain activeMeta={activeNavMeta} />
       <IglooWebGLStage />
       <AmbientGlassBacklight />
       <CustomCursor />
@@ -129,6 +158,10 @@ export function CopyrightPage() {
           <Link
             href="/"
             data-cursor-box
+            onClick={(e) => {
+              e.preventDefault();
+              navigateWithCurtain("/", "#top");
+            }}
             className="inline-flex items-center gap-2.5 rounded-full bg-white/[0.08] px-4 py-2 font-sans text-xs font-medium text-white transition-colors hover:bg-white/[0.15]"
           >
             <span aria-hidden="true">←</span>
@@ -162,7 +195,10 @@ export function CopyrightPage() {
             <div className="lg:col-span-8">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="glass-pill rounded-full px-3.5 py-1 font-mono text-[10px] tracking-[0.2em] text-[#f5b88f] uppercase">
-                  Legal &amp; Licensing Dossier
+                  <KineticTypewriter
+                    text="Legal & Licensing Dossier"
+                    speedMs={22}
+                  />
                 </span>
                 <span className="glass-pill rounded-full px-3.5 py-1 font-mono text-[10px] tracking-[0.16em] text-white/70 uppercase">
                   Indian Copyright Act, 1957 · Berne Convention
@@ -318,7 +354,10 @@ export function CopyrightPage() {
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="glass-pill rounded-full px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-[#f5b88f] uppercase">
-                  Clause {clause.id} · {clause.tag}
+                  <KineticTypewriter
+                    text={`Clause ${clause.id} · ${clause.tag}`}
+                    speedMs={22}
+                  />
                 </span>
                 <span
                   aria-hidden="true"
@@ -345,7 +384,10 @@ export function CopyrightPage() {
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
             <div className="max-w-2xl">
               <span className="glass-pill rounded-full px-3 py-1 font-mono text-[10px] tracking-[0.18em] text-[#f5b88f] uppercase">
-                Clause 05 · Trademarks, Jurisdiction &amp; Licensing Desk
+                <KineticTypewriter
+                  text="Clause 05 · Trademarks, Jurisdiction & Licensing Desk"
+                  speedMs={20}
+                />
               </span>
               <h3 className="mt-4 font-display text-2xl font-bold tracking-[-0.03em] text-white sm:text-3xl">
                 Need commercial usage, paid ad rights, or brand licensing?
@@ -369,6 +411,10 @@ export function CopyrightPage() {
               <Link
                 href="/#services"
                 data-cursor-box
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateWithCurtain("/#services", "#services");
+                }}
                 className="glass-pill rounded-full px-5 py-3.5 font-sans text-xs font-medium text-white/90 hover:text-white"
               >
                 View Creator Rates →

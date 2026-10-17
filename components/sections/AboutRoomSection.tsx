@@ -7,6 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CONTENT } from "@/lib/content";
 import {
   AnimatedHairline,
+  KineticTypewriter,
   RefractivePlate,
 } from "@/components/motion/IglooMotionPrimitives";
 import { usePrefersReducedMotion } from "@/lib/hooks";
@@ -118,7 +119,7 @@ export function AboutRoomSection() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-end lg:gap-12">
           <div className="lg:col-span-7">
             <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] text-white/80">
-              (03) · About Siya
+              <KineticTypewriter text="(03) · About Siya" speedMs={24} />
             </span>
             <h2
               ref={headlineRef}
@@ -199,7 +200,10 @@ export function AboutRoomSection() {
                     data-cursor-box
                     className="shrink-0 font-serif text-sm italic text-[#f5b88f] hover:underline"
                   >
-                    {moment.serifNote} ↗
+                    <KineticTypewriter
+                      text={`${moment.serifNote} ↗`}
+                      speedMs={26}
+                    />
                   </a>
                 </div>
                 <p className="mt-2 font-sans text-xs leading-relaxed text-white/75 sm:text-sm">

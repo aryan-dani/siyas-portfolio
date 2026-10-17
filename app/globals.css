@@ -190,31 +190,29 @@ button {
     0 10px 28px -6px rgba(0, 0, 0, 0.75);
 }
 
-/* Floating Navigation & Tag Pills */
+/* Floating Navigation & Tag Pills (Zero nested blur pass when inside glass cards) */
 .glass-pill {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.035) 100%
+    rgba(255, 255, 255, 0.11) 0%,
+    rgba(255, 255, 255, 0.04) 100%
   );
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.17);
   box-shadow:
     inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
-    0 12px 32px -6px rgba(0, 0, 0, 0.52);
+    0 10px 26px -6px rgba(0, 0, 0, 0.48);
   transition:
-    border-color 0.3s var(--ease-siya),
-    background 0.3s var(--ease-siya),
-    transform 0.3s var(--ease-siya);
+    border-color 0.25s var(--ease-siya),
+    background 0.25s var(--ease-siya),
+    transform 0.25s var(--ease-siya);
 }
 
 .glass-pill:hover {
   border-color: rgba(255, 255, 255, 0.3);
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0.06) 100%
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.065) 100%
   );
 }
 
@@ -222,11 +220,11 @@ button {
 .glass-dock {
   background: linear-gradient(
     145deg,
-    rgba(16, 9, 13, 0.85) 0%,
-    rgba(8, 5, 8, 0.93) 100%
+    rgba(16, 9, 13, 0.86) 0%,
+    rgba(8, 5, 8, 0.94) 100%
   );
-  backdrop-filter: blur(20px) saturate(175%);
-  -webkit-backdrop-filter: blur(20px) saturate(175%);
+  backdrop-filter: blur(16px) saturate(170%);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 18px;
   transform: translateZ(0);
@@ -236,18 +234,16 @@ button {
     0 18px 44px -8px rgba(0, 0, 0, 0.78);
 }
 
-/* Tactile Frosted Glass Input & Dropdown Trigger */
+/* Tactile Glass Input & Deliverable Row (Zero nested blur pass) */
 .glass-input {
-  background: rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(14px) saturate(155%);
-  -webkit-backdrop-filter: blur(14px) saturate(155%);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
   transition:
-    background-color 0.25s var(--ease-siya),
-    border-color 0.25s var(--ease-siya),
-    box-shadow 0.25s var(--ease-siya);
+    background-color 0.22s var(--ease-siya),
+    border-color 0.22s var(--ease-siya),
+    box-shadow 0.22s var(--ease-siya);
 }
 
 .glass-input:hover {

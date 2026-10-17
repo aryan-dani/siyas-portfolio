@@ -9,6 +9,7 @@ import { CONTENT } from "@/lib/content";
 import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
 import {
   AnimatedHairline,
+  KineticTypewriter,
   RefractivePlate,
 } from "@/components/motion/IglooMotionPrimitives";
 import { usePrefersReducedMotion } from "@/lib/hooks";
@@ -75,6 +76,8 @@ export function ContactSection({
     FOOTER_HANDLE_TEXT.length
   );
   const [footerIsTyping, setFooterIsTyping] = useState(false);
+  const footerTypingIntervalRef = useRef<number | null>(null);
+  const footerLastReplayRef = useRef<number>(0);
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const headlineRef = useRef<HTMLHeadingElement | null>(null);
@@ -85,36 +88,49 @@ export function ContactSection({
   const { scrollTo } = useSmoothScroll();
   const reducedMotion = usePrefersReducedMotion();
 
+  const startFooterTyping = React.useCallback(() => {
+    if (reducedMotion) return;
+    if (footerTypingIntervalRef.current !== null) {
+      window.clearInterval(footerTypingIntervalRef.current);
+    }
+    setFooterIsTyping(true);
+    setFooterTypedChars(0);
+    let count = 0;
+    footerTypingIntervalRef.current = window.setInterval(() => {
+      count += 1;
+      setFooterTypedChars(count);
+      if (count >= FOOTER_HANDLE_TEXT.length) {
+        if (footerTypingIntervalRef.current !== null) {
+          window.clearInterval(footerTypingIntervalRef.current);
+          footerTypingIntervalRef.current = null;
+        }
+        setFooterIsTyping(false);
+        footerLastReplayRef.current = performance.now();
+      }
+    }, 42);
+  }, [reducedMotion]);
+
   useEffect(() => {
     if (reducedMotion || !footerWordmarkRef.current) return;
 
-    let intervalId: number | null = null;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
           observer.disconnect();
-          setFooterIsTyping(true);
-          setFooterTypedChars(0);
-          let count = 0;
-          intervalId = window.setInterval(() => {
-            count += 1;
-            setFooterTypedChars(count);
-            if (count >= FOOTER_HANDLE_TEXT.length) {
-              if (intervalId !== null) window.clearInterval(intervalId);
-              setFooterIsTyping(false);
-            }
-          }, 48);
+          startFooterTyping();
         }
       },
-      { threshold: 0.35 }
+      { threshold: 0.3 }
     );
 
     observer.observe(footerWordmarkRef.current);
     return () => {
       observer.disconnect();
-      if (intervalId !== null) window.clearInterval(intervalId);
+      if (footerTypingIntervalRef.current !== null) {
+        window.clearInterval(footerTypingIntervalRef.current);
+      }
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, startFooterTyping]);
 
   useEffect(() => {
     if (selectedPackage) {
@@ -259,7 +275,10 @@ export function ContactSection({
           <div className="flex flex-col justify-between lg:col-span-5">
             <div>
               <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] text-white/80">
-                (05) · Direct Collaborations
+                <KineticTypewriter
+                  text="(05) · Direct Collaborations"
+                  speedMs={22}
+                />
               </span>
 
               <h2
@@ -596,7 +615,7 @@ export function ContactSection({
         <footer id="footer" className="mt-20 pt-10 sm:mt-28 sm:pt-12">
           <AnimatedHairline />
 
-          {/* Giant Edge-to-Edge Signature Wordmark with Scroll-Triggered Typing */}
+          {/* Giant Edge-to-Edge Signature Wordmark with Zero-Reflow Scroll + Hover Typing */}
           <div
             ref={footerWordmarkRef}
             className="glass-card mt-10 overflow-hidden px-4 py-9 text-center sm:mt-12 sm:px-6 sm:py-14"
@@ -607,22 +626,41 @@ export function ContactSection({
               rel="noopener noreferrer"
               data-cursor-box
               aria-label={FOOTER_HANDLE_TEXT}
+              onMouseEnter={() => {
+                if (
+                  !footerIsTyping &&
+                  performance.now() - footerLastReplayRef.current > 1400
+                ) {
+                  startFooterTyping();
+                }
+              }}
               className="group inline-block max-w-full"
             >
               <span className="block font-mono text-[10px] tracking-[0.2em] text-white/50 uppercase sm:tracking-[0.26em]">
-                Siya Pawar · Pune, India · 10M+ Monthly Views
+                <KineticTypewriter
+                  text="Siya Pawar · Pune, India · 10M+ Monthly Views"
+                  speedMs={18}
+                />
               </span>
               <span
                 style={{ fontSize: "clamp(1.25rem, 6.2vw, 7.2rem)" }}
-                className="mt-3 inline-flex items-center justify-center font-display leading-[1.02] font-bold tracking-[-0.045em] text-white transition-colors duration-300 group-hover:text-[#f5b88f]"
+                className="mt-3 inline-grid items-center justify-items-start font-display leading-[1.02] font-bold tracking-[-0.045em] text-white transition-colors duration-300 group-hover:text-[#f5b88f]"
               >
-                <span>{FOOTER_HANDLE_TEXT.slice(0, footerTypedChars)}</span>
                 <span
                   aria-hidden="true"
-                  className={`ml-1 inline-block h-[0.82em] w-[3px] rounded-full bg-[#f5b88f] sm:w-[5px] ${
-                    footerIsTyping ? "" : "opacity-80 group-hover:opacity-100"
-                  }`}
-                />
+                  className="invisible col-start-1 row-start-1 select-none pr-3"
+                >
+                  {FOOTER_HANDLE_TEXT}
+                </span>
+                <span className="col-start-1 row-start-1 inline-flex items-center">
+                  <span>{FOOTER_HANDLE_TEXT.slice(0, footerTypedChars)}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`ml-1 inline-block h-[0.82em] w-[3px] rounded-full bg-[#f5b88f] shadow-[0_0_12px_rgba(245,184,143,0.9)] sm:w-[5px] ${
+                      footerIsTyping ? "" : "opacity-80 group-hover:opacity-100"
+                    }`}
+                  />
+                </span>
               </span>
             </a>
           </div>
@@ -654,6 +692,12 @@ export function ContactSection({
               <Link
                 href="/copyright"
                 data-cursor-box
+                onClick={(e) => {
+                  if (onNavigateSection) {
+                    e.preventDefault();
+                    onNavigateSection("/copyright");
+                  }
+                }}
                 className="text-[#f5b88f] underline decoration-[#f5b88f]/35 underline-offset-4 transition-colors hover:text-white"
               >
                 Copyright &amp; IP Dossier ↗
@@ -705,6 +749,12 @@ export function ContactSection({
                     <div className="flex items-center gap-2">
                       <Link
                         href="/copyright"
+                        onClick={(e) => {
+                          if (onNavigateSection) {
+                            e.preventDefault();
+                            onNavigateSection("/copyright");
+                          }
+                        }}
                         className="glass-pill rounded-full px-3 py-1 text-[11px] text-[#f5b88f] hover:text-white"
                       >
                         Full Legal Page ↗

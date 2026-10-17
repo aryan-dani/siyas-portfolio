@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   SmoothScrollProvider,
   useSmoothScroll,
@@ -29,6 +30,7 @@ function PortfolioInner() {
     useState<NavTransitionMeta | null>(null);
   const formInputRef = useRef<HTMLInputElement | null>(null);
   const { scrollTo } = useSmoothScroll();
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -36,8 +38,8 @@ function PortfolioInner() {
     if (hash && hash.length > 1) {
       const normalized = hash === "#pricing" ? "#services" : hash;
       const timer = window.setTimeout(() => {
-        scrollTo(normalized);
-      }, 120);
+        scrollTo(normalized, true);
+      }, 80);
       return () => window.clearTimeout(timer);
     }
   }, [scrollTo]);
@@ -49,13 +51,20 @@ function PortfolioInner() {
 
     setActiveTransitionMeta(meta);
 
+    if (typeof target === "string" && target.startsWith("/")) {
+      window.setTimeout(() => {
+        router.push(target);
+      }, 280);
+      return;
+    }
+
     window.setTimeout(() => {
-      scrollTo(target === "#top" ? 0 : target);
-    }, 240);
+      scrollTo(target === "#top" ? 0 : target, true);
+    }, 260);
 
     window.setTimeout(() => {
       setActiveTransitionMeta(null);
-    }, 680);
+    }, 580);
   };
 
   const handleRequestMediaKit = (

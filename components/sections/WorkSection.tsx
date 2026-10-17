@@ -8,6 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CONTENT, type ReelItem } from "@/lib/content";
 import {
   AnimatedHairline,
+  KineticTypewriter,
   RefractivePlate,
 } from "@/components/motion/IglooMotionPrimitives";
 import { usePrefersReducedMotion } from "@/lib/hooks";
@@ -183,7 +184,11 @@ function ReelFrame({
         <div className="glass-dock relative z-20 mt-auto flex flex-col gap-1.5 p-3.5">
           <div className="flex items-center justify-between gap-2">
             <p className="font-serif text-[15px] leading-snug italic text-[#f5c6aa] pr-1">
-              “{reel.overlaySerif}”
+              <KineticTypewriter
+                text={`“${reel.overlaySerif}”`}
+                speedMs={24}
+                replayOnHover
+              />
             </p>
             <span className="shrink-0 rounded-full border border-white/12 bg-white/10 px-2 py-0.5 font-mono text-[9px] tracking-[0.08em] text-white/90 uppercase">
               {isPlaying ? "Playing" : "Play"}
@@ -318,12 +323,15 @@ export function WorkSection({
     window.addEventListener("keydown", onKeyDown);
     if (activeReel) {
       document.body.style.overflow = "hidden";
+      document.documentElement.setAttribute("data-overlay-active", "true");
     } else {
       document.body.style.overflow = "";
+      document.documentElement.removeAttribute("data-overlay-active");
     }
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
+      document.documentElement.removeAttribute("data-overlay-active");
     };
   }, [activeReel]);
 
@@ -358,7 +366,11 @@ export function WorkSection({
         <div className="flex flex-col justify-between gap-6 pt-12 sm:pt-14 lg:flex-row lg:items-end">
           <div>
             <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] text-white/80">
-              (01) · Selected Reels &amp; Brand Work
+              <KineticTypewriter
+                text="(01) · Selected Reels & Brand Work"
+                speedMs={22}
+                replayOnHover
+              />
             </span>
             <h2
               ref={headlineRef}

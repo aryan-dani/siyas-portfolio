@@ -20,7 +20,7 @@ export type ScrollTelemetry = {
 type ScrollListener = (telemetry: ScrollTelemetry) => void;
 
 type SmoothScrollContextValue = {
-  scrollTo: (target: string | number | HTMLElement) => void;
+  scrollTo: (target: string | number | HTMLElement, immediate?: boolean) => void;
   subscribeScroll: (listener: ScrollListener) => () => void;
   getTelemetry: () => ScrollTelemetry;
 };
@@ -127,27 +127,35 @@ export function SmoothScrollProvider({
     };
   }, [reducedMotion]);
 
-  const scrollTo = (target: string | number | HTMLElement) => {
+  const scrollTo = (
+    target: string | number | HTMLElement,
+    immediate = false
+  ) => {
     if (lenisRef.current && !reducedMotion) {
       lenisRef.current.scrollTo(target, {
         offset: -24,
-        duration: 1.2,
+        immediate,
+        duration: immediate ? 0 : 1.05,
       });
+      if (immediate) {
+        ScrollTrigger.update();
+      }
       return;
     }
 
+    const behavior = immediate || reducedMotion ? "auto" : "smooth";
     if (typeof target === "string") {
       const el = document.querySelector(target);
       if (el) {
-        el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
+        el.scrollIntoView({ behavior });
       }
     } else if (typeof target === "number") {
       window.scrollTo({
         top: target,
-        behavior: reducedMotion ? "auto" : "smooth",
+        behavior,
       });
     } else if (target instanceof HTMLElement) {
-      target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
+      target.scrollIntoView({ behavior });
     }
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePrefersReducedMotion } from "@/lib/hooks";
@@ -10,14 +10,140 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Clean Editorial Text Primitive
- * Renders crisp, un-glitched typography with zero alphanumeric cipher scrambling,
- * ensuring 100% legibility at all times and steady bounding boxes for magnetic cursor locks.
+ * KineticTypewriter — Zero-Reflow Scroll & Hover Typing Animation
+ * Reserves exact final bounding box via an invisible sizer span (CLS = 0, zero cursor jitter)
+ * and types out the real characters cleanly with a glowing champagne-coral cursor bar.
  */
-export function ScrambleText({
+export function KineticTypewriter({
   text,
   as: Tag = "span",
   className = "",
+  speedMs = 26,
+  startDelayMs = 0,
+  replayOnHover = false,
+  showCursorWhenDone = false,
+}: {
+  text: string;
+  as?: "span" | "p" | "div" | "h3" | "h4";
+  className?: string;
+  speedMs?: number;
+  startDelayMs?: number;
+  replayOnHover?: boolean;
+  showCursorWhenDone?: boolean;
+}) {
+  const reducedMotion = usePrefersReducedMotion();
+  const containerRef = useRef<HTMLElement | null>(null);
+  const [charCount, setCharCount] = useState<number>(text.length);
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+  const hasTriggeredRef = useRef<boolean>(false);
+  const lastRunTimeRef = useRef<number>(0);
+  const timerRef = useRef<number | null>(null);
+
+  const runTyping = useCallback(
+    (delay = 0) => {
+      if (reducedMotion) {
+        setCharCount(text.length);
+        setIsTyping(false);
+        return;
+      }
+      const now = performance.now();
+      if (now - lastRunTimeRef.current < 900) return;
+      lastRunTimeRef.current = now;
+
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current);
+        window.clearInterval(timerRef.current);
+      }
+
+      const start = () => {
+        setIsTyping(true);
+        setCharCount(1);
+        let current = 1;
+        timerRef.current = window.setInterval(() => {
+          current += 1;
+          if (current >= text.length) {
+            setCharCount(text.length);
+            setIsTyping(false);
+            if (timerRef.current !== null) {
+              window.clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+          } else {
+            setCharCount(current);
+          }
+        }, speedMs);
+      };
+
+      if (delay > 0) {
+        timerRef.current = window.setTimeout(start, delay);
+      } else {
+        start();
+      }
+    },
+    [reducedMotion, speedMs, text.length]
+  );
+
+  useEffect(() => {
+    setCharCount(text.length);
+  }, [text]);
+
+  useEffect(() => {
+    if (reducedMotion || !containerRef.current) return;
+    const el = containerRef.current;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !hasTriggeredRef.current) {
+          hasTriggeredRef.current = true;
+          io.disconnect();
+          runTyping(startDelayMs);
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current);
+        window.clearInterval(timerRef.current);
+      }
+    };
+  }, [reducedMotion, runTyping, startDelayMs]);
+
+  return (
+    <Tag
+      ref={containerRef as React.RefObject<never>}
+      onMouseEnter={replayOnHover ? () => runTyping(0) : undefined}
+      className={`relative inline-grid items-center ${className}`}
+    >
+      {/* Invisible sizer locks exact width & height so layout never shifts */}
+      <span aria-hidden="true" className="invisible col-start-1 row-start-1 select-none">
+        {text}
+      </span>
+      <span className="col-start-1 row-start-1 inline-flex items-center">
+        <span>{text.slice(0, charCount)}</span>
+        <span
+          aria-hidden="true"
+          className={`ml-0.5 inline-block h-[0.85em] w-[2px] shrink-0 rounded-full bg-[#f5b88f] transition-opacity duration-200 ${
+            isTyping
+              ? "opacity-100"
+              : showCursorWhenDone
+                ? "opacity-75"
+                : "opacity-0"
+          }`}
+        />
+      </span>
+    </Tag>
+  );
+}
+
+export function ScrambleText({
+  text,
+  as = "span",
+  className = "",
+  scrambleOnHover = false,
 }: {
   text: string;
   as?: "span" | "p" | "div" | "h3" | "h4";
@@ -26,7 +152,14 @@ export function ScrambleText({
   scrambleOnMount?: boolean;
   durationMs?: number;
 }) {
-  return <Tag className={`inline-block ${className}`}>{text}</Tag>;
+  return (
+    <KineticTypewriter
+      text={text}
+      as={as}
+      className={className}
+      replayOnHover={scrambleOnHover}
+    />
+  );
 }
 
 /**

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { CONTENT } from "@/lib/content";
 import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
@@ -85,12 +84,15 @@ export function FloatingNavAndMenu({
     window.addEventListener("keydown", onKeyDown);
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      document.documentElement.setAttribute("data-overlay-active", "true");
     } else {
       document.body.style.overflow = "";
+      document.documentElement.removeAttribute("data-overlay-active");
     }
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
+      document.documentElement.removeAttribute("data-overlay-active");
     };
   }, [isOpen]);
 
@@ -100,7 +102,7 @@ export function FloatingNavAndMenu({
       onNavigateSection(href);
     } else {
       window.setTimeout(() => {
-        scrollTo(href);
+        scrollTo(href, true);
       }, 220);
     }
   };
@@ -113,8 +115,10 @@ export function FloatingNavAndMenu({
           style={{
             background:
               "linear-gradient(135deg, rgba(18, 10, 15, 0.88) 0%, rgba(9, 6, 9, 0.94) 100%)",
-            backdropFilter: "blur(32px) saturate(200%)",
-            WebkitBackdropFilter: "blur(32px) saturate(200%)",
+            backdropFilter: "blur(24px) saturate(190%)",
+            WebkitBackdropFilter: "blur(24px) saturate(190%)",
+            transform: "translate3d(0,0,0)",
+            backfaceVisibility: "hidden",
           }}
           className="glass-nav-capsule flex items-center gap-1 rounded-full border border-white/22 p-1 text-xs whitespace-nowrap shadow-[0_18px_44px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(255,255,255,0.35)]"
         >
@@ -155,7 +159,7 @@ export function FloatingNavAndMenu({
         </div>
       </header>
 
-      {/* Inset Framed Menu Overlay with Breathing Space on All 4 Sides */}
+      {/* 120fps GPU-Composited 4-Sided Inset Menu Overlay */}
       <AnimatePresence>
         {isOpen ? (
           <motion.div
@@ -166,28 +170,28 @@ export function FloatingNavAndMenu({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 z-[150] flex p-2.5 sm:p-4 md:p-5"
+            className="fixed inset-0 z-[150] flex p-2.5 will-change-[opacity] sm:p-4 md:p-5"
             style={{
-              background: "rgba(5, 3, 5, 0.28)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
+              background: "rgba(5, 3, 5, 0.42)",
+              backdropFilter: "blur(10px)",
+              WebkitBackdropFilter: "blur(10px)",
             }}
           >
             <motion.div
-              initial={{ scale: 0.985, opacity: 0, y: 8 }}
+              initial={{ scale: 0.985, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.985, opacity: 0, y: 6 }}
-              transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ scale: 0.99, opacity: 0, y: 6 }}
+              transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
               style={{
                 background:
-                  "linear-gradient(160deg, rgba(11, 7, 10, 0.92) 0%, rgba(6, 5, 7, 0.95) 100%)",
-                backdropFilter: "blur(44px) saturate(195%)",
-                WebkitBackdropFilter: "blur(44px) saturate(195%)",
+                  "radial-gradient(circle at 76% 24%, rgba(72, 18, 38, 0.34) 0%, rgba(11, 7, 10, 0.96) 54%, rgba(6, 5, 7, 0.985) 100%)",
+                transform: "translate3d(0,0,0)",
+                backfaceVisibility: "hidden",
               }}
-              className="relative flex h-full w-full flex-col justify-between overflow-y-auto rounded-[24px] border border-white/16 px-6 py-6 text-white shadow-[0_32px_100px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.22)] sm:rounded-[30px] sm:px-10 sm:py-8 lg:px-14"
+              className="relative flex h-full w-full flex-col justify-between overflow-y-auto rounded-[24px] border border-white/16 px-6 py-6 text-white shadow-[0_32px_100px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.22)] will-change-transform sm:rounded-[30px] sm:px-10 sm:py-8 lg:px-14"
             >
               {/* Top Bar: Minimal "Menu" Label + White Close Pill */}
               <div className="relative z-20 flex items-center justify-between gap-4">
@@ -199,7 +203,7 @@ export function FloatingNavAndMenu({
                   type="button"
                   data-cursor-box
                   onClick={() => setIsOpen(false)}
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 font-sans text-xs font-semibold text-[#080808] shadow-lg transition-transform duration-300 hover:scale-[1.04]"
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 font-sans text-xs font-semibold text-[#080808] shadow-lg transition-transform duration-200 hover:scale-[1.04]"
                 >
                   <span>Close</span>
                   <span aria-hidden="true" className="text-[11px]">
@@ -208,7 +212,7 @@ export function FloatingNavAndMenu({
                 </button>
               </div>
 
-              {/* Center: Monumental Left-Aligned Navigation + Shoulder-Anchored Real Section Previews */}
+              {/* Center: Monumental Left-Aligned Navigation + Pre-Mounted GPU Shoulder Previews */}
               <div className="relative z-10 my-auto py-4">
                 <nav
                   aria-label="Fullscreen Navigation"
@@ -220,22 +224,14 @@ export function FloatingNavAndMenu({
                     const isDimmed = hoveredIdx !== null && hoveredIdx !== idx;
 
                     return (
-                      <motion.button
+                      <button
                         key={item.href}
                         type="button"
                         data-menu-item
-                        initial={{ opacity: 0, y: 18 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{
-                          duration: 0.4,
-                          delay: 0.035 * idx,
-                          ease: [0.22, 1, 0.36, 1],
-                        }}
                         onMouseEnter={() => setHoveredIdx(idx)}
                         onFocus={() => setHoveredIdx(idx)}
                         onClick={() => navigateWithCurtain(item.href)}
-                        className="group relative flex items-start gap-5 py-0.5 text-left sm:gap-9"
+                        className="group relative flex items-start gap-5 py-0.5 text-left will-change-transform sm:gap-9"
                       >
                         <span className="mt-3 font-mono text-[10px] text-white/35 sm:mt-4">
                           {item.index}
@@ -244,63 +240,63 @@ export function FloatingNavAndMenu({
                         <span className="relative inline-flex items-center">
                           <span
                             style={{ fontSize: "clamp(2.5rem, 6.6vw, 5.5rem)" }}
-                            className={`font-display leading-[0.96] font-semibold tracking-[-0.045em] transition-all duration-300 ${
+                            className={`font-display leading-[0.96] font-semibold tracking-[-0.045em] transition-[color,transform] duration-200 ease-out will-change-transform ${
                               isDimmed
-                                ? "text-white/25"
-                                : "translate-x-1 text-white"
+                                ? "translate-x-0 text-white/25"
+                                : isHovered
+                                  ? "translate-x-1.5 text-white"
+                                  : "translate-x-0 text-white"
                             }`}
                           >
                             {item.title}
                           </span>
 
-                          {/* Reference-Style Shoulder Badge ([↗] + [GO]) + Real Section Preview Card */}
-                          <AnimatePresence>
-                            {isHovered ? (
-                              <motion.span
-                                initial={{ opacity: 0, x: -12, scale: 0.92 }}
-                                animate={{ opacity: 1, x: 0, scale: 1 }}
-                                exit={{ opacity: 0, x: -8, scale: 0.94 }}
-                                transition={{
-                                  duration: 0.26,
-                                  ease: [0.22, 1, 0.36, 1],
-                                }}
-                                className="pointer-events-none relative ml-3 inline-flex items-center sm:ml-4"
-                              >
-                                {/* Floating Real Section Screenshot Thumbnail Behind/Beside the [↗][GO] Pills */}
-                                <span className="relative hidden sm:inline-block">
-                                  <span className="relative -mt-10 ml-3 block h-32 w-52 overflow-hidden rounded-[20px] border border-white/22 bg-[#12090e] p-1 shadow-[0_24px_60px_rgba(0,0,0,0.92)] lg:h-36 lg:w-60">
-                                    <span className="relative block h-full w-full overflow-hidden rounded-[15px]">
-                                      <Image
-                                        src={item.previewSrc}
-                                        alt={`${item.title} section preview`}
-                                        fill
-                                        sizes="240px"
-                                        className="object-cover object-top"
-                                      />
-                                      <span className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-                                    </span>
-                                  </span>
-
-                                  {/* Overlapping [↗] + [GO] Pills on the Bottom-Left Corner of the Preview (Matching Reference) */}
-                                  <span className="absolute -bottom-1 -left-2 z-20 inline-flex items-center gap-1.5">
-                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[11px] font-bold text-[#080808] shadow-lg">
-                                      ↗
-                                    </span>
-                                    <span className="rounded-full border border-white/22 bg-[#141115]/92 px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wider text-white/95 uppercase shadow-lg backdrop-blur-md">
-                                      GO
-                                    </span>
-                                  </span>
+                          {/* Pre-Mounted GPU-Composited Shoulder Badge ([↗] + [GO]) + Live Section Preview */}
+                          <span
+                            aria-hidden={!isHovered}
+                            style={{
+                              transform: isHovered
+                                ? "translate3d(0px, 0px, 0px) scale3d(1, 1, 1)"
+                                : "translate3d(-10px, 4px, 0px) scale3d(0.94, 0.94, 1)",
+                              opacity: isHovered ? 1 : 0,
+                              backfaceVisibility: "hidden",
+                            }}
+                            className="pointer-events-none relative ml-3 inline-flex items-center transition-[transform,opacity] duration-200 ease-out will-change-[transform,opacity] sm:ml-4"
+                          >
+                            {/* Floating Real Section Screenshot Thumbnail */}
+                            <span className="relative hidden sm:inline-block">
+                              <span className="relative -mt-10 ml-3 block h-32 w-52 overflow-hidden rounded-[20px] border border-white/22 bg-[#12090e] p-1 shadow-[0_24px_60px_rgba(0,0,0,0.92)] lg:h-36 lg:w-60">
+                                <span className="relative block h-full w-full overflow-hidden rounded-[15px]">
+                                  <Image
+                                    src={item.previewSrc}
+                                    alt={`${item.title} section preview`}
+                                    fill
+                                    priority
+                                    sizes="240px"
+                                    className="object-cover object-top"
+                                  />
+                                  <span className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
                                 </span>
+                              </span>
 
-                                {/* Compact [↗] Pill for Mobile Screens */}
-                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-bold text-[#080808] shadow-lg sm:hidden">
+                              {/* Overlapping [↗] + [GO] Pills on Bottom-Left Corner */}
+                              <span className="absolute -bottom-1 -left-2 z-20 inline-flex items-center gap-1.5">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[11px] font-bold text-[#080808] shadow-lg">
                                   ↗
                                 </span>
-                              </motion.span>
-                            ) : null}
-                          </AnimatePresence>
+                                <span className="rounded-full border border-white/22 bg-[#141115]/95 px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wider text-white/95 uppercase shadow-lg">
+                                  GO
+                                </span>
+                              </span>
+                            </span>
+
+                            {/* Compact [↗] Pill for Mobile Screens */}
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-bold text-[#080808] shadow-lg sm:hidden">
+                              ↗
+                            </span>
+                          </span>
                         </span>
-                      </motion.button>
+                      </button>
                     );
                   })}
                 </nav>
@@ -349,14 +345,14 @@ export function FloatingNavAndMenu({
                   >
                     YouTube
                   </a>
-                  <Link
-                    href="/copyright"
-                    onClick={() => setIsOpen(false)}
+                  <button
+                    type="button"
+                    onClick={() => navigateWithCurtain("/copyright")}
                     data-cursor-box
                     className="text-[#f5b88f] transition-colors hover:text-white"
                   >
                     Copyright &amp; IP
-                  </Link>
+                  </button>
                 </div>
 
                 <div className="font-mono text-[11px] text-white/65">
@@ -370,5 +366,3 @@ export function FloatingNavAndMenu({
     </>
   );
 }
-
-

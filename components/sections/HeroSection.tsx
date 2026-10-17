@@ -5,7 +5,10 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { CONTENT } from "@/lib/content";
-import { RefractivePlate } from "@/components/motion/IglooMotionPrimitives";
+import {
+  KineticTypewriter,
+  RefractivePlate,
+} from "@/components/motion/IglooMotionPrimitives";
 import { useSmoothScroll } from "@/components/motion/SmoothScrollProvider";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
@@ -159,7 +162,12 @@ export function HeroSection({
         <div className="pt-1 text-right font-display text-lg leading-[1.12] font-medium tracking-[-0.03em] text-white/90 sm:pt-3 sm:text-2xl">
           <p>Stories,</p>
           <p className="font-serif font-normal italic text-[#f5b88f] pr-1">
-            finished.
+            <KineticTypewriter
+              text="finished."
+              speedMs={45}
+              startDelayMs={220}
+              replayOnHover
+            />
           </p>
         </div>
       </div>
@@ -197,7 +205,12 @@ export function HeroSection({
                 {CONTENT.profile.handle}
               </a>
               <span className="font-serif italic text-[#f5b88f] pr-1">
-                10M+ monthly views
+                <KineticTypewriter
+                  text="10M+ monthly views"
+                  speedMs={28}
+                  startDelayMs={320}
+                  replayOnHover
+                />
               </span>
             </div>
           </div>

@@ -1,312 +1,468 @@
 @import "tailwindcss";
 
-:root {
-  /* High-Contrast Studio Obsidian, Champagne Pearl & Velvet Rose Palette */
-  --espresso: #070608;
-  --wine: #3b0d1e;
-  --cranberry: #e11d48;
-  --marigold: #ff8a70;
-  --cream: #faf6f2;
-  --ivy: #10b981;
+/* ==========================================================================
+   SIYA — design system
+   --------------------------------------------------------------------------
+   Palette: exactly the three supplied colours. Every other tone on the site is
+   one of them mixed with transparency (text 76%, hairlines 16%, tints 8%).
+     Buttermilk     #FFF1B5   page
+     Pastel Blue    #C1DBE8   Selected Work, selection, hover fills
+     Old Burgundy   #43302E   ink, and the dark "Rates" chapter
+   ========================================================================== */
 
-  --ease-siya: cubic-bezier(0.22, 1, 0.36, 1);
-  --background: var(--espresso);
-  --foreground: var(--cream);
+/* Registered so the page background and ink can cross-fade between sections. */
+@property --bg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #fff1b5;
+}
+@property --fg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #43302e;
+}
+@property --muted-pct {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 76%;
+}
+
+:root {
+  --buttermilk: #fff1b5;
+  --pastel-blue: #c1dbe8;
+  --old-burgundy: #43302e;
+
+  /* Live theme (changed by data-theme on <html>, driven by scroll position) */
+  --bg: var(--buttermilk);
+  --fg: var(--old-burgundy);
+  --muted-pct: 76%;
+
+  --fg-muted: color-mix(in srgb, var(--fg) var(--muted-pct), transparent);
+  --fg-line: color-mix(in srgb, var(--fg) 16%, transparent);
+  --fg-faint: color-mix(in srgb, var(--fg) 8%, transparent);
+
+  /* One easing family everywhere: expo */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+  --theme-duration: 900ms;
+
+  --gutter: clamp(1.25rem, 4.2vw, 4.5rem);
+  --max-w: 1440px;
+
+  transition:
+    --bg var(--theme-duration) var(--ease-in-out),
+    --fg var(--theme-duration) var(--ease-in-out),
+    --muted-pct var(--theme-duration) var(--ease-in-out);
+}
+
+/* Pastel blue is lighter than buttermilk's contrast needs: lift muted text. */
+:root[data-theme="blue"] {
+  --bg: var(--pastel-blue);
+  --muted-pct: 86%;
+}
+:root[data-theme="burgundy"] {
+  --bg: var(--old-burgundy);
+  --fg: var(--buttermilk);
+  --muted-pct: 78%;
 }
 
 @theme inline {
-  --color-espresso: var(--espresso);
-  --color-wine: var(--wine);
-  --color-cranberry: var(--cranberry);
-  --color-marigold: var(--marigold);
-  --color-cream: var(--cream);
-  --color-ivy: var(--ivy);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-buttermilk: var(--buttermilk);
+  --color-pastel: var(--pastel-blue);
+  --color-burgundy: var(--old-burgundy);
+  --color-paper: var(--bg);
+  --color-ink: var(--fg);
+  --color-ink-muted: var(--fg-muted);
+  --color-line: var(--fg-line);
 
-  --font-display: var(--font-inter-tight);
-  --font-sans: var(--font-inter-tight);
-  --font-serif: var(--font-instrument);
-  --font-mono: var(--font-jetbrains-mono);
+  --font-display: var(--font-noto-display), "Times New Roman", serif;
+  --font-script: var(--font-monsieur), "Snell Roundhand", cursive;
+  --font-sans: var(--font-jost), system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-html {
-  background-color: var(--espresso);
-  color: var(--cream);
-  scroll-padding-top: 5rem;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-/* Hide native cursor only on desktop devices with fine pointer + hover */
-@media (hover: hover) and (pointer: fine) {
-  html,
-  body,
+/* ---------------------------------------------------------------- base */
+@layer base {
   *,
-  *::before,
-  *::after,
-  a,
-  button,
-  input,
-  textarea,
-  select,
-  label,
-  [role="button"] {
-    cursor: none !important;
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--fg-line);
+  }
+
+  html {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    font-synthesis: none;
+    scroll-padding-top: 6rem;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--fg) 32%, transparent) transparent;
+  }
+
+  body {
+    min-height: 100svh;
+    font-size: 1rem;
+    line-height: 1.6;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background-color: var(--pastel-blue);
+    color: var(--old-burgundy);
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--fg);
+    outline-offset: 5px;
+    border-radius: 2px;
+  }
+
+  img,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Lenis */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
   }
 }
 
-html.lenis,
-html.lenis body {
-  height: auto;
+/* ---------------------------------------------------------- typography */
+@layer components {
+  /* Huge condensed Didone capitals (stand-in for Perandory) */
+  .type-display {
+    font-family: var(--font-display);
+    font-stretch: 62.5%;
+    font-weight: 500;
+    font-kerning: normal;
+    text-transform: uppercase;
+    line-height: 0.88;
+    letter-spacing: -0.012em;
+  }
+
+  /* Copperplate script accent (stand-in for the "Branding" script) */
+  .type-script {
+    font-family: var(--font-script);
+    font-stretch: normal;
+    font-weight: 400;
+    font-style: normal;
+    text-transform: none;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  .type-label {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .type-body {
+    font-size: clamp(1rem, 0.96rem + 0.22vw, 1.14rem);
+    line-height: 1.7;
+    color: var(--fg-muted);
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: var(--max-w);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .hairline {
+    height: 1px;
+    width: 100%;
+    background: var(--fg-line);
+    transform-origin: left center;
+  }
+
+  /* Underline that draws in from the left on hover / focus */
+  .link-u {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    padding-bottom: 0.2em;
+    transition: background-size 0.6s var(--ease-out);
+  }
+  .link-u:hover,
+  .link-u:focus-visible,
+  .link-u[data-active="true"] {
+    background-size: 100% 1px;
+  }
+
+  /* Rolling label: two stacked copies slide up on hover */
+  .roll {
+    display: inline-block;
+    overflow: hidden;
+    height: 1.4em;
+    line-height: 1.4em;
+    vertical-align: bottom;
+  }
+  .roll__inner {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.7s var(--ease-out);
+  }
+  .roll__inner > span {
+    display: block;
+    height: 1.4em;
+    white-space: nowrap;
+  }
+  .has-roll:hover .roll__inner,
+  .has-roll:focus-visible .roll__inner {
+    transform: translateY(-50%);
+  }
+
+  /* Pill button: ink fill sweeps up from below on hover */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.95rem 1.5rem 0.95rem 1.75rem;
+    border: 1px solid var(--fg);
+    border-radius: 999px;
+    overflow: hidden;
+    font-family: var(--font-sans);
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg);
+    transition: color 0.6s var(--ease-out);
+  }
+  .btn::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    background: var(--fg);
+    border-radius: 999px;
+    transform: translateY(102%);
+    transition: transform 0.7s var(--ease-out);
+  }
+  .btn:hover,
+  .btn:focus-visible {
+    color: var(--bg);
+  }
+  .btn:hover::before,
+  .btn:focus-visible::before {
+    transform: translateY(0);
+  }
+  .btn--solid {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .btn--solid::before {
+    background: var(--pastel-blue);
+  }
+  .btn--solid:hover,
+  .btn--solid:focus-visible {
+    color: var(--old-burgundy);
+  }
+  .btn__arrow {
+    display: inline-block;
+    transition: transform 0.7s var(--ease-out);
+  }
+  .btn:hover .btn__arrow,
+  .btn:focus-visible .btn__arrow {
+    transform: translateX(0.35rem);
+  }
+
+  /* A dark burgundy island inside any page theme (reel player, menus). It
+     re-derives the mixed tones, because those are computed at :root. */
+  .scope-dark {
+    --bg: var(--old-burgundy);
+    --fg: var(--buttermilk);
+    --muted-pct: 78%;
+    --fg-muted: color-mix(in srgb, var(--fg) var(--muted-pct), transparent);
+    --fg-line: color-mix(in srgb, var(--fg) 16%, transparent);
+    --fg-faint: color-mix(in srgb, var(--fg) 8%, transparent);
+    color: var(--fg);
+  }
+
+  .skip-link {
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    z-index: 200;
+    padding: 0.75rem 1.1rem;
+    background: var(--old-burgundy);
+    color: var(--buttermilk);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  /* Barely-there paper grain (static, one tiled SVG, no blend modes) */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .26  0 0 0 0 .19  0 0 0 0 .18  1.6 0 0 0 -.55'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 220px 220px;
+  }
 }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+/* -------------------------------------------------------- reveal states
+   Transparent only when JS is available AND the visitor allows motion; the boot
+   script in <head> adds .js-motion. GSAP sets inline styles while animating and
+   then marks the element data-revealed so the CSS never hides it again.
+   .motion-failsafe (added by the boot script after 6s if the app never
+   started) un-hides everything, so a JS failure can never blank the page. */
+html.js-motion [data-reveal]:not([data-revealed]):not([data-reveal="image"]) {
+  /* opacity, not visibility: the content stays in the accessibility tree, so
+     screen-reader users can read sections they haven't scrolled to. */
+  opacity: 0;
+}
+html.motion-failsafe [data-reveal]:not([data-revealed]) {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
 }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+/* Picture frames are hidden by a page-coloured cover instead of by opacity, so
+   the picture itself is painted (and counted for LCP) from the first frame. */
+[data-reveal="image"] {
+  position: relative;
+}
+.reveal-cover {
+  display: none;
+  position: absolute;
+  inset: -1px;
+  z-index: 4;
+  background: var(--bg);
+  pointer-events: none;
+}
+html.js-motion [data-reveal="image"]:not([data-revealed]) > .reveal-cover {
+  display: block;
+}
+html.motion-failsafe .reveal-cover {
+  display: none !important;
 }
 
-.lenis.lenis-stopped {
+/* ------------------------------------------------------------- intro */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--buttermilk);
+  color: var(--old-burgundy);
+  will-change: transform;
+}
+/* Curved lower edge that leads the panel as it lifts away */
+.intro::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 14vh;
+  background: var(--buttermilk);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+html[data-intro="done"] .intro {
+  display: none;
+}
+html[data-intro="pending"],
+html[data-intro="revealing"] {
   overflow: hidden;
 }
 
-body {
-  background-color: var(--espresso);
-  color: var(--cream);
-  font-family: var(--font-inter-tight), system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
+/* ------------------------------------------- page-to-page view transitions */
+::view-transition {
+  pointer-events: none;
 }
-
-a,
-button {
-  touch-action: manipulation;
+::view-transition-old(.page-out) {
+  animation: 380ms var(--ease-in-out) both vt-out;
 }
-
-::selection {
-  background-color: var(--cranberry);
-  color: var(--cream);
+::view-transition-new(.page-in) {
+  animation: 720ms var(--ease-out) 140ms both vt-in;
 }
-
-:focus-visible {
-  outline: 2px solid var(--marigold);
-  outline-offset: 3px;
-  border-radius: 8px;
-}
-
-/* ==========================================================================
-   Optical Studio Glassmorphism System (VisionOS-Grade Multi-Bezel Refraction)
-   ========================================================================== */
-
-/* Primary Frosted Glass Card / Vessel */
-.glass-card {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.09) 0%,
-    rgba(255, 255, 255, 0.03) 52%,
-    rgba(245, 184, 143, 0.035) 100%
-  );
-  backdrop-filter: blur(22px) saturate(175%);
-  -webkit-backdrop-filter: blur(22px) saturate(175%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 28px;
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.34),
-    inset 1px 0 0 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 0 rgba(245, 184, 143, 0.08),
-    0 28px 72px -12px rgba(0, 0, 0, 0.72);
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  transition:
-    border-color 0.35s var(--ease-siya),
-    box-shadow 0.35s var(--ease-siya),
-    background 0.35s var(--ease-siya);
-}
-
-.glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.44),
-    inset 1px 0 0 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 0 rgba(255, 138, 112, 0.14),
-    0 34px 88px -12px rgba(0, 0, 0, 0.8);
-}
-
-/* Hero Double-Bezel Portrait Glass Frame */
-.glass-portrait-bezel {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.14) 0%,
-    rgba(255, 255, 255, 0.045) 58%,
-    rgba(245, 184, 143, 0.08) 100%
-  );
-  backdrop-filter: blur(26px) saturate(180%);
-  -webkit-backdrop-filter: blur(26px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 32px;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.46),
-    inset 1px 0 0 0 rgba(255, 255, 255, 0.14),
-    inset 0 -1px 0 0 rgba(245, 184, 143, 0.12),
-    0 40px 100px -15px rgba(0, 0, 0, 0.78);
-}
-
-/* Floating Navigation Capsule — High-Density Smoked Frosted Glass for 100% Contrast Over Any Content */
-.glass-nav-capsule {
-  background: linear-gradient(
-    135deg,
-    rgba(18, 10, 15, 0.88) 0%,
-    rgba(9, 6, 9, 0.94) 100%
-  );
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.38),
-    inset 0 -1px 0 0 rgba(245, 184, 143, 0.14),
-    0 18px 44px -8px rgba(0, 0, 0, 0.88),
-    0 0 0 1px rgba(0, 0, 0, 0.55);
-}
-
-/* Smoked Frosted Pill for Video / Reel Overlays */
-.glass-reel-pill {
-  background: linear-gradient(
-    135deg,
-    rgba(14, 8, 12, 0.82) 0%,
-    rgba(7, 5, 7, 0.9) 100%
-  );
-  backdrop-filter: blur(16px) saturate(175%);
-  -webkit-backdrop-filter: blur(16px) saturate(175%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
-    0 10px 28px -6px rgba(0, 0, 0, 0.75);
-}
-
-/* Floating Navigation & Tag Pills (Zero nested blur pass when inside glass cards) */
-.glass-pill {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.11) 0%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.17);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.3),
-    0 10px 26px -6px rgba(0, 0, 0, 0.48);
-  transition:
-    border-color 0.25s var(--ease-siya),
-    background 0.25s var(--ease-siya),
-    transform 0.25s var(--ease-siya);
-}
-
-.glass-pill:hover {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.16) 0%,
-    rgba(255, 255, 255, 0.065) 100%
-  );
-}
-
-/* Smoked-Glass Dock (Overlaid on Reels & Photos) */
-.glass-dock {
-  background: linear-gradient(
-    145deg,
-    rgba(16, 9, 13, 0.86) 0%,
-    rgba(8, 5, 8, 0.94) 100%
-  );
-  backdrop-filter: blur(16px) saturate(170%);
-  -webkit-backdrop-filter: blur(16px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 18px;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
-    0 18px 44px -8px rgba(0, 0, 0, 0.78);
-}
-
-/* Tactile Glass Input & Deliverable Row (Zero nested blur pass) */
-.glass-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 16px;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
-  transition:
-    background-color 0.22s var(--ease-siya),
-    border-color 0.22s var(--ease-siya),
-    box-shadow 0.22s var(--ease-siya);
-}
-
-.glass-input:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.24);
-}
-
-.glass-input:focus {
-  background: rgba(255, 255, 255, 0.085);
-  border-color: rgba(255, 138, 112, 0.6);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
-    0 0 0 3px rgba(255, 138, 112, 0.16);
-  outline: none;
-}
-
-/* Deep Smoked-Glass Dropdown & Lightbox Surface */
-.glass-Popover {
-  background: linear-gradient(
-    155deg,
-    rgba(22, 12, 17, 0.94) 0%,
-    rgba(10, 6, 9, 0.97) 100%
-  );
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.32),
-    0 28px 75px -10px rgba(0, 0, 0, 0.9);
-}
-
-/* Mobile & Tablet GPU Compositor Optimization */
-@media (max-width: 767px) {
-  .glass-card,
-  .glass-portrait-bezel {
-    backdrop-filter: blur(16px) saturate(165%);
-    -webkit-backdrop-filter: blur(16px) saturate(165%);
-  }
-  .glass-dock,
-  .glass-pill,
-  .glass-reel-pill,
-  .glass-input {
-    backdrop-filter: blur(12px) saturate(155%);
-    -webkit-backdrop-filter: blur(12px) saturate(155%);
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-14px);
   }
 }
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
 }
 
-::-webkit-scrollbar-track {
-  background: #070608;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #3b0d1e;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ff8a70;
+/* ---------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local, git-ignored browser profile used for screenshots; not source code.
+    "screenshots/**",
   ]),
 ]);
 

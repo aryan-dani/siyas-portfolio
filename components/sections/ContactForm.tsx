@@ -17,6 +17,7 @@ export function ContactForm() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
 
   const active = INQUIRY_OPTIONS.find((o) => o.value === option) ?? INQUIRY_OPTIONS[0];
 
@@ -47,13 +48,17 @@ export function ContactForm() {
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const shell = shellRef.current;
+    if (shell) {
+      shell.style.minHeight = `${shell.offsetHeight}px`;
+    }
     setSubmitted(true);
     window.location.href = mailto;
   };
 
   if (submitted) {
     return (
-      <div className="form form--done" role="status">
+      <div ref={shellRef} className="form form--done" role="status" data-rise="true">
         <p className="type-script form__thanks">thank you</p>
         <p className="type-body">
           your email draft is ready, with the subject filled in. if it didn’t open, use the button below.
@@ -81,7 +86,14 @@ export function ContactForm() {
               ↗
             </span>
           </a>
-          <button type="button" className="type-label link-u" onClick={() => setSubmitted(false)}>
+          <button
+            type="button"
+            className="type-label link-u"
+            onClick={() => {
+              setSubmitted(false);
+              if (shellRef.current) shellRef.current.style.minHeight = "";
+            }}
+          >
             edit inquiry
           </button>
         </div>
@@ -90,95 +102,97 @@ export function ContactForm() {
   }
 
   return (
-    <form className="form" onSubmit={onSubmit}>
-      <div className="form__pair">
-        <div className="field">
-          <label htmlFor="c-name" className="type-label">
-            your name &amp; brand
-          </label>
-          <input
-            ref={nameRef}
-            id="c-name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={contact.namePlaceholder}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="c-email" className="type-label">
-            work email
-          </label>
-          <input
-            id="c-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder={contact.emailPlaceholder}
-          />
-        </div>
-      </div>
-
-      <div className="field field--chips" role="radiogroup" aria-labelledby="c-format">
-        <p id="c-format" className="type-label">
-          collaboration format
-        </p>
-        <div className="chips">
-          {INQUIRY_OPTIONS.map((o) => (
-            <label key={o.value} className="chip">
-              <input
-                type="radio"
-                name="format"
-                value={o.value}
-                checked={o.value === option}
-                onChange={() => setOption(o.value)}
-              />
-              <span>{o.label}</span>
+    <div ref={shellRef}>
+      <form className="form" onSubmit={onSubmit}>
+        <div className="form__pair">
+          <div className="field">
+            <label htmlFor="c-name" className="type-label">
+              your name &amp; brand
             </label>
-          ))}
+            <input
+              ref={nameRef}
+              id="c-name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={contact.namePlaceholder}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="c-email" className="type-label">
+              work email
+            </label>
+            <input
+              id="c-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={contact.emailPlaceholder}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="field">
-        <label htmlFor="c-note" className="type-label">
-          project note &amp; timeline
-        </label>
-        <textarea
-          id="c-note"
-          name="note"
-          rows={3}
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder={contact.notePlaceholder}
-        />
-      </div>
+        <div className="field field--chips" role="radiogroup" aria-labelledby="c-format">
+          <p id="c-format" className="type-label">
+            collaboration format
+          </p>
+          <div className="chips">
+            {INQUIRY_OPTIONS.map((o) => (
+              <label key={o.value} className="chip">
+                <input
+                  type="radio"
+                  name="format"
+                  value={o.value}
+                  checked={o.value === option}
+                  onChange={() => setOption(o.value)}
+                />
+                <span>{o.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
-      <p className="form__subject type-label">
-        <span>subject</span>
-        <span className="form__subject-text">{subject}</span>
-      </p>
+        <div className="field">
+          <label htmlFor="c-note" className="type-label">
+            project note &amp; timeline
+          </label>
+          <textarea
+            id="c-note"
+            name="note"
+            rows={3}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder={contact.notePlaceholder}
+          />
+        </div>
 
-      <div className="form__actions">
-        <button type="submit" className="btn btn--solid has-roll">
-          <span className="roll" aria-hidden="true">
-            <span className="roll__inner">
-              <span>send inquiry</span>
-              <span>send inquiry</span>
+        <p className="form__subject type-label">
+          <span>subject</span>
+          <span className="form__subject-text">{subject}</span>
+        </p>
+
+        <div className="form__actions">
+          <button type="submit" className="btn btn--solid has-roll">
+            <span className="roll" aria-hidden="true">
+              <span className="roll__inner">
+                <span>send inquiry</span>
+                <span>send inquiry</span>
+              </span>
             </span>
-          </span>
-          <span className="sr-only">send inquiry</span>
-          <span className="btn__arrow" aria-hidden="true">
-            →
-          </span>
-        </button>
-        <span className="type-label form__to">opens your email app · to {profile.email}</span>
-      </div>
-    </form>
+            <span className="sr-only">send inquiry</span>
+            <span className="btn__arrow" aria-hidden="true">
+              →
+            </span>
+          </button>
+          <span className="type-label form__to">opens your email app · to {profile.email}</span>
+        </div>
+      </form>
+    </div>
   );
 }

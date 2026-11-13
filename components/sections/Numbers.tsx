@@ -1,6 +1,7 @@
 import { CONTENT } from "@/lib/content";
 import { DrawLine, Reveal } from "@/components/motion/Reveal";
 import { Odometer } from "@/components/motion/Odometer";
+import { InView } from "@/components/motion/InView";
 import { Eyebrow } from "@/components/ui/Heading";
 
 export function Numbers() {
@@ -19,13 +20,19 @@ export function Numbers() {
           <DrawLine />
         </div>
 
-        <ul className="numbers__grid">
+        <InView as="ul" className="numbers__grid">
           {numbers.stats.map((stat, i) => (
-            <li key={stat.label} className="numbers__item">
+            <li
+              key={stat.label}
+              className="numbers__item"
+              style={{ ["--i" as string]: i }}
+            >
+              <span className="numbers__rule" aria-hidden="true" />
               <Odometer
                 value={stat.value}
                 suffix={stat.suffix}
                 label={stat.label}
+                delay={i * 0.12}
                 className="numbers__value type-display"
               />
               <Reveal delay={0.25 + i * 0.1} y={18}>
@@ -35,13 +42,19 @@ export function Numbers() {
               </Reveal>
             </li>
           ))}
-        </ul>
+        </InView>
 
         <DrawLine />
-        <Reveal className="numbers__clients" y={18}>
-          <span className="type-label">{numbers.clientsLead}</span>
+        <InView className="numbers__clients">
+          <span className="type-label" style={{ ["--i" as string]: 0 }}>
+            {numbers.clientsLead}
+          </span>
           {numbers.clients.map((client, i) => (
-            <span key={client.name} className="numbers__client-wrap">
+            <span
+              key={client.name}
+              className="numbers__client-wrap numbers__client-rise"
+              style={{ ["--i" as string]: i + 1 }}
+            >
               {i > 0 ? <span aria-hidden="true" className="numbers__dot" /> : null}
               <a
                 href={client.href}
@@ -53,7 +66,7 @@ export function Numbers() {
               </a>
             </span>
           ))}
-        </Reveal>
+        </InView>
       </div>
     </section>
   );

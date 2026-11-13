@@ -2,6 +2,14 @@
 
 import { useSyncExternalStore } from "react";
 
+/** Shared media-query strings — feed GSAP matchMedia and React hooks alike. */
+export const MQ = {
+  fine: "(hover: hover) and (pointer: fine)",
+  coarse: "(hover: none), (pointer: coarse)",
+  motion: "(prefers-reduced-motion: reduce)",
+  desktop: "(min-width: 768px)",
+} as const;
+
 const subscribers = new Map<string, (onChange: () => void) => () => void>();
 
 function getMediaQuerySubscriber(query: string) {
@@ -31,18 +39,18 @@ export function useMediaQuery(query: string): boolean {
 }
 
 export function usePrefersReducedMotion(): boolean {
-  return useMediaQuery("(prefers-reduced-motion: reduce)");
+  return useMediaQuery(MQ.motion);
 }
 
 /** True on devices with a mouse/trackpad (hover + fine pointer). */
 export function useFinePointer(): boolean {
-  return useMediaQuery("(hover: hover) and (pointer: fine)");
+  return useMediaQuery(MQ.fine);
 }
 
 /** Non-hook read for use inside effects and event handlers. */
 export function prefersReducedMotionNow(): boolean {
   return (
     typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    window.matchMedia(MQ.motion).matches
   );
 }

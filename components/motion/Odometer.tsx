@@ -18,12 +18,15 @@ export function Odometer({
   suffix = "",
   label = "",
   className = "",
+  delay = 0,
 }: {
   value: number;
   suffix?: string;
   /** Accessible full phrase for crawlers / screen readers (e.g. "peak monthly reach"). */
   label?: string;
   className?: string;
+  /** Extra start delay once the trigger fires. */
+  delay?: number;
 }) {
   const rootRef = useRef<HTMLSpanElement>(null);
   const digits = String(value).split("").map(Number);
@@ -40,14 +43,16 @@ export function Odometer({
 
       const play = () => {
         const tl = gsap.timeline({
+          delay,
           onComplete: () => {
             /* Hand the resting place back to the CSS em offset, which matches
                the measured step, so a resize cannot leave a digit half-clipped. */
             gsap.set(strips, { clearProps: "transform" });
             root.dataset.revealed = "true";
+            root.dataset.inview = "true";
           },
         });
-        strips.forEach((strip) => {
+        strips.forEach((strip, i) => {
           const digit = Number(strip.dataset.digit);
           const slot = strip.firstElementChild?.getBoundingClientRect().height ?? 0;
           if (!slot) return;
@@ -57,11 +62,16 @@ export function Odometer({
             strip,
             { y: 0 },
             { y: -(10 + digit) * slot, duration: 1.15, ease: "power2.out" },
-            0
+            i * 0.08
           );
         });
         if (tail) {
-          tl.fromTo(tail, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.7 }, 0.35);
+          tl.fromTo(
+            tail,
+            { opacity: 0, x: -10 },
+            { opacity: 1, x: 0, duration: 0.7 },
+            0.35 + strips.length * 0.04
+          );
         }
       };
 
@@ -70,7 +80,7 @@ export function Odometer({
         if (disposed) return;
         st = ScrollTrigger.create({
           trigger: root,
-          start: "top 88%",
+          start: "clamp(top 88%)",
           once: true,
           onEnter: play,
         });
@@ -80,7 +90,7 @@ export function Odometer({
         st?.kill();
       };
     },
-    { scope: rootRef }
+    { scope: rootRef, dependencies: [delay] }
   );
 
   return (

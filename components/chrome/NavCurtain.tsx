@@ -16,13 +16,19 @@ import { useSmoothScroll } from "@/components/motion/SmoothScroll";
 
 type NavCurtainContextValue = {
   goToSection: (href: string, label: string) => void;
-  /** Full-screen script title, then run an outbound action (email / social). */
+  /**
+   * Curtain clears, then the action runs (Instagram Flip preview).
+   * Prefer `openOutboundCover` for mailto / window.open so user activation survives.
+   */
   openOutbound: (label: string, action: () => void) => void;
+  /** Action fires while the sheet fully covers the page (keeps user activation). */
+  openOutboundCover: (label: string, action: () => void) => void;
 };
 
 const NavCurtainContext = createContext<NavCurtainContextValue>({
   goToSection: () => {},
   openOutbound: (_label, action) => action(),
+  openOutboundCover: (_label, action) => action(),
 });
 
 export function useNavCurtain() {
@@ -37,7 +43,7 @@ export function NavCurtainProvider({ children }: { children: ReactNode }) {
   const busyRef = useRef(false);
 
   const playCurtain = useCallback(
-    (nextLabel: string, action: () => void, at: "mid" | "end" = "mid") => {
+    (nextLabel: string, action: () => void, at: "cover" | "end" = "cover") => {
       if (busyRef.current) return;
       busyRef.current = true;
 
@@ -67,27 +73,28 @@ export function NavCurtainProvider({ children }: { children: ReactNode }) {
           },
         });
 
-        gsap.set(overlay, { autoAlpha: 0 });
+        gsap.set(overlay, { yPercent: 100, autoAlpha: 1, visibility: "visible" });
         gsap.set(title, { autoAlpha: 0, y: 28, scale: 0.96 });
 
-        tl.to(overlay, { autoAlpha: 1, duration: 0.45, ease: "power2.out" })
+        /* Sheet rises from below with a curved edge, holds the title, lifts away. */
+        tl.to(overlay, { yPercent: 0, duration: 0.7, ease: "expo.inOut" })
           .to(
             title,
-            { autoAlpha: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out" },
-            "-=0.15",
+            { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: "expo.out" },
+            "-=0.25",
           );
 
-        if (at === "mid") {
+        if (at === "cover") {
           tl.add(() => {
             action();
           })
-            .to({}, { duration: 0.28 })
-            .to(title, { autoAlpha: 0, y: -16, duration: 0.4, ease: "power2.in" })
-            .to(overlay, { autoAlpha: 0, duration: 0.45, ease: "power2.inOut" }, "-=0.12");
+            .to({}, { duration: 0.22 })
+            .to(title, { autoAlpha: 0, y: -16, duration: 0.35, ease: "power2.in" })
+            .to(overlay, { yPercent: -110, duration: 0.7, ease: "expo.inOut" }, "-=0.1");
         } else {
-          tl.to({}, { duration: 0.35 })
-            .to(title, { autoAlpha: 0, y: -16, duration: 0.4, ease: "power2.in" })
-            .to(overlay, { autoAlpha: 0, duration: 0.45, ease: "power2.inOut" }, "-=0.12");
+          tl.to({}, { duration: 0.28 })
+            .to(title, { autoAlpha: 0, y: -16, duration: 0.35, ease: "power2.in" })
+            .to(overlay, { yPercent: -110, duration: 0.7, ease: "expo.inOut" }, "-=0.1");
         }
       });
     },
@@ -101,7 +108,7 @@ export function NavCurtainProvider({ children }: { children: ReactNode }) {
         () => {
           scrollTo(href, { offset: -20, immediate: true });
         },
-        "mid",
+        "cover",
       );
     },
     [playCurtain, scrollTo],
@@ -109,13 +116,22 @@ export function NavCurtainProvider({ children }: { children: ReactNode }) {
 
   const openOutbound = useCallback(
     (nextLabel: string, action: () => void) => {
-      /* End: so Flip / mailto / window.open happens after the curtain clears. */
       playCurtain(nextLabel, action, "end");
     },
     [playCurtain],
   );
 
-  const value = useMemo(() => ({ goToSection, openOutbound }), [goToSection, openOutbound]);
+  const openOutboundCover = useCallback(
+    (nextLabel: string, action: () => void) => {
+      playCurtain(nextLabel, action, "cover");
+    },
+    [playCurtain],
+  );
+
+  const value = useMemo(
+    () => ({ goToSection, openOutbound, openOutboundCover }),
+    [goToSection, openOutbound, openOutboundCover],
+  );
 
   return (
     <NavCurtainContext.Provider value={value}>
@@ -157,13 +173,13 @@ export function OutboundLink({
   "aria-label"?: string;
   target?: string;
   rel?: string;
-  /** Runs after the curtain mid-point (default: navigate / window.open). */
+  /** Runs after the curtain cover point (default: navigate / window.open). */
   onAfterCurtain?: (anchor: HTMLAnchorElement) => void;
 } & Omit<
   React.AnchorHTMLAttributes<HTMLAnchorElement>,
   "href" | "children" | "className" | "target" | "rel" | "aria-label"
 >) {
-  const { openOutbound } = useNavCurtain();
+  const { openOutboundCover } = useNavCurtain();
 
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.defaultPrevented) return;
@@ -171,7 +187,7 @@ export function OutboundLink({
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     const el = e.currentTarget;
-    openOutbound(label, () => {
+    openOutboundCover(label, () => {
       if (onAfterCurtain) {
         onAfterCurtain(el);
         return;

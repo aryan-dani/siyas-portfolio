@@ -30,11 +30,17 @@
   --radius-soft: var(--radius-dock);
   --radius-soft-sm: calc(var(--radius-dock) - 0.25rem);
 
-  /* One easing family everywhere: expo */
+  /* One easing family everywhere: expo + soft hover/press */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
   --gutter: clamp(1.25rem, 4.2vw, 4.5rem);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --scrollbar-gap: 0px;
   --max-w: 1440px;
   --section-space: clamp(5.5rem, 14vh, 10rem);
 }
@@ -84,6 +90,12 @@
     font-size: 1rem;
     line-height: 1.6;
     overflow-x: clip;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html[data-scroll-locked="true"] body {
+    padding-inline-end: var(--scrollbar-gap);
   }
 
   ::selection {
@@ -217,7 +229,24 @@
     gap: 0.2rem;
     padding: 0.45rem;
   }
+  .site-header {
+    transition:
+      translate 0.7s var(--ease-out),
+      color 0.5s var(--ease-out);
+    translate: 0 0;
+    padding-top: var(--safe-top);
+  }
+  .site-header--hidden {
+    translate: 0 -100%;
+  }
+  .site-header__toggle {
+    position: relative;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
   .nav-menu__link {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -225,23 +254,49 @@
     border-radius: calc(var(--radius-dock) - 0.2rem);
     color: var(--old-burgundy);
     transition:
-      background 0.45s var(--ease-out),
-      color 0.45s var(--ease-out),
+      background 0.45s var(--ease-soft),
+      color 0.45s var(--ease-soft),
       padding 0.65s var(--ease-out);
   }
   .nav-menu[data-docked="true"] .nav-menu__link {
     padding: 0.7rem 1.15rem;
   }
-  .nav-menu__link:hover,
+  /* Undocked: hairline underline for hover / active */
+  .nav-menu:not([data-docked="true"]) .nav-menu__link::after {
+    content: "";
+    position: absolute;
+    left: 0.15rem;
+    right: 0.15rem;
+    bottom: 0.05rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.55s var(--ease-soft);
+  }
+  .nav-menu:not([data-docked="true"]) .nav-menu__link[data-active="true"]::after,
+  .nav-menu:not([data-docked="true"]) .nav-menu__link:focus-visible::after {
+    transform: scaleX(1);
+  }
+  @media (hover: hover) {
+    .nav-menu:not([data-docked="true"]) .nav-menu__link:hover::after {
+      transform: scaleX(1);
+    }
+  }
   .nav-menu__link:focus-visible,
   .nav-menu__link[data-active="true"] {
     color: var(--old-burgundy);
   }
-  .nav-menu[data-docked="true"] .nav-menu__link:hover,
-  .nav-menu[data-docked="true"] .nav-menu__link:focus-visible,
-  .nav-menu[data-docked="true"] .nav-menu__link[data-active="true"] {
+  .nav-menu[data-docked="true"] .nav-menu__link[data-active="true"],
+  .nav-menu[data-docked="true"] .nav-menu__link:focus-visible {
     background: var(--old-burgundy);
     color: var(--buttermilk);
+  }
+  @media (hover: hover) {
+    .nav-menu[data-docked="true"] .nav-menu__link:hover {
+      background: var(--old-burgundy);
+      color: var(--buttermilk);
+    }
   }
 
   .brand-mark {
@@ -282,10 +337,23 @@
     background: var(--buttermilk);
     pointer-events: none;
     visibility: hidden;
-    opacity: 0;
+    will-change: transform;
+  }
+  /* Curved lower edge matching the intro sheet */
+  .nav-curtain::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 12vh;
+    background: var(--buttermilk);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    pointer-events: none;
   }
   .nav-curtain[data-active="true"] {
     pointer-events: auto;
+    visibility: visible;
   }
   .nav-curtain__title {
     margin: 0;
@@ -302,13 +370,16 @@
     padding-inline: 0.08em;
   }
 
-  /* Soft translucent pastel mark */
+  /* Soft translucent pastel mark — sweeps in after reveal lands */
   .hl {
     display: inline;
     padding: 0.28em 0.62em 0.32em;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
     background: color-mix(in srgb, var(--pastel-blue) 68%, transparent);
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    background-position: left center;
     color: var(--old-burgundy);
     font-style: inherit;
     font-family: inherit;
@@ -316,6 +387,16 @@
     text-transform: inherit;
     letter-spacing: inherit;
     border-radius: var(--radius-soft-sm);
+    transition: background-size 0.9s var(--ease-out) 0.15s;
+  }
+  [data-inview="true"] .hl,
+  [data-revealed="true"] .hl,
+  .hero-in .hl {
+    background-size: 100% 100%;
+  }
+  html:not(.js-motion) .hl,
+  html.motion-failsafe .hl {
+    background-size: 100% 100%;
   }
 
   .media-cursor {
@@ -332,15 +413,33 @@
     background: color-mix(in srgb, var(--buttermilk) 88%, white);
     color: var(--old-burgundy);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--old-burgundy) 16%, transparent);
-    transition: background 0.35s var(--ease-out), color 0.35s var(--ease-out), padding 0.35s var(--ease-out),
-      width 0.35s var(--ease-out), height 0.35s var(--ease-out);
+    transition:
+      background 0.35s var(--ease-soft),
+      color 0.35s var(--ease-soft),
+      padding 0.35s var(--ease-soft),
+      width 0.35s var(--ease-soft),
+      height 0.35s var(--ease-soft),
+      border-radius 0.35s var(--ease-soft);
   }
   /* Compact pill — never larger than the hero social buttons */
   .media-cursor[data-mode="label"] {
     width: auto;
+    min-width: 2.55rem;
     height: 2.55rem;
     padding: 0 0.7rem;
     border-radius: var(--radius-soft-sm);
+  }
+  .media-cursor[data-mode="beam"] {
+    width: 0.14rem;
+    height: 1.35rem;
+    padding: 0;
+    border-radius: 1px;
+    background: var(--old-burgundy);
+    box-shadow: none;
+  }
+  .media-cursor[data-mode="beam"] .media-cursor__heart,
+  .media-cursor[data-mode="beam"] .media-cursor__label {
+    display: none;
   }
   .media-cursor[data-hot="1"] {
     background: var(--old-burgundy);
@@ -379,10 +478,16 @@
     margin-bottom: clamp(2.75rem, 7vh, 5.5rem);
   }
 
-  .section__intro {
-    display: grid;
-    gap: 1.5rem;
-    max-width: 36rem;
+  .touch-target {
+    position: relative;
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+  }
+  .touch-target::before {
+    content: "";
+    position: absolute;
+    inset: -0.35rem -0.45rem;
   }
 
   .type-body {
@@ -395,7 +500,7 @@
     width: 100%;
     max-width: var(--max-w);
     margin-inline: auto;
-    padding-inline: var(--gutter);
+    padding-inline: max(var(--gutter), var(--safe-left)) max(var(--gutter), var(--safe-right));
   }
 
   .hairline {
@@ -414,9 +519,16 @@
     padding-bottom: 0.2em;
     transition: background-size 0.6s var(--ease-out);
   }
-  .link-u:hover,
   .link-u:focus-visible,
   .link-u[data-active="true"] {
+    background-size: 100% 1px;
+  }
+  @media (hover: hover) {
+    .link-u:hover {
+      background-size: 100% 1px;
+    }
+  }
+  .link-u:active {
     background-size: 100% 1px;
   }
 
@@ -425,11 +537,15 @@
     color: color-mix(in srgb, var(--pastel-blue) 42%, var(--old-burgundy));
     text-decoration: none;
     background-image: none;
-    transition: color 0.4s var(--ease-out);
+    transition: color 0.4s var(--ease-soft);
   }
-  .brand-link:hover,
   .brand-link:focus-visible {
     color: var(--old-burgundy);
+  }
+  @media (hover: hover) {
+    .brand-link:hover {
+      color: var(--old-burgundy);
+    }
   }
 
   /* Rolling label: two stacked copies slide up on hover */
@@ -443,16 +559,20 @@
   .roll__inner {
     display: flex;
     flex-direction: column;
-    transition: transform 0.7s var(--ease-out);
+    transition: transform 0.7s var(--ease-soft);
   }
   .roll__inner > span {
     display: block;
     height: 1.4em;
     white-space: nowrap;
   }
-  .has-roll:hover .roll__inner,
   .has-roll:focus-visible .roll__inner {
     transform: translateY(-50%);
+  }
+  @media (hover: hover) {
+    .has-roll:hover .roll__inner {
+      transform: translateY(-50%);
+    }
   }
 
   /* Pill button: ink fill sweeps up from below on hover */
@@ -474,7 +594,7 @@
     letter-spacing: 0.14em;
     text-transform: lowercase;
     color: var(--fg);
-    transition: color 0.6s var(--ease-out);
+    transition: color 0.6s var(--ease-soft);
   }
   .btn::before {
     content: "";
@@ -484,15 +604,27 @@
     background: var(--fg);
     border-radius: inherit;
     transform: translateY(102%);
-    transition: transform 0.7s var(--ease-out);
+    transition: transform 0.7s var(--ease-soft);
   }
-  .btn:hover,
   .btn:focus-visible {
     color: var(--bg);
   }
-  .btn:hover::before,
   .btn:focus-visible::before {
     transform: translateY(0);
+  }
+  @media (hover: hover) {
+    .btn:hover {
+      color: var(--bg);
+    }
+    .btn:hover::before {
+      transform: translateY(0);
+    }
+  }
+  .btn:active::before {
+    transform: translateY(0);
+  }
+  .btn:active {
+    color: var(--bg);
   }
   .btn--solid {
     background: var(--fg);
@@ -501,17 +633,25 @@
   .btn--solid::before {
     background: var(--pastel-blue);
   }
-  .btn--solid:hover,
   .btn--solid:focus-visible {
     color: var(--old-burgundy);
   }
+  @media (hover: hover) {
+    .btn--solid:hover {
+      color: var(--old-burgundy);
+    }
+  }
   .btn__arrow {
     display: inline-block;
-    transition: transform 0.7s var(--ease-out);
+    transition: transform 0.7s var(--ease-soft);
   }
-  .btn:hover .btn__arrow,
   .btn:focus-visible .btn__arrow {
     transform: translateX(0.35rem);
+  }
+  @media (hover: hover) {
+    .btn:hover .btn__arrow {
+      transform: translateX(0.35rem);
+    }
   }
 
   /* A dark burgundy island inside any page theme (reel player, menus). It
@@ -562,9 +702,13 @@
    then marks the element data-revealed so the CSS never hides it again.
    .motion-failsafe (added by the boot script after 6s if the app never
    started) un-hides everything, so a JS failure can never blank the page. */
-html.js-motion [data-reveal]:not([data-revealed]):not([data-reveal="image"]) {
+html.js-motion [data-reveal]:not([data-revealed]):not([data-reveal="mask"]) {
   /* opacity, not visibility: the content stays in the accessibility tree, so
      screen-reader users can read sections they haven't scrolled to. */
+  opacity: 0;
+}
+html.js-motion [data-reveal="mask"]:not([data-revealed]) {
+  /* Mask rise starts clipped; keep in the a11y tree via opacity 1 once GSAP sets it. */
   opacity: 0;
 }
 html.motion-failsafe [data-reveal]:not([data-revealed]) {
@@ -573,24 +717,26 @@ html.motion-failsafe [data-reveal]:not([data-revealed]) {
   clip-path: none !important;
 }
 
-/* Picture frames are hidden by a page-coloured cover instead of by opacity, so
-   the picture itself is painted (and counted for LCP) from the first frame. */
-[data-reveal="image"] {
-  position: relative;
+/* InView lists: children rise via --i delay once the parent is in view */
+html.js-motion [data-inview]:not([data-inview="true"]) .numbers__client-rise,
+html.js-motion [data-inview]:not([data-inview="true"]) .gallery-card {
+  opacity: 0;
+  transform: translateY(18px);
 }
-.reveal-cover {
-  display: none;
-  position: absolute;
-  inset: -1px;
-  z-index: 4;
-  background: var(--bg);
-  pointer-events: none;
+html.js-motion [data-inview="true"] .numbers__client-rise,
+html.js-motion [data-inview="true"] .gallery-card {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.9s var(--ease-out) calc(var(--i, 0) * 70ms),
+    transform 0.9s var(--ease-out) calc(var(--i, 0) * 70ms);
 }
-html.js-motion [data-reveal="image"]:not([data-revealed]) > .reveal-cover {
-  display: block;
-}
-html.motion-failsafe .reveal-cover {
-  display: none !important;
+html.motion-failsafe .numbers__client-rise,
+html.motion-failsafe .gallery-card,
+html:not(.js-motion) .numbers__client-rise,
+html:not(.js-motion) .gallery-card {
+  opacity: 1 !important;
+  transform: none !important;
 }
 
 /* ------------------------------------------------------------- intro */
@@ -671,5 +817,13 @@ html[data-intro="revealing"] {
   ::view-transition-group(*) {
     animation-duration: 0s !important;
     animation-delay: 0s !important;
+  }
+  .hero-in,
+  .hero-in--wipe,
+  .hero-in--portrait {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
   }
 }

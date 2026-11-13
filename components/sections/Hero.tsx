@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
-import { ScrollTrigger } from "@/lib/gsap";
+import { useRef } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { BRAND_LINKS, CONTENT } from "@/lib/content";
-import { useInquiry } from "@/lib/inquiry";
+import { useInquiryActions } from "@/lib/inquiry";
+import { MQ, prefersReducedMotionNow } from "@/lib/hooks";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
-import { Reveal } from "@/components/motion/Reveal";
 import { BrowserLaunchLink } from "@/components/chrome/BrowserLaunch";
 import { OutboundLink } from "@/components/chrome/NavCurtain";
 
@@ -76,50 +76,80 @@ function IconYoutube({ className }: { className?: string }) {
 export function Hero() {
   const { hero, profile, photos, about } = CONTENT;
   const sectionRef = useRef<HTMLElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
   const { scrollTo } = useSmoothScroll();
-  const { select } = useInquiry();
+  const { select } = useInquiryActions();
 
-  useEffect(() => {
-    const id = window.setTimeout(() => ScrollTrigger.refresh(), 400);
-    return () => window.clearTimeout(id);
-  }, []);
+  /* Desktop fine-pointer scroll depth: copy drifts up, cutout drifts down under baseline. */
+  useGSAP(
+    () => {
+      const section = sectionRef.current;
+      const copy = copyRef.current;
+      const portrait = portraitRef.current;
+      if (!section || !copy || !portrait || prefersReducedMotionNow()) return;
+
+      const mm = gsap.matchMedia();
+      mm.add(`${MQ.desktop} and ${MQ.fine}`, () => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.55,
+          },
+        });
+        tl.to(copy, { yPercent: -12, autoAlpha: 0.15, ease: "none" }, 0).to(
+          portrait,
+          { yPercent: 18, ease: "none" },
+          0,
+        );
+        return () => {
+          tl.scrollTrigger?.kill();
+          tl.kill();
+          gsap.set([copy, portrait], { clearProps: "transform,opacity" });
+        };
+      });
+
+      return () => mm.revert();
+    },
+    { scope: sectionRef },
+  );
 
   return (
     <section id="top" ref={sectionRef} aria-label="Introduction" className="hero">
       <div className="hero-layout wrap">
-        <div className="hero-copy" data-part="copy">
+        <div ref={copyRef} className="hero-copy">
           <h1 className="sr-only">
             {`${profile.fullName} (${profile.handle}) — Lifestyle, Fashion & UGC Content Creator in Pune`}
           </h1>
 
-          <Reveal
-            as="p"
-            trigger="intro"
-            duration={1.45}
-            y={28}
-            className="hero-name"
+          <p
+            className="hero-name hero-in hero-in--wipe"
+            style={{ ["--i" as string]: 0 }}
             aria-hidden="true"
           >
             {hero.name}
-          </Reveal>
+          </p>
 
-          <Reveal trigger="intro" delay={0.5} className="hero-role-wrap">
+          <div className="hero-role-wrap hero-in" style={{ ["--i" as string]: 1 }}>
             <p className="hero-role hl">{hero.role}</p>
-          </Reveal>
+          </div>
 
-          <Reveal trigger="intro" delay={0.7} className="hero-bio">
+          <div className="hero-bio hero-in" style={{ ["--i" as string]: 2 }}>
             {about.paragraphs.map((p) => (
               <LinkedBio key={p.slice(0, 24)} text={p} />
             ))}
-          </Reveal>
+          </div>
 
-          <Reveal trigger="intro" delay={0.9} className="hero-socials">
+          <div className="hero-socials hero-in" style={{ ["--i" as string]: 3 }}>
             <OutboundLink
               href={`mailto:${profile.email}`}
               label="opening email"
               className="hero-social"
               aria-label="email"
               data-cursor="email"
+              data-magnetic
             >
               <IconMail className="hero-social__icon" />
             </OutboundLink>
@@ -128,6 +158,7 @@ export function Hero() {
               label="instagram"
               className="hero-social"
               aria-label="instagram"
+              data-magnetic
             >
               <IconInstagram className="hero-social__icon" />
             </BrowserLaunchLink>
@@ -139,15 +170,17 @@ export function Hero() {
               className="hero-social"
               aria-label="youtube"
               data-cursor="youtube"
+              data-magnetic
             >
               <IconYoutube className="hero-social__icon" />
             </OutboundLink>
-          </Reveal>
+          </div>
 
-          <Reveal trigger="intro" delay={1.05} className="hero-cta-row">
+          <div className="hero-cta-row hero-in" style={{ ["--i" as string]: 4 }}>
             <a
               href="#contact"
               className="btn btn--solid has-roll hero-btn"
+              data-magnetic
               onClick={(e) => {
                 e.preventDefault();
                 select("single-reel");
@@ -165,11 +198,14 @@ export function Hero() {
                 →
               </span>
             </a>
-          </Reveal>
+          </div>
         </div>
 
-        <div className="hero-portrait" data-part="portrait">
-          <Reveal trigger="intro" delay={0.2} y={0} className="hero-portrait__reveal">
+        <div ref={portraitRef} className="hero-portrait">
+          <div
+            className="hero-portrait__reveal hero-in hero-in--portrait"
+            style={{ ["--i" as string]: 0 }}
+          >
             <div className="hero-portrait__figure" data-cursor="siya">
               <Image
                 src={photos.hero.src}
@@ -184,7 +220,7 @@ export function Hero() {
                 className="hero-portrait__img"
               />
             </div>
-          </Reveal>
+          </div>
         </div>
       </div>
       <div className="hero__baseline" aria-hidden="true" />

@@ -12,29 +12,46 @@ import type { InquiryOption } from "@/lib/content";
 
 type InquiryValue = InquiryOption["value"];
 
-type InquiryContextValue = {
+type InquiryStateValue = {
   option: InquiryValue;
   note: string;
   /** Bumps whenever something outside the form picks an option (Rates, hero). */
   selectionId: number;
+};
+
+type InquiryActionsValue = {
   setOption: (option: InquiryValue) => void;
   setNote: (note: string) => void;
   /** Pick an option (and optionally a prefilled note) from anywhere on the page. */
   select: (option: InquiryValue, note?: string) => void;
 };
 
+type InquiryContextValue = InquiryStateValue & InquiryActionsValue;
+
 const noop = () => {};
-const InquiryContext = createContext<InquiryContextValue>({
+
+const InquiryStateContext = createContext<InquiryStateValue>({
   option: "single-reel",
   note: "",
   selectionId: 0,
+});
+
+const InquiryActionsContext = createContext<InquiryActionsValue>({
   setOption: noop,
   setNote: noop,
   select: noop,
 });
 
-export function useInquiry() {
-  return useContext(InquiryContext);
+/** Full inquiry state + actions. Prefer `useInquiryActions` when only selecting. */
+export function useInquiry(): InquiryContextValue {
+  const state = useContext(InquiryStateContext);
+  const actions = useContext(InquiryActionsContext);
+  return useMemo(() => ({ ...state, ...actions }), [state, actions]);
+}
+
+/** Stable actions only — Hero / ReelPlayer avoid re-rendering on form keystrokes. */
+export function useInquiryActions(): InquiryActionsValue {
+  return useContext(InquiryActionsContext);
 }
 
 export function InquiryProvider({ children }: { children: ReactNode }) {
@@ -48,12 +65,21 @@ export function InquiryProvider({ children }: { children: ReactNode }) {
     setSelectionId((n) => n + 1);
   }, []);
 
-  const value = useMemo(
-    () => ({ option, note, selectionId, setOption, setNote, select }),
-    [option, note, selectionId, select]
+  const state = useMemo(
+    () => ({ option, note, selectionId }),
+    [option, note, selectionId]
+  );
+
+  const actions = useMemo(
+    () => ({ setOption, setNote, select }),
+    [select]
   );
 
   return (
-    <InquiryContext.Provider value={value}>{children}</InquiryContext.Provider>
+    <InquiryActionsContext.Provider value={actions}>
+      <InquiryStateContext.Provider value={state}>
+        {children}
+      </InquiryStateContext.Provider>
+    </InquiryActionsContext.Provider>
   );
 }

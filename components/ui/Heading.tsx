@@ -13,6 +13,7 @@ export function Heading({
   className = "",
   mark = "script",
   inline = false,
+  scriptDelay,
 }: {
   id?: string;
   caps: string;
@@ -23,14 +24,16 @@ export function Heading({
   mark?: "script" | "caps" | "none";
   /** Put caps + script on a single horizontal line. */
   inline?: boolean;
+  /** Extra delay applied to the script line (stacked headings only). */
   scriptDelay?: number;
 }) {
   const Tag = as;
+  const scriptExtra = scriptDelay ?? 0;
 
   if (inline) {
     return (
       <Tag id={id} className={`heading heading--inline type-display ${className}`}>
-        <Reveal className="heading-line" y={18}>
+        <Reveal className="heading-line" y={18} variant="mask">
           <span className={mark === "caps" ? "heading-text hl" : "heading-text"}>
             {caps.toLowerCase()}
           </span>{" "}
@@ -43,14 +46,24 @@ export function Heading({
   }
 
   const lines = [
-    { text: caps.toLowerCase(), marked: mark === "caps" },
-    { text: script.toLowerCase(), marked: mark === "script" },
+    { text: caps.toLowerCase(), marked: mark === "caps", delay: 0 },
+    {
+      text: script.toLowerCase(),
+      marked: mark === "script",
+      delay: 0.12 + scriptExtra,
+    },
   ];
 
   return (
     <Tag id={id} className={`heading type-display ${className}`}>
       {lines.map((line, i) => (
-        <Reveal key={`${line.text}-${i}`} delay={i * 0.12} className="heading-line" y={18}>
+        <Reveal
+          key={`${line.text}-${i}`}
+          delay={line.delay}
+          className="heading-line"
+          y={18}
+          variant="mask"
+        >
           <span className={line.marked ? "heading-text hl" : "heading-text"}>{line.text}</span>
         </Reveal>
       ))}

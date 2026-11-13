@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
+type CopyState = "idle" | "copied" | "failed";
+
 export function CopyEmail({ email }: { email: string }) {
-  const [copied, setCopied] = useState(false);
+  const [state, setState] = useState<CopyState>("idle");
   const timer = useRef<number | null>(null);
 
   useEffect(() => {
@@ -13,15 +15,20 @@ export function CopyEmail({ email }: { email: string }) {
   }, []);
 
   const copy = async () => {
+    let ok = false;
     try {
       await navigator.clipboard.writeText(email);
+      ok = true;
     } catch {
-      /* clipboard blocked: the mailto link still works */
+      ok = false;
     }
-    setCopied(true);
+    setState(ok ? "copied" : "failed");
     if (timer.current) window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setCopied(false), 2600);
+    timer.current = window.setTimeout(() => setState("idle"), 2600);
   };
+
+  const label =
+    state === "copied" ? "Copied" : state === "failed" ? "Couldn't copy" : "Copy email";
 
   return (
     <div className="copy-email">
@@ -30,11 +37,45 @@ export function CopyEmail({ email }: { email: string }) {
       </a>
       <button
         type="button"
-        className="type-label link-u copy-email__btn"
+        className="type-label link-u copy-email__btn has-roll"
         onClick={copy}
-        aria-label={copied ? `Copied ${email}` : `Copy ${email} to clipboard`}
+        aria-label={
+          state === "copied"
+            ? `Copied ${email}`
+            : state === "failed"
+              ? `Couldn't copy ${email}`
+              : `Copy ${email} to clipboard`
+        }
+        data-state={state}
       >
-        <span aria-live="polite">{copied ? "Copied ✓" : "Copy email"}</span>
+        <span className="roll" aria-hidden="true">
+          <span className="roll__inner">
+            <span>{label}</span>
+            <span>{label}</span>
+          </span>
+        </span>
+        <span className="sr-only" aria-live="polite">
+          {label}
+        </span>
+        {state === "copied" ? (
+          <svg
+            className="copy-email__check"
+            viewBox="0 0 16 16"
+            width="14"
+            height="14"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 8.5 6.2 12 13 4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              pathLength={1}
+            />
+          </svg>
+        ) : null}
       </button>
     </div>
   );

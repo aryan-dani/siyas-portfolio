@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { gsap, Flip } from "@/lib/gsap";
 import type { Reel } from "@/lib/content";
 import { prefersReducedMotionNow } from "@/lib/hooks";
-import { useInquiry } from "@/lib/inquiry";
+import { useInquiryActions } from "@/lib/inquiry";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
 
 type Props = {
@@ -32,11 +32,14 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const closingRef = useRef(false);
+  const scrubbingRef = useRef(false);
+  const rafRef = useRef(0);
 
   const { lock, unlock, scrollTo } = useSmoothScroll();
-  const { select } = useInquiry();
+  const { select } = useInquiryActions();
   const [muted, setMuted] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [buffering, setBuffering] = useState(false);
 
   /* ----------------------------------------------------------------- open */
   useEffect(() => {
@@ -57,10 +60,12 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
 
     if (prefersReducedMotionNow()) {
       gsap.set([backdrop, ui, ...panelItems], { autoAlpha: 1 });
+      gsap.set(frame, { clearProps: "padding,borderWidth" });
     } else {
       gsap.set(backdrop, { autoAlpha: 0 });
       gsap.set(ui, { autoAlpha: 0 });
       gsap.set(panelItems, { autoAlpha: 0, y: 34 });
+      gsap.set(frame, { padding: 0, borderWidth: 0 });
 
       const finalState = Flip.getState(frame);
       Flip.fit(frame, originEl, { scale: false });
@@ -68,11 +73,16 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
       const tl = gsap.timeline();
       tl.to(backdrop, { autoAlpha: 1, duration: 0.8, ease: "power2.out" }, 0)
         .add(Flip.to(finalState, { duration: 1.15, ease: "expo.inOut", scale: false }), 0)
+        .to(
+          frame,
+          { padding: 6, borderWidth: 1, duration: 1.15, ease: "expo.inOut" },
+          0,
+        )
         .to(ui, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.95)
         .to(
           panelItems,
           { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.08, ease: "expo.out" },
-          0.6
+          0.6,
         );
       tlRef.current = tl;
     }
@@ -99,7 +109,6 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
       const panel = panelRef.current;
 
       const finish = () => {
-        // The page must stop being inert BEFORE focus can return to the card.
         const content = document.getElementById("content");
         const header = document.getElementById("site-header");
         if (content) content.inert = false;
@@ -121,11 +130,12 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
 
       const tl = gsap.timeline({ onComplete: finish });
       tl.to(fade, { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 0)
+        .to(frame, { padding: 0, borderWidth: 0, duration: 0.95, ease: "expo.inOut" }, 0)
         .add(Flip.from(state, { duration: 0.95, ease: "expo.inOut", scale: false }), 0)
         .to(backdrop, { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 0.2);
       tlRef.current = tl;
     },
-    [onClosed, originEl]
+    [onClosed, originEl],
   );
 
   /* --------------------------------------------------------------- video */
@@ -138,7 +148,6 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
     v.addEventListener("loadedmetadata", onMeta, { once: true });
     v.muted = false;
     v.play().catch(() => {
-      // Some browsers still refuse sound: fall back to silent playback.
       v.muted = true;
       setMuted(true);
       v.play().catch(() => {});
@@ -148,6 +157,20 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
       v.pause();
     };
   }, [startTime]);
+
+  /* Per-frame progress — smoother than the ~4Hz timeupdate event. */
+  useEffect(() => {
+    const tick = () => {
+      const v = videoRef.current;
+      const bar = barRef.current;
+      if (v && bar && v.duration && !scrubbingRef.current) {
+        bar.style.transform = `scaleX(${v.currentTime / v.duration})`;
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   useEffect(() => {
     window.dispatchEvent(new Event("siya:cursor-refresh"));
@@ -167,13 +190,34 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
     setMuted(v.muted);
   }, []);
 
-  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
+  const seekFromClientX = useCallback((clientX: number, target: HTMLElement) => {
     const v = videoRef.current;
     if (!v || !v.duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    const rect = target.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
     v.currentTime = ratio * v.duration;
+    if (barRef.current) barRef.current.style.transform = `scaleX(${ratio})`;
+  }, []);
+
+  const onBarPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    scrubbingRef.current = true;
+    const bar = e.currentTarget;
+    bar.setPointerCapture(e.pointerId);
+    seekFromClientX(e.clientX, bar);
+
+    const onMove = (ev: PointerEvent) => seekFromClientX(ev.clientX, bar);
+    const onUp = (ev: PointerEvent) => {
+      scrubbingRef.current = false;
+      bar.releasePointerCapture(ev.pointerId);
+      bar.removeEventListener("pointermove", onMove);
+      bar.removeEventListener("pointerup", onUp);
+      bar.removeEventListener("pointercancel", onUp);
+    };
+    bar.addEventListener("pointermove", onMove);
+    bar.addEventListener("pointerup", onUp);
+    bar.addEventListener("pointercancel", onUp);
   };
 
   /* ----------------------------------------------------- keys + focus trap */
@@ -184,7 +228,11 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
         requestClose();
         return;
       }
-      if (e.key === " " && !(e.target instanceof HTMLButtonElement) && !(e.target instanceof HTMLAnchorElement)) {
+      if (
+        e.key === " " &&
+        !(e.target instanceof HTMLButtonElement) &&
+        !(e.target instanceof HTMLAnchorElement)
+      ) {
         e.preventDefault();
         togglePlay();
         return;
@@ -193,7 +241,7 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
       const root = rootRef.current;
       if (!root) return;
       const focusables = Array.from(
-        root.querySelectorAll<HTMLElement>("a[href], button:not([disabled])")
+        root.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"),
       ).filter((el) => el.offsetParent !== null || el === document.activeElement);
       if (!focusables.length) return;
       const first = focusables[0];
@@ -261,25 +309,28 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
             aria-label={reel.seoCaption}
             onPlay={() => setPaused(false)}
             onPause={() => setPaused(true)}
-            onTimeUpdate={(e) => {
-              const v = e.currentTarget;
-              if (barRef.current && v.duration) {
-                barRef.current.style.transform = `scaleX(${v.currentTime / v.duration})`;
-              }
-            }}
+            onWaiting={() => setBuffering(true)}
+            onPlaying={() => setBuffering(false)}
+            onCanPlay={() => setBuffering(false)}
           />
 
           <div ref={uiRef} className="player__ui">
             <button
               type="button"
-              className="player__sound type-label"
+              className="player__sound type-label has-roll"
               aria-pressed={!muted}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMute();
               }}
             >
-              {muted ? "Sound off" : "Sound on"}
+              <span className="roll" aria-hidden="true">
+                <span className="roll__inner">
+                  <span>{muted ? "Sound off" : "Sound on"}</span>
+                  <span>{muted ? "Sound off" : "Sound on"}</span>
+                </span>
+              </span>
+              <span className="sr-only">{muted ? "Sound off" : "Sound on"}</span>
             </button>
 
             <span className={`player__paused ${paused ? "is-on" : ""}`} aria-hidden="true" />
@@ -289,7 +340,6 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
                 ({reel.id}) {reel.kind} · {reel.duration}
               </p>
               <p className="type-display player__mobile-title">{reel.title}</p>
-              {/* Direct link on purpose: reel deep-links stay one tap, not BrowserLaunch. */}
               <a
                 href={reel.instagramUrl}
                 target="_blank"
@@ -301,7 +351,11 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
               </a>
             </div>
 
-            <div className="player__bar" onClick={seek} aria-hidden="true">
+            <div
+              className={`player__bar${buffering ? " is-buffering" : ""}`}
+              onPointerDown={onBarPointerDown}
+              aria-hidden="true"
+            >
               <span ref={barRef} className="player__bar-fill" />
             </div>
           </div>
@@ -318,7 +372,6 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
             “{reel.caption}”
           </p>
           <div data-player-item className="player__actions">
-            {/* Direct link on purpose: reel deep-links stay one tap, not BrowserLaunch. */}
             <a
               href={reel.instagramUrl}
               target="_blank"
@@ -352,6 +405,6 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

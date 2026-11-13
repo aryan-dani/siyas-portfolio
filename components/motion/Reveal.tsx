@@ -14,6 +14,12 @@ import { prefersReducedMotionNow } from "@/lib/hooks";
 
 export type Trigger = "scroll" | "intro";
 
+function clampStart(start: string): string {
+  const trimmed = start.trim();
+  if (trimmed.startsWith("clamp(")) return trimmed;
+  return `clamp(${trimmed})`;
+}
+
 /** Calls `play` when the trigger fires; returns a cleanup function. */
 function arm(
   el: Element,
@@ -22,12 +28,19 @@ function arm(
   play: () => void
 ): () => void {
   if (trigger === "intro") return whenIntroRevealing(play);
-  const st = ScrollTrigger.create({ trigger: el, start, once: true, onEnter: play });
+  const st = ScrollTrigger.create({
+    trigger: el,
+    start: clampStart(start),
+    once: true,
+    onEnter: play,
+  });
   return () => st.kill();
 }
 
 function markRevealed(el: Element) {
-  (el as HTMLElement).dataset.revealed = "true";
+  const node = el as HTMLElement;
+  node.dataset.revealed = "true";
+  node.dataset.inview = "true";
 }
 
 type CommonProps = {
@@ -187,9 +200,11 @@ export function ScriptWipe({
 type RevealProps = CommonProps & {
   y?: number;
   duration?: number;
+  /** Masked rise: clip + travel share one eased progress (fixed mask line). */
+  variant?: "fade" | "mask";
 };
 
-/** Fade + rise, once. */
+/** Fade + rise, once. Or a single-element masked rise when `variant="mask"`. */
 export function Reveal({
   as = "div",
   className,
@@ -200,6 +215,7 @@ export function Reveal({
   duration = 1.4,
   trigger = "scroll",
   start = "top 90%",
+  variant = "fade",
 }: RevealProps) {
   const ref = useRef<HTMLElement>(null);
   const Tag = as as ElementType;
@@ -208,6 +224,29 @@ export function Reveal({
     () => {
       const el = ref.current;
       if (!el || prefersReducedMotionNow()) return;
+
+      if (variant === "mask") {
+        const tween = gsap.fromTo(
+          el,
+          { clipPath: "inset(-20% -6% 100% -6%)", yPercent: 125 },
+          {
+            clipPath: "inset(-20% -6% -25% -6%)",
+            yPercent: 0,
+            duration: duration || MOTION.display,
+            delay,
+            ease: MOTION.ease,
+            paused: true,
+            onComplete: () => {
+              gsap.set(el, { clearProps: "clipPath,transform" });
+              markRevealed(el);
+            },
+          }
+        );
+        gsap.set(el, { opacity: 1 });
+        const disarm = arm(el, trigger, start, () => tween.play());
+        return () => disarm();
+      }
+
       // opacity (not autoAlpha): content stays in the accessibility tree
       const tween = gsap.fromTo(
         el,
@@ -227,78 +266,17 @@ export function Reveal({
       const disarm = arm(el, trigger, start, () => tween.play());
       return () => disarm();
     },
-    { scope: ref, dependencies: [delay, y, duration, trigger, start] }
+    { scope: ref, dependencies: [delay, y, duration, trigger, start, variant] }
   );
 
   return (
-    <Tag ref={ref} data-reveal="fade" className={className} style={style}>
+    <Tag
+      ref={ref}
+      data-reveal={variant === "mask" ? "mask" : "fade"}
+      className={className}
+      style={style}
+    >
       {children}
-    </Tag>
-  );
-}
-
-/* ----------------------------------------------------------- RevealImage */
-
-type RevealImageProps = CommonProps & {
-  /** Initial zoom of the picture inside the frame as it is uncovered. */
-  zoom?: number;
-};
-
-/**
- * A picture frame that is uncovered while the picture itself settles from a
- * slight zoom. The first child is the zoomed layer.
- *
- * It is a "curtain" reveal: the picture is painted from the start and a page-
- * coloured cover slides off it. (A clip-path or opacity reveal would keep the
- * browser from counting the picture as painted, delaying Largest Contentful
- * Paint until the animation ends.)
- */
-export function RevealImage({
-  as = "div",
-  className,
-  style,
-  children,
-  delay = 0,
-  zoom = 1.28,
-  trigger = "scroll",
-  start = "top 88%",
-}: RevealImageProps) {
-  const ref = useRef<HTMLElement>(null);
-  const Tag = as as ElementType;
-
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el || prefersReducedMotionNow()) return;
-      const cover = el.querySelector<HTMLElement>(":scope > .reveal-cover");
-      const inner = el.firstElementChild;
-      if (!cover) return;
-
-      const tl = gsap.timeline({
-        paused: true,
-        delay,
-        onComplete: () => markRevealed(el),
-      });
-      // The cover shrinks toward the top edge, uncovering from the bottom up.
-      tl.fromTo(
-        cover,
-        { scaleY: 1, transformOrigin: "50% 0%" },
-        { scaleY: 0, duration: 1.6, ease: "expo.inOut" },
-        0
-      );
-      if (inner && inner !== cover) {
-        tl.fromTo(inner, { scale: zoom }, { scale: 1, duration: 2.2, ease: "expo.out" }, 0);
-      }
-      const disarm = arm(el, trigger, start, () => tl.play());
-      return () => disarm();
-    },
-    { scope: ref, dependencies: [delay, zoom, trigger, start] }
-  );
-
-  return (
-    <Tag ref={ref} data-reveal="image" className={className} style={style}>
-      {children}
-      <span className="reveal-cover" aria-hidden="true" />
     </Tag>
   );
 }

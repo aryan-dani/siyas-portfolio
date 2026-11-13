@@ -11,7 +11,7 @@ import {
 } from "react";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { usePrefersReducedMotion } from "@/lib/hooks";
+import { MQ, usePrefersReducedMotion } from "@/lib/hooks";
 
 export type ScrollTarget = string | number | HTMLElement;
 
@@ -48,8 +48,11 @@ export function useSmoothScroll() {
 declare global {
   interface Window {
     __siyaReady?: boolean;
-    __siyaLenis?: Lenis;
   }
+}
+
+function scrollbarGap(): number {
+  return Math.max(0, window.innerWidth - document.documentElement.clientWidth);
 }
 
 export function SmoothScrollProvider({ children }: { children: ReactNode }) {
@@ -59,29 +62,37 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    ScrollTrigger.config({ ignoreMobileResize: true });
-
-    // Direction tracking works the same with or without Lenis, because Lenis
-    // drives the real scroll position and the browser still fires "scroll".
     let lastY = window.scrollY;
     let direction: 1 | -1 = 1;
+    let pending: ScrollInfo | null = null;
+    let raf = 0;
+
+    const flush = () => {
+      raf = 0;
+      if (!pending) return;
+      const info = pending;
+      pending = null;
+      listenersRef.current.forEach((fn) => fn(info));
+    };
+
     const onScroll = () => {
       const y = window.scrollY;
       if (Math.abs(y - lastY) > 2) {
         direction = y > lastY ? 1 : -1;
         lastY = y;
       }
-      listenersRef.current.forEach((fn) => fn({ y, direction }));
+      pending = { y, direction };
+      if (!raf) raf = requestAnimationFrame(flush);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
 
     let lenis: Lenis | null = null;
     let tick: ((time: number) => void) | null = null;
+    let disposed = false;
 
-    /* Skip Lenis on touch / coarse pointers and reduced motion — keeps INP low. */
     const coarse =
       typeof window !== "undefined" &&
-      window.matchMedia("(hover: none), (pointer: coarse)").matches;
+      window.matchMedia(MQ.coarse).matches;
 
     if (!reducedMotion && !coarse) {
       lenis = new Lenis({
@@ -92,7 +103,6 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
         touchMultiplier: 1.1,
       });
       lenisRef.current = lenis;
-      window.__siyaLenis = lenis;
       lenis.on("scroll", ScrollTrigger.update);
 
       tick = (time: number) => lenis?.raf(time * 1000);
@@ -102,18 +112,24 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
       if (lockCountRef.current > 0) lenis.stop();
     }
 
-    // Layout shifts (fonts, images) move trigger positions: re-measure.
-    const refresh = () => ScrollTrigger.refresh();
+    const refresh = () => {
+      if (!disposed) ScrollTrigger.refresh();
+    };
     window.addEventListener("load", refresh);
-    if (document.fonts) document.fonts.ready.then(refresh);
+    let fontsPromise: PromiseLike<void> | undefined;
+    if (document.fonts) {
+      fontsPromise = document.fonts.ready.then(refresh);
+    }
 
     return () => {
+      disposed = true;
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("load", refresh);
+      if (raf) cancelAnimationFrame(raf);
       if (tick) gsap.ticker.remove(tick);
       lenis?.destroy();
       lenisRef.current = null;
-      delete window.__siyaLenis;
+      void fontsPromise;
     };
   }, [reducedMotion]);
 
@@ -133,7 +149,6 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
         if (immediate) ScrollTrigger.update();
         return;
       }
-      // Native fallback (reduced motion)
       if (typeof target === "number") {
         window.scrollTo({ top: target + offset, behavior: "auto" });
       } else {
@@ -151,7 +166,10 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     lockCountRef.current += 1;
     if (lockCountRef.current === 1) {
       lenisRef.current?.stop();
+      const gap = scrollbarGap();
+      document.documentElement.style.setProperty("--scrollbar-gap", `${gap}px`);
       document.documentElement.style.overflow = "hidden";
+      document.documentElement.dataset.scrollLocked = "true";
     }
   }, []);
 
@@ -160,6 +178,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     if (lockCountRef.current === 0) {
       lenisRef.current?.start();
       document.documentElement.style.overflow = "";
+      document.documentElement.style.removeProperty("--scrollbar-gap");
+      delete document.documentElement.dataset.scrollLocked;
     }
   }, []);
 

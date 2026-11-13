@@ -94,6 +94,7 @@ export function BrowserLaunchLink({
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     const origin = e.currentTarget;
+    /* End timing: Flip preview opens after the sheet clears. */
     openOutbound("opening instagram", () => {
       open({ url: href, label, origin });
     });

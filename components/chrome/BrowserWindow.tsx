@@ -50,6 +50,7 @@ export function BrowserWindow({ url, label, originEl, onClosed }: Props) {
   const { lock, unlock } = useSmoothScroll();
   const { openOutbound } = useNavCurtain();
   const fine = useFinePointer();
+  const coarse = !fine;
   const { profile, photos } = CONTENT;
 
   /* ----------------------------------------------------------------- open */
@@ -134,8 +135,13 @@ export function BrowserWindow({ url, label, originEl, onClosed }: Props) {
       0,
     );
 
-    // settle micro overshoot
-    tl.to(settle, { scale: 1.015, duration: 0.28, ease: "expo.out", yoyo: true, repeat: 1 }, 0.95);
+    // damped settle — no bounce
+    tl.fromTo(
+      settle,
+      { scale: 0.985 },
+      { scale: 1, duration: 0.55, ease: "expo.out" },
+      0.9,
+    );
 
     // 0.35: title lights
     tl.to(lights, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.05, ease: "expo.out" }, 0.35);
@@ -358,7 +364,7 @@ export function BrowserWindow({ url, label, originEl, onClosed }: Props) {
       aria-modal="true"
       aria-label={`${label} browser preview`}
       data-lenis-prevent
-      className="browser"
+      className={`browser${coarse ? " browser--coarse" : ""}`}
     >
       <button
         type="button"

@@ -128,7 +128,10 @@ export function CollaboratePage() {
           <div className="collaborate__faq">
             {faqs.map((faq) => (
               <details key={faq.question} className="faq-item">
-                <summary className="faq-item__q">{faq.question}</summary>
+                <summary className="faq-item__q">
+                  <span className="faq-item__q-text">{faq.question}</span>
+                  <span className="faq-item__marker" aria-hidden="true" />
+                </summary>
                 <p className="type-body faq-item__a">{faq.answer}</p>
               </details>
             ))}

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
-import { prefersReducedMotionNow } from "@/lib/hooks";
+import { MQ, prefersReducedMotionNow } from "@/lib/hooks";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
 
 export function BackToTop() {
@@ -19,8 +19,8 @@ const TILT = [-11, 7, -6, 10];
 const GATHER = ["14vw", "5vw", "-5vw", "-14vw"];
 
 /**
- * Full-bleed poster wordmark. Scroll pulls each letter up from under the crop,
- * eases the tilt off, and fans the name out to the footer edges.
+ * Full-bleed poster wordmark. Fine pointers scrub the letters into place;
+ * touch devices play the settle once when the mark enters view.
  */
 export function FooterMark() {
   const ref = useRef<HTMLDivElement>(null);
@@ -31,36 +31,85 @@ export function FooterMark() {
       if (!el || prefersReducedMotionNow()) return;
       const letters = el.querySelectorAll<HTMLElement>("[data-letter]");
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: el,
-          start: "top bottom",
-          end: "bottom bottom",
-          scrub: 0.65,
-          invalidateOnRefresh: true,
-        },
+      const mm = gsap.matchMedia();
+
+      mm.add(MQ.fine, () => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: el,
+            start: "top bottom",
+            end: "bottom bottom",
+            scrub: 0.65,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        letters.forEach((letter, i) => {
+          const buried = Math.max(letter.offsetHeight * 1.4, el.offsetHeight * 1.75);
+          gsap.set(letter, {
+            y: buried,
+            x: GATHER[i] ?? 0,
+            rotation: TILT[i] ?? 0,
+            transformOrigin: "50% 100%",
+          });
+          tl.to(
+            letter,
+            {
+              y: 0,
+              rotation: 0,
+              x: 0,
+              duration: 1,
+              ease: "none",
+            },
+            i * 0.08,
+          );
+        });
+
+        return () => {
+          tl.scrollTrigger?.kill();
+          tl.kill();
+        };
       });
 
-      letters.forEach((letter, i) => {
-        const buried = Math.max(letter.offsetHeight * 1.4, el.offsetHeight * 1.75);
-        gsap.set(letter, {
-          y: buried,
-          x: GATHER[i] ?? 0,
-          rotation: TILT[i] ?? 0,
-          transformOrigin: "50% 100%",
+      mm.add(MQ.coarse, () => {
+        letters.forEach((letter, i) => {
+          const buried = Math.max(letter.offsetHeight * 1.4, el.offsetHeight * 1.75);
+          gsap.set(letter, {
+            y: buried,
+            x: GATHER[i] ?? 0,
+            rotation: TILT[i] ?? 0,
+            transformOrigin: "50% 100%",
+          });
         });
-        tl.to(
-          letter,
-          {
-            y: 0,
-            rotation: 0,
-            x: 0,
-            duration: 1,
-            ease: "none",
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: el,
+            start: "clamp(top 92%)",
+            once: true,
           },
-          i * 0.08,
-        );
+        });
+        letters.forEach((letter, i) => {
+          tl.to(
+            letter,
+            {
+              y: 0,
+              rotation: 0,
+              x: 0,
+              duration: 1.1,
+              ease: "expo.out",
+            },
+            i * 0.08,
+          );
+        });
+
+        return () => {
+          tl.scrollTrigger?.kill();
+          tl.kill();
+        };
       });
+
+      return () => mm.revert();
     },
     { scope: ref },
   );

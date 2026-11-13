@@ -29,6 +29,7 @@ export function SiteHeader() {
   const innerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const idleTimerRef = useRef<number | null>(null);
+  const lastActivityRef = useRef(0);
   const dockedRef = useRef(false);
   const menuOpenRef = useRef(false);
 
@@ -39,14 +40,25 @@ export function SiteHeader() {
     }
   }, []);
 
-  const bumpActivity = useCallback(() => {
-    setIdleHidden(false);
+  const scheduleIdle = useCallback(() => {
     clearIdle();
     if (!dockedRef.current || menuOpenRef.current) return;
     idleTimerRef.current = window.setTimeout(() => {
       if (!menuOpenRef.current && dockedRef.current) setIdleHidden(true);
     }, IDLE_MS);
   }, [clearIdle]);
+
+  const bumpActivity = useCallback(() => {
+    const now = performance.now();
+    /* Throttle: scroll/wheel fire continuously; one timer + timestamp is enough. */
+    if (now - lastActivityRef.current < 120) {
+      setIdleHidden(false);
+      return;
+    }
+    lastActivityRef.current = now;
+    setIdleHidden(false);
+    scheduleIdle();
+  }, [scheduleIdle]);
 
   /* Stay visible while scrolling; hide only after idle once docked. */
   useEffect(() => {
@@ -87,9 +99,9 @@ export function SiteHeader() {
     if (menuOpen) {
       clearIdle();
     } else if (dockedRef.current) {
-      bumpActivity();
+      scheduleIdle();
     }
-  }, [menuOpen, clearIdle, bumpActivity]);
+  }, [menuOpen, clearIdle, scheduleIdle]);
 
   useEffect(() => {
     if (!isHome) return;
@@ -149,13 +161,12 @@ export function SiteHeader() {
     <>
       <header
         id="site-header"
-        className={`fixed inset-x-0 top-0 z-50 ${
-          hidden ? "-translate-y-full" : "translate-y-0"
+        className={`site-header fixed inset-x-0 top-0 z-50 ${
+          hidden ? "site-header--hidden" : ""
         }`}
         style={{
           viewTransitionName: "site-header",
           color: menuOpen ? "var(--buttermilk)" : undefined,
-          transition: "transform 0.7s var(--ease-out), color 0.5s var(--ease-out)",
         }}
       >
         <div
@@ -167,6 +178,7 @@ export function SiteHeader() {
             href="/"
             aria-label="heartsfromsiya, home"
             data-docked={docked ? "true" : "false"}
+            data-magnetic
             onClick={(e) => {
               if (!isHome) return;
               e.preventDefault();
@@ -191,6 +203,7 @@ export function SiteHeader() {
                 href={isHome ? item.href : `/${item.href}`}
                 onClick={goTo(item.href, item.label)}
                 data-active={activeSection === item.href.slice(1) ? "true" : "false"}
+                data-magnetic
                 className="nav-menu__link type-nav"
               >
                 {item.label}
@@ -204,7 +217,7 @@ export function SiteHeader() {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMenuOpen((v) => !v)}
-            className="type-nav has-roll -mr-1 px-1 py-2 md:hidden"
+            className="type-nav has-roll site-header__toggle -mr-1 px-1 py-2 md:hidden"
           >
             <span className="roll" aria-hidden="true">
               <span className="roll__inner">

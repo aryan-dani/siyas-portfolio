@@ -28,12 +28,16 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
   const rootRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
+  const imageWrapRef = useRef<HTMLDivElement>(null);
   const uiRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const closingRef = useRef(false);
   const originRef = useRef(originEl);
+  const indexRef = useRef(index);
+  const dirRef = useRef<1 | -1>(1);
+  const openedRef = useRef(false);
 
   const { lock, unlock } = useSmoothScroll();
 
@@ -42,6 +46,22 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
   useEffect(() => {
     originRef.current = originEl;
   }, [originEl]);
+
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
+
+  /* Preload neighbours */
+  useEffect(() => {
+    if (count < 2) return;
+    const prev = photos[(index - 1 + count) % count];
+    const next = photos[(index + 1) % count];
+    [prev, next].forEach((p) => {
+      if (!p) return;
+      const img = new window.Image();
+      img.src = p.src;
+    });
+  }, [index, photos, count]);
 
   /* ----------------------------------------------------------------- open (once per mount) */
   useEffect(() => {
@@ -63,6 +83,7 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
 
     if (prefersReducedMotionNow()) {
       gsap.set([backdrop, ui, ...panelItems], { autoAlpha: 1 });
+      openedRef.current = true;
     } else {
       gsap.set(backdrop, { autoAlpha: 0 });
       gsap.set(ui, { autoAlpha: 0 });
@@ -71,7 +92,11 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
       const finalState = Flip.getState(frame);
       Flip.fit(frame, origin, { scale: false });
 
-      const tl = gsap.timeline();
+      const tl = gsap.timeline({
+        onComplete: () => {
+          openedRef.current = true;
+        },
+      });
       tl.to(backdrop, { autoAlpha: 1, duration: 0.8, ease: "power2.out" }, 0)
         .add(Flip.to(finalState, { duration: 1.15, ease: "expo.inOut", scale: false }), 0)
         .to(ui, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.95)
@@ -92,6 +117,25 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
       if (header) header.inert = false;
     };
   }, [lock, unlock]);
+
+  /* Crossfade / slide when index changes (after open completes) */
+  useEffect(() => {
+    if (!openedRef.current) return;
+    const wrap = imageWrapRef.current;
+    const frame = frameRef.current;
+    if (!wrap || !frame || prefersReducedMotionNow()) return;
+
+    const dir = dirRef.current;
+    gsap.fromTo(
+      wrap,
+      { xPercent: dir * 12, autoAlpha: 0.35 },
+      { xPercent: 0, autoAlpha: 1, duration: 0.55, ease: "expo.out" },
+    );
+
+    const state = Flip.getState(frame);
+    frame.style.setProperty("--photo-ar", String(ar));
+    Flip.from(state, { duration: 0.55, ease: "expo.out", absolute: false });
+  }, [index, ar]);
 
   /* --------------------------------------------------------------- close */
   const requestClose = useCallback(() => {
@@ -133,12 +177,13 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
   const go = useCallback(
     (dir: -1 | 1) => {
       if (count < 2 || closingRef.current) return;
-      onIndexChange((index + dir + count) % count);
+      dirRef.current = dir;
+      onIndexChange((indexRef.current + dir + count) % count);
     },
-    [count, index, onIndexChange],
+    [count, onIndexChange],
   );
 
-  /* ----------------------------------------------------- keys + focus trap */
+  /* ----------------------------------------------------- keys + focus trap + swipe */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -176,6 +221,31 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [go, requestClose]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || count < 2) return;
+    let startX = 0;
+    let startY = 0;
+    const onStart = (e: TouchEvent) => {
+      startX = e.touches[0]?.clientX ?? 0;
+      startY = e.touches[0]?.clientY ?? 0;
+    };
+    const onEnd = (e: TouchEvent) => {
+      const endX = e.changedTouches[0]?.clientX ?? 0;
+      const endY = e.changedTouches[0]?.clientY ?? 0;
+      const dx = endX - startX;
+      const dy = endY - startY;
+      if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy)) return;
+      go(dx < 0 ? 1 : -1);
+    };
+    root.addEventListener("touchstart", onStart, { passive: true });
+    root.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      root.removeEventListener("touchstart", onStart);
+      root.removeEventListener("touchend", onEnd);
+    };
+  }, [go, count]);
 
   const id = String(index + 1).padStart(2, "0");
 
@@ -235,19 +305,22 @@ export function PhotoViewer({ photos, index, originEl, onIndexChange, onClosed }
           className="player__frame player__frame--photo"
           style={{ ["--photo-ar" as string]: String(ar) }}
         >
-          <Image
-            key={photo.src}
-            src={photo.src}
-            alt={photo.alt}
-            width={photo.width}
-            height={photo.height}
-            sizes="(min-width: 900px) 70vw, 94vw"
-            placeholder="blur"
-            blurDataURL={photo.blur}
-            quality={88}
-            priority
-            className="player__image"
-          />
+          <div ref={imageWrapRef} className="player__image-wrap">
+            <Image
+              key={photo.src}
+              src={photo.src}
+              alt={photo.alt}
+              width={photo.width}
+              height={photo.height}
+              sizes="(min-width: 900px) 70vw, 94vw"
+              placeholder="blur"
+              blurDataURL={photo.blur}
+              quality={90}
+              loading="eager"
+              fetchPriority="high"
+              className="player__image"
+            />
+          </div>
 
           <div ref={uiRef} className="player__ui">
             <div className="player__mobile-info">

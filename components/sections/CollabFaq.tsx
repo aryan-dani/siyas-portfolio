@@ -68,7 +68,10 @@ export function CollabFaq() {
             {faqs.map((faq, i) => (
               <Reveal key={faq.question} delay={0.08 + i * 0.04}>
                 <details className="faq-item">
-                  <summary className="faq-item__q">{faq.question}</summary>
+                  <summary className="faq-item__q">
+                    <span className="faq-item__q-text">{faq.question}</span>
+                    <span className="faq-item__marker" aria-hidden="true" />
+                  </summary>
                   <p className="type-body faq-item__a">{faq.answer}</p>
                 </details>
               </Reveal>

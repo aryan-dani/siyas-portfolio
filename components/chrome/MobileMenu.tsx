@@ -3,7 +3,7 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { CONTENT, NAV } from "@/lib/content";
-import { prefersReducedMotionNow, useMediaQuery } from "@/lib/hooks";
+import { prefersReducedMotionNow, useMediaQuery, MQ } from "@/lib/hooks";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
 import { useNavCurtain } from "@/components/chrome/NavCurtain";
 
@@ -21,7 +21,7 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
   const lockedRef = useRef(false);
   const { lock, unlock } = useSmoothScroll();
   const { goToSection } = useNavCurtain();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery(MQ.desktop);
 
   useGSAP(
     () => {
@@ -29,10 +29,12 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
       if (!root) return;
       const items = root.querySelectorAll("[data-menu-item]");
       const fades = root.querySelectorAll("[data-menu-fade]");
+      const lines = root.querySelectorAll("[data-menu-line]");
 
       gsap.set(root, { yPercent: -100, visibility: "hidden" });
       gsap.set(items, { yPercent: 115 });
       gsap.set(fades, { autoAlpha: 0, y: 20 });
+      gsap.set(lines, { scaleX: 0 });
 
       const tl = gsap.timeline({
         paused: true,
@@ -43,6 +45,7 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
       tl.set(root, { visibility: "visible" })
         .to(root, { yPercent: 0, duration: 0.95, ease: "expo.inOut" })
         .to(items, { yPercent: 0, duration: 1.2, stagger: 0.08, ease: "expo.out" }, "-=0.5")
+        .to(lines, { scaleX: 1, duration: 0.85, stagger: 0.08, ease: "expo.out" }, "-=1.05")
         .to(fades, { autoAlpha: 1, y: 0, duration: 1, stagger: 0.07, ease: "expo.out" }, "-=0.9");
       tlRef.current = tl;
 
@@ -67,8 +70,6 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
         lock();
       }
       if (content) content.inert = true;
-      // Visible before focusing: a visibility:hidden link can't take focus, and
-      // the timeline only applies its own visibility on the next frame.
       gsap.set(root, { visibility: "visible" });
       if (prefersReducedMotionNow()) tl.progress(1);
       else tl.timeScale(1).play();
@@ -152,7 +153,7 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
       aria-modal="true"
       aria-label="Menu"
       data-lenis-prevent
-      className="invisible fixed inset-0 z-40 flex flex-col justify-between overflow-y-auto bg-burgundy px-[var(--gutter)] pt-28 pb-10 text-buttermilk md:hidden"
+      className="mobile-menu invisible fixed inset-0 z-40 flex flex-col justify-between overflow-y-auto bg-burgundy px-[var(--gutter)] pt-28 pb-10 text-buttermilk md:hidden"
     >
       <nav aria-label="Mobile">
         <ul>
@@ -162,7 +163,7 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
                 data-menu-item
                 href={isHome ? item.href : `/${item.href}`}
                 onClick={handleNav(item.href, item.label)}
-                className="type-display flex items-start gap-4 py-[0.05em] text-[clamp(4rem,21vw,7.5rem)] leading-[0.95] normal-case"
+                className="type-display mobile-menu__link flex items-start gap-4 py-[0.05em] text-[clamp(4rem,21vw,7.5rem)] leading-[0.95] normal-case"
                 style={{ textTransform: "none" }}
               >
                 <span className="type-nav mt-[0.9em] w-6 shrink-0 text-[0.7rem] opacity-70">
@@ -170,6 +171,11 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
                 </span>
                 {item.label}
               </a>
+              <span
+                data-menu-line
+                className="mobile-menu__line"
+                aria-hidden="true"
+              />
             </li>
           ))}
         </ul>
@@ -179,18 +185,33 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
         <a
           data-menu-fade
           href={`mailto:${CONTENT.profile.email}`}
-          className="link-u self-start text-[1.35rem] leading-tight tracking-[0.01em]"
+          className="link-u self-start text-[1.35rem] leading-tight tracking-[0.01em] touch-target"
         >
           {CONTENT.profile.email}
         </a>
         <div data-menu-fade className="type-nav flex flex-wrap gap-x-7 gap-y-3">
-          <a href={CONTENT.profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="link-u">
+          <a
+            href={CONTENT.profile.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-u touch-target"
+          >
             instagram
           </a>
-          <a href={CONTENT.profile.instagramDumpUrl} target="_blank" rel="noopener noreferrer" className="link-u">
+          <a
+            href={CONTENT.profile.instagramDumpUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-u touch-target"
+          >
             {CONTENT.profile.secondaryHandle}
           </a>
-          <a href={CONTENT.profile.youtubeUrl} target="_blank" rel="noopener noreferrer" className="link-u">
+          <a
+            href={CONTENT.profile.youtubeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link-u touch-target"
+          >
             youtube
           </a>
         </div>

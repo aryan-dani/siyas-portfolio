@@ -1,9 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 import { SIGNATURE_SIYA } from "@/lib/signature-paths";
-import { prefersReducedMotionNow } from "@/lib/hooks";
 
 /**
  * "Siya" in the script face, as outline path data. It is "written" by drawing
@@ -43,48 +41,5 @@ export function SignaturePath({
       strokeLinecap="round"
       vectorEffect="non-scaling-stroke"
     />
-  );
-}
-
-/** A signature that writes itself when scrolled into view. */
-export function Signature({ className }: { className?: string }) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const pathRef = useRef<SVGPathElement>(null);
-
-  useGSAP(
-    () => {
-      const svg = svgRef.current;
-      const path = pathRef.current;
-      if (!svg || !path || prefersReducedMotionNow()) {
-        // No motion: show the finished signature.
-        if (path) path.setAttribute("fill-opacity", "1");
-        if (path) path.setAttribute("stroke-opacity", "0");
-        return;
-      }
-      const tl = buildSignatureTimeline(path, { draw: 2.2 });
-      gsap.set(path, { drawSVG: "0%" });
-      gsap.set(svg, { opacity: 1 });
-      const st = ScrollTrigger.create({
-        trigger: svg,
-        start: "top 85%",
-        once: true,
-        onEnter: () => tl.play(),
-      });
-      return () => st.kill();
-    },
-    { scope: svgRef }
-  );
-
-  return (
-    <svg
-      ref={svgRef}
-      data-reveal="signature"
-      viewBox={SIGNATURE_SIYA.viewBox}
-      className={className}
-      role="img"
-      aria-label="Siya"
-    >
-      <SignaturePath pathRef={pathRef} />
-    </svg>
   );
 }

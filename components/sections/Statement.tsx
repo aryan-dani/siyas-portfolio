@@ -26,11 +26,11 @@ export function Statement() {
         if (disposed) return;
         split = SplitText.create(el, {
           type: "words",
-          ignore: "[data-script-word]",
+          ignore: "[data-hl-word]",
           autoSplit: true,
           onSplit(self) {
-            const script = el.querySelector("[data-script-word]");
-            const ordered = [...self.words, ...(script ? [script] : [])].sort((a, b) =>
+            const marked = el.querySelector("[data-hl-word]");
+            const ordered = [...self.words, ...(marked ? [marked] : [])].sort((a, b) =>
               a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
             );
             const tween = gsap.fromTo(
@@ -63,15 +63,11 @@ export function Statement() {
   );
 
   return (
-    <section
-      aria-label="Statement"
-      data-theme-section="cream"
-      className="statement"
-    >
+    <section aria-label="Statement" className="statement">
       <div className="wrap">
         <p ref={textRef} data-reveal="scrub" className="statement__text type-display">
           {statement.before}{" "}
-          <span data-script-word className="statement__script type-script halo">
+          <span data-hl-word className="statement__mark hl">
             {statement.script}
           </span>{" "}
           {statement.after}

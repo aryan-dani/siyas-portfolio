@@ -21,8 +21,8 @@ export default function NotFound() {
         />
         <Reveal delay={0.25} className="notfound__copy">
           <p className="type-body">
-            This page doesn’t exist in {profile.fullName}’s portfolio. Head back to the reels, or
-            take a look at the rates.
+            This page doesn’t exist in {profile.fullName}’s portfolio. Head back home to see the
+            work, or jump straight to contact.
           </p>
         </Reveal>
         <Reveal delay={0.35} className="notfound__actions">
@@ -38,8 +38,8 @@ export default function NotFound() {
               →
             </span>
           </Link>
-          <Link href="/#rates" className="type-label link-u">
-            View rates →
+          <Link href="/#contact" className="type-label link-u">
+            Contact →
           </Link>
         </Reveal>
       </div>

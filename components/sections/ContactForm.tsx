@@ -37,7 +37,7 @@ export function ContactForm() {
 
   const body = `Hi Siya,\n\nName / Brand: ${name.trim() || "Brand Partner"}\nWork Email: ${
     email.trim() || "—"
-  }\nSelected Collaboration: ${active.fullLabel}\n\nProject Brief & Timeline:\n${
+  }\nSelected Collaboration: ${active.label}\n\nProject Brief & Timeline:\n${
     note.trim() || "Looking forward to discussing this collaboration!"
   }\n`;
 
@@ -54,17 +54,17 @@ export function ContactForm() {
   if (submitted) {
     return (
       <div className="form form--done" role="status">
-        <p className="type-script form__thanks">Thank you</p>
+        <p className="type-script form__thanks">thank you</p>
         <p className="type-body">
-          Your email draft is ready, with the subject filled in. If it didn’t open, use the button below.
+          your email draft is ready, with the subject filled in. if it didn’t open, use the button below.
         </p>
         <dl className="form__summary type-label">
           <div>
-            <dt>To</dt>
+            <dt>to</dt>
             <dd>{profile.email}</dd>
           </div>
           <div>
-            <dt>Subject</dt>
+            <dt>subject</dt>
             <dd>{subject}</dd>
           </div>
         </dl>
@@ -72,17 +72,17 @@ export function ContactForm() {
           <a href={mailto} className="btn btn--solid has-roll">
             <span className="roll" aria-hidden="true">
               <span className="roll__inner">
-                <span>Open in email app</span>
-                <span>Open in email app</span>
+                <span>open in email app</span>
+                <span>open in email app</span>
               </span>
             </span>
-            <span className="sr-only">Open in email app</span>
+            <span className="sr-only">open in email app</span>
             <span className="btn__arrow" aria-hidden="true">
               ↗
             </span>
           </a>
           <button type="button" className="type-label link-u" onClick={() => setSubmitted(false)}>
-            Edit inquiry
+            edit inquiry
           </button>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function ContactForm() {
       <div className="form__pair">
         <div className="field">
           <label htmlFor="c-name" className="type-label">
-            Your name &amp; brand
+            your name &amp; brand
           </label>
           <input
             ref={nameRef}
@@ -110,7 +110,7 @@ export function ContactForm() {
         </div>
         <div className="field">
           <label htmlFor="c-email" className="type-label">
-            Work email
+            work email
           </label>
           <input
             id="c-email"
@@ -127,7 +127,7 @@ export function ContactForm() {
 
       <div className="field field--chips" role="radiogroup" aria-labelledby="c-format">
         <p id="c-format" className="type-label">
-          Collaboration format
+          collaboration format
         </p>
         <div className="chips">
           {INQUIRY_OPTIONS.map((o) => (
@@ -147,7 +147,7 @@ export function ContactForm() {
 
       <div className="field">
         <label htmlFor="c-note" className="type-label">
-          Project note &amp; timeline
+          project note &amp; timeline
         </label>
         <textarea
           id="c-note"
@@ -160,7 +160,7 @@ export function ContactForm() {
       </div>
 
       <p className="form__subject type-label">
-        <span>Subject</span>
+        <span>subject</span>
         <span className="form__subject-text">{subject}</span>
       </p>
 
@@ -168,16 +168,16 @@ export function ContactForm() {
         <button type="submit" className="btn btn--solid has-roll">
           <span className="roll" aria-hidden="true">
             <span className="roll__inner">
-              <span>Send inquiry</span>
-              <span>Send inquiry</span>
+              <span>send inquiry</span>
+              <span>send inquiry</span>
             </span>
           </span>
-          <span className="sr-only">Send inquiry</span>
+          <span className="sr-only">send inquiry</span>
           <span className="btn__arrow" aria-hidden="true">
             →
           </span>
         </button>
-        <span className="type-label form__to">Opens your email app · to {profile.email}</span>
+        <span className="type-label form__to">opens your email app · to {profile.email}</span>
       </div>
     </form>
   );

@@ -7,19 +7,20 @@ export function SelectedWork() {
   const { work, profile } = CONTENT;
 
   return (
-    <section
-      id="work"
-      aria-labelledby="work-title"
-      data-theme-section="blue"
-      className="work"
-    >
+    <section id="work" aria-labelledby="work-title" className="section work">
       <div className="wrap">
-        <div className="work__head">
+        <div className="section__head">
           <div>
             <Reveal>
               <Eyebrow index="01">{work.eyebrow}</Eyebrow>
             </Reveal>
-            <Heading id="work-title" caps={work.title.caps} script={work.title.script} className="mt-7" />
+            <Heading
+              id="work-title"
+              caps={work.title.caps}
+              script={work.title.script}
+              inline
+              className="mt-7"
+            />
           </div>
           <Reveal className="work__all" delay={0.2}>
             <a

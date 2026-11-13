@@ -1,23 +1,34 @@
 import type { Metadata, Viewport } from "next";
 import {
+  Bodoni_Moda,
   Jost,
   Monsieur_La_Doulaise,
   Noto_Serif_Display,
 } from "next/font/google";
 import { CONTENT } from "@/lib/content";
 import { getSiteUrl } from "@/lib/site";
+import { BootInject } from "@/components/chrome/BootInject";
 import { SiteShell } from "@/components/chrome/SiteShell";
 import "./globals.css";
 import "./sections.css";
 
 /* Free, permanently-licensed stand-ins for the reference typefaces:
-   - Noto Serif Display, narrowest width  -> Perandory (condensed Didone caps)
-   - Monsieur La Doulaise                 -> the "Branding" copperplate script
+   - Bodoni Moda                         -> fashion Didone for "siya" / brand
+   - Noto Serif Display, narrowest width  -> condensed section display
+   - Monsieur La Doulaise                 -> copperplate script accent
    - Jost                                 -> quiet geometric sans for text */
+const bodoni = Bodoni_Moda({
+  variable: "--font-bodoni",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
 const display = Noto_Serif_Display({
   variable: "--font-noto-display",
   subsets: ["latin"],
   axes: ["wdth"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -80,19 +91,12 @@ export const metadata: Metadata = {
   },
 };
 
-/* Runs before first paint. Decides, with no flash:
-   - whether reveal animations are allowed (js-motion)
-   - whether the intro plays (once per session, home page only, never with
-     reduced motion)
-   - a failsafe: if the app hasn't started after 6s, show everything. */
-const BOOT_SCRIPT = `(function(){var d=document.documentElement;try{var rm=window.matchMedia("(prefers-reduced-motion: reduce)").matches;if(!rm){d.classList.add("js-motion");}var seen=false;try{seen=sessionStorage.getItem("siya:intro")==="1";}catch(e){}var home=location.pathname==="/";d.setAttribute("data-intro",(rm||seen||!home)?"done":"pending");setTimeout(function(){if(!window.__siyaReady){d.classList.add("motion-failsafe");d.setAttribute("data-intro","done");}},6000);}catch(e){d.setAttribute("data-intro","done");}})();`;
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const personJsonLd = {
+  const personJsonLd = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Person",
     name: CONTENT.profile.fullName,
@@ -111,32 +115,26 @@ export default function RootLayout({
       CONTENT.profile.instagramDumpUrl,
       CONTENT.profile.youtubeUrl,
     ],
-  };
+  }).replace(/</g, "\\u003c");
 
   return (
     <html
       lang="en"
-      className={`${display.variable} ${script.variable} ${sans.variable}`}
+      className={`${bodoni.variable} ${display.variable} ${script.variable} ${sans.variable}`}
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
         <noscript>
           <style>{`.intro{display:none!important}`}</style>
         </noscript>
       </head>
       <body>
+        <BootInject jsonLd={personJsonLd} />
         <a href="#main" className="skip-link">
           Skip to content
         </a>
         <SiteShell>{children}</SiteShell>
         <div className="grain" aria-hidden="true" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(personJsonLd).replace(/</g, "\\u003c"),
-          }}
-        />
       </body>
     </html>
   );

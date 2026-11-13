@@ -5,6 +5,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { CONTENT, NAV } from "@/lib/content";
 import { prefersReducedMotionNow, useMediaQuery } from "@/lib/hooks";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
+import { useNavCurtain } from "@/components/chrome/NavCurtain";
 
 type Props = {
   open: boolean;
@@ -18,7 +19,8 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const lockedRef = useRef(false);
-  const { scrollTo, lock, unlock } = useSmoothScroll();
+  const { lock, unlock } = useSmoothScroll();
+  const { goToSection } = useNavCurtain();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   useGSAP(
@@ -132,12 +134,11 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose, toggleRef]);
 
-  const handleNav = (href: string) => (e: React.MouseEvent) => {
+  const handleNav = (href: string, label: string) => (e: React.MouseEvent) => {
     if (!isHome) return;
     e.preventDefault();
-    // Jump underneath the overlay, then lift it to reveal the destination.
-    scrollTo(href, { immediate: true });
     onClose();
+    window.setTimeout(() => goToSection(href, label), 280);
   };
 
   return (
@@ -157,10 +158,11 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
               <a
                 data-menu-item
                 href={isHome ? item.href : `/${item.href}`}
-                onClick={handleNav(item.href)}
-                className="type-display flex items-start gap-4 py-[0.05em] text-[clamp(4rem,21vw,7.5rem)] leading-[0.95]"
+                onClick={handleNav(item.href, item.label)}
+                className="type-display flex items-start gap-4 py-[0.05em] text-[clamp(4rem,21vw,7.5rem)] leading-[0.95] normal-case"
+                style={{ textTransform: "none" }}
               >
-                <span className="type-label mt-[0.9em] w-6 shrink-0 text-[0.7rem] opacity-70">
+                <span className="type-nav mt-[0.9em] w-6 shrink-0 text-[0.7rem] opacity-70">
                   0{i + 1}
                 </span>
                 {item.label}
@@ -178,15 +180,15 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
         >
           {CONTENT.profile.email}
         </a>
-        <div data-menu-fade className="type-label flex flex-wrap gap-x-7 gap-y-3">
+        <div data-menu-fade className="type-nav flex flex-wrap gap-x-7 gap-y-3">
           <a href={CONTENT.profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="link-u">
-            Instagram
+            instagram
           </a>
           <a href={CONTENT.profile.instagramDumpUrl} target="_blank" rel="noopener noreferrer" className="link-u">
             {CONTENT.profile.secondaryHandle}
           </a>
           <a href={CONTENT.profile.youtubeUrl} target="_blank" rel="noopener noreferrer" className="link-u">
-            YouTube
+            youtube
           </a>
         </div>
       </div>

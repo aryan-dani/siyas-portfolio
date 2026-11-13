@@ -1,12 +1,9 @@
 import { ViewTransition } from "react";
 import { Intro } from "@/components/motion/Intro";
-import { SectionTheme } from "@/components/motion/SectionTheme";
 import { Hero } from "@/components/sections/Hero";
-import { Statement } from "@/components/sections/Statement";
 import { SelectedWork } from "@/components/sections/SelectedWork";
+import { Gallery } from "@/components/sections/Gallery";
 import { Numbers } from "@/components/sections/Numbers";
-import { About } from "@/components/sections/About";
-import { Rates } from "@/components/sections/Rates";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/sections/Footer";
 
@@ -19,13 +16,10 @@ export default function Home() {
     >
       <main id="main">
         <Intro />
-        <SectionTheme />
         <Hero />
-        <Statement />
         <SelectedWork />
+        <Gallery />
         <Numbers />
-        <About />
-        <Rates />
         <Contact />
         <Footer />
       </main>

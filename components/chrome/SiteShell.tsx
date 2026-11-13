@@ -6,6 +6,7 @@ import { InquiryProvider } from "@/lib/inquiry";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 import { SiteHeader } from "@/components/chrome/SiteHeader";
 import { MediaCursor } from "@/components/chrome/MediaCursor";
+import { NavCurtainProvider } from "@/components/chrome/NavCurtain";
 
 /**
  * Everything that persists across routes: smooth scrolling, the header, the
@@ -33,9 +34,11 @@ export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <SmoothScrollProvider>
       <InquiryProvider>
-        <SiteHeader />
-        <MediaCursor />
-        <div id="content">{children}</div>
+        <NavCurtainProvider>
+          <SiteHeader />
+          <MediaCursor />
+          <div id="content">{children}</div>
+        </NavCurtainProvider>
       </InquiryProvider>
     </SmoothScrollProvider>
   );

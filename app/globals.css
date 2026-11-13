@@ -3,36 +3,22 @@
 /* ==========================================================================
    SIYA — design system
    --------------------------------------------------------------------------
-   Palette: exactly the three supplied colours. Every other tone on the site is
-   one of them mixed with transparency (text 76%, hairlines 16%, tints 8%).
+   Uniform palette across the whole site (no scroll theme transitions).
      Buttermilk     #FFF1B5   page
-     Pastel Blue    #C1DBE8   Selected Work, selection, hover fills
-     Old Burgundy   #43302E   ink, and the dark "Rates" chapter
+     Pastel Blue    #C1DBE8   accents, chips, selection
+     Old Burgundy   #43302E   ink
+   Type: Bodoni Moda (siya/brand), Noto Serif Display (sections),
+         Jost (body/labels), Monsieur (script)
    ========================================================================== */
 
-/* Registered so the page background and ink can cross-fade between sections. */
-@property --bg {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #fff1b5;
-}
-@property --fg {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #43302e;
-}
-@property --muted-pct {
-  syntax: "<percentage>";
-  inherits: true;
-  initial-value: 76%;
-}
-
 :root {
-  --buttermilk: #fff1b5;
+  --buttermilk-base: #fff1b5;
+  --buttermilk: var(--buttermilk-base);
   --pastel-blue: #c1dbe8;
   --old-burgundy: #43302e;
+  /* Deeper buttermilk — page wash while hovering clickables */
+  --buttermilk-deep: color-mix(in srgb, var(--buttermilk-base) 70%, var(--old-burgundy));
 
-  /* Live theme (changed by data-theme on <html>, driven by scroll position) */
   --bg: var(--buttermilk);
   --fg: var(--old-burgundy);
   --muted-pct: 76%;
@@ -40,30 +26,20 @@
   --fg-muted: color-mix(in srgb, var(--fg) var(--muted-pct), transparent);
   --fg-line: color-mix(in srgb, var(--fg) 16%, transparent);
   --fg-faint: color-mix(in srgb, var(--fg) 8%, transparent);
+  --accent-soft: color-mix(in srgb, var(--pastel-blue) 72%, white);
+
+  /* One radius everywhere — match the docked navbar */
+  --radius-dock: 1.4rem;
+  --radius-soft: var(--radius-dock);
+  --radius-soft-sm: calc(var(--radius-dock) - 0.25rem);
 
   /* One easing family everywhere: expo */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
-  --theme-duration: 900ms;
 
   --gutter: clamp(1.25rem, 4.2vw, 4.5rem);
   --max-w: 1440px;
-
-  transition:
-    --bg var(--theme-duration) var(--ease-in-out),
-    --fg var(--theme-duration) var(--ease-in-out),
-    --muted-pct var(--theme-duration) var(--ease-in-out);
-}
-
-/* Pastel blue is lighter than buttermilk's contrast needs: lift muted text. */
-:root[data-theme="blue"] {
-  --bg: var(--pastel-blue);
-  --muted-pct: 86%;
-}
-:root[data-theme="burgundy"] {
-  --bg: var(--old-burgundy);
-  --fg: var(--buttermilk);
-  --muted-pct: 78%;
+  --section-space: clamp(5.5rem, 14vh, 10rem);
 }
 
 @theme inline {
@@ -75,6 +51,7 @@
   --color-ink-muted: var(--fg-muted);
   --color-line: var(--fg-line);
 
+  --font-didone: var(--font-bodoni), "Didot", "Bodoni MT", "Times New Roman", serif;
   --font-display: var(--font-noto-display), "Times New Roman", serif;
   --font-script: var(--font-monsieur), "Snell Roundhand", cursive;
   --font-sans: var(--font-jost), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -104,6 +81,14 @@
     scroll-padding-top: 6rem;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--fg) 32%, transparent) transparent;
+    transition: background-color 0.55s var(--ease-out);
+  }
+
+  /* Retint every surface that reads --buttermilk / --bg */
+  html[data-hot="1"] {
+    --buttermilk: var(--buttermilk-deep);
+    --bg: var(--buttermilk-deep);
+    background-color: var(--buttermilk-deep);
   }
 
   body {
@@ -111,6 +96,7 @@
     font-size: 1rem;
     line-height: 1.6;
     overflow-x: clip;
+    background-color: transparent;
   }
 
   ::selection {
@@ -141,6 +127,17 @@
     text-decoration: none;
   }
 
+  /* Permanent custom cursor — hide the system pointer everywhere */
+  @media (hover: hover) and (pointer: fine) {
+    html.has-heart-cursor,
+    html.has-heart-cursor body,
+    html.has-heart-cursor *,
+    html.has-heart-cursor *::before,
+    html.has-heart-cursor *::after {
+      cursor: none !important;
+    }
+  }
+
   /* Lenis */
   html.lenis,
   html.lenis body {
@@ -168,7 +165,7 @@
     font-stretch: 62.5%;
     font-weight: 500;
     font-kerning: normal;
-    text-transform: uppercase;
+    text-transform: lowercase;
     line-height: 0.88;
     letter-spacing: -0.012em;
   }
@@ -188,9 +185,214 @@
     font-family: var(--font-sans);
     font-size: 0.72rem;
     font-weight: 500;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     line-height: 1.4;
-    text-transform: uppercase;
+    text-transform: lowercase;
+  }
+
+  .type-nav {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: lowercase;
+  }
+
+  /* Shared dock chrome: brand (left) + nav (right) as matching squircles */
+  .brand-mark,
+  .nav-menu {
+    border-radius: var(--radius-dock);
+    border: 1.5px solid transparent;
+    background: transparent;
+    box-shadow: 0 0 0 transparent;
+    transition:
+      gap 0.65s var(--ease-out),
+      padding 0.65s var(--ease-out),
+      background 0.65s var(--ease-out),
+      border-color 0.65s var(--ease-out),
+      box-shadow 0.65s var(--ease-out);
+  }
+  .brand-mark[data-docked="true"],
+  .nav-menu[data-docked="true"] {
+    background: var(--buttermilk);
+    border-color: color-mix(in srgb, var(--old-burgundy) 50%, transparent);
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--old-burgundy) 8%, transparent),
+      0 12px 30px color-mix(in srgb, var(--old-burgundy) 12%, transparent);
+  }
+
+  .nav-menu {
+    align-items: center;
+    gap: 2.4rem;
+    padding: 0.45rem;
+  }
+  .nav-menu[data-docked="true"] {
+    gap: 0.2rem;
+    padding: 0.45rem;
+  }
+  .nav-menu__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.15rem;
+    border-radius: calc(var(--radius-dock) - 0.2rem);
+    color: var(--old-burgundy);
+    transition:
+      background 0.45s var(--ease-out),
+      color 0.45s var(--ease-out),
+      padding 0.65s var(--ease-out);
+  }
+  .nav-menu[data-docked="true"] .nav-menu__link {
+    padding: 0.7rem 1.15rem;
+  }
+  .nav-menu__link:hover,
+  .nav-menu__link:focus-visible,
+  .nav-menu__link[data-active="true"] {
+    color: var(--old-burgundy);
+  }
+  .nav-menu[data-docked="true"] .nav-menu__link:hover,
+  .nav-menu[data-docked="true"] .nav-menu__link:focus-visible,
+  .nav-menu[data-docked="true"] .nav-menu__link[data-active="true"] {
+    background: var(--old-burgundy);
+    color: var(--buttermilk);
+  }
+
+  .brand-mark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.12em;
+    line-height: 1;
+    text-transform: none;
+    color: var(--old-burgundy);
+    padding: 0.45rem 0.35rem;
+  }
+  .brand-mark[data-docked="true"] {
+    padding: 0.7rem 1.2rem 0.78rem;
+  }
+  .brand-mark__lead {
+    font-family: var(--font-sans);
+    font-size: clamp(0.78rem, 1.05vw, 0.9rem);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
+  }
+  .brand-mark__script {
+    font-family: var(--font-script);
+    font-size: clamp(1.55rem, 2.2vw, 2rem);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 0.8;
+    text-transform: none;
+  }
+
+  .nav-curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    background: var(--buttermilk);
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+  }
+  .nav-curtain[data-active="true"] {
+    pointer-events: auto;
+  }
+  .nav-curtain__title {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(4.8rem, 16vw, 10rem);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--old-burgundy);
+    padding-inline: 0.08em;
+  }
+
+  /* Soft translucent pastel mark */
+  .hl {
+    display: inline;
+    padding: 0.28em 0.62em 0.32em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    background: color-mix(in srgb, var(--pastel-blue) 68%, transparent);
+    color: var(--old-burgundy);
+    font-style: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    border-radius: var(--radius-soft-sm);
+  }
+
+  .media-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 120;
+    display: grid;
+    place-items: center;
+    width: 2.55rem;
+    height: 2.55rem;
+    pointer-events: none;
+    border-radius: var(--radius-soft-sm);
+    background: color-mix(in srgb, var(--buttermilk) 88%, white);
+    color: var(--old-burgundy);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--old-burgundy) 16%, transparent);
+    transition: background 0.35s var(--ease-out), color 0.35s var(--ease-out), padding 0.35s var(--ease-out),
+      width 0.35s var(--ease-out), height 0.35s var(--ease-out);
+  }
+  /* Compact pill — never larger than the hero social buttons */
+  .media-cursor[data-mode="label"] {
+    width: auto;
+    height: 2.55rem;
+    padding: 0 0.7rem;
+    border-radius: var(--radius-soft-sm);
+  }
+  .media-cursor[data-hot="1"] {
+    background: var(--old-burgundy);
+    color: var(--buttermilk);
+  }
+  .media-cursor__label {
+    font-size: 0.62rem !important;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .media-cursor__heart {
+    display: grid;
+    place-items: center;
+    color: inherit;
+  }
+  .media-cursor__heart svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .section {
+    padding-block: var(--section-space);
+    border-top: 1px solid var(--fg-line);
+  }
+  /* Hero already paints the first divider; don't double it on the next section */
+  .hero + .section {
+    border-top: 0;
+  }
+
+  .section__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem 2.5rem;
+    margin-bottom: clamp(2.75rem, 7vh, 5.5rem);
+  }
+
+  .section__intro {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 36rem;
   }
 
   .type-body {
@@ -228,6 +430,18 @@
     background-size: 100% 1px;
   }
 
+  /* Soft palette tint for brand names (no underline) */
+  .brand-link {
+    color: color-mix(in srgb, var(--pastel-blue) 42%, var(--old-burgundy));
+    text-decoration: none;
+    background-image: none;
+    transition: color 0.4s var(--ease-out);
+  }
+  .brand-link:hover,
+  .brand-link:focus-visible {
+    color: var(--old-burgundy);
+  }
+
   /* Rolling label: two stacked copies slide up on hover */
   .roll {
     display: inline-block;
@@ -258,25 +472,27 @@
     display: inline-flex;
     align-items: center;
     gap: 0.9rem;
-    padding: 0.95rem 1.5rem 0.95rem 1.75rem;
+    /* Tall enough that --radius-dock reads as a squircle, not a capsule */
+    padding: 1.05rem 1.65rem 1.05rem 1.85rem;
+    min-height: 3.35rem;
     border: 1px solid var(--fg);
-    border-radius: 999px;
+    border-radius: var(--radius-dock);
     overflow: hidden;
     font-family: var(--font-sans);
     font-size: 0.74rem;
     font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    text-transform: lowercase;
     color: var(--fg);
     transition: color 0.6s var(--ease-out);
   }
   .btn::before {
     content: "";
     position: absolute;
-    inset: -1px;
+    inset: 0;
     z-index: -1;
     background: var(--fg);
-    border-radius: 999px;
+    border-radius: inherit;
     transform: translateY(102%);
     transition: transform 0.7s var(--ease-out);
   }
@@ -337,15 +553,16 @@
     transform: translateY(0);
   }
 
-  /* Barely-there paper grain (static, one tiled SVG, no blend modes) */
+  /* Soft paper grain — pre-tiled dots, no live SVG filters */
   .grain {
     position: fixed;
     inset: 0;
     z-index: 30;
     pointer-events: none;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .26  0 0 0 0 .19  0 0 0 0 .18  1.6 0 0 0 -.55'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-    background-size: 220px 220px;
+    opacity: 0.035;
+    contain: strict;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><circle cx='12' cy='28' r='1' fill='%2343302e' opacity='.35'/><circle cx='74' cy='18' r='1' fill='%2343302e' opacity='.25'/><circle cx='118' cy='52' r='1' fill='%2343302e' opacity='.3'/><circle cx='36' cy='88' r='1' fill='%2343302e' opacity='.22'/><circle cx='98' cy='110' r='1' fill='%2343302e' opacity='.28'/><circle cx='142' cy='96' r='1' fill='%2343302e' opacity='.2'/><circle cx='54' cy='140' r='1' fill='%2343302e' opacity='.26'/><circle cx='128' cy='148' r='1' fill='%2343302e' opacity='.18'/></svg>");
+    background-size: 160px 160px;
   }
 }
 

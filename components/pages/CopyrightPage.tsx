@@ -238,8 +238,8 @@ export function CopyrightPage() {
                 ↗
               </span>
             </a>
-            <Link href="/#rates" transitionTypes={["nav-back"]} className="type-label link-u">
-              View rates →
+            <Link href="/#contact" transitionTypes={["nav-back"]} className="type-label link-u">
+              Contact →
             </Link>
           </div>
         </Reveal>

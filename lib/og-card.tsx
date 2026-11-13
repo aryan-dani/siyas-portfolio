@@ -3,24 +3,16 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 /**
- * The social share card: the hero lockup ("SI [portrait] YA" with "hearts from"
- * written across it) on buttermilk. Fonts are tiny subsets of the exact site
- * fonts, read once at module scope; the card is prerendered at build time.
- *
- * Satori (the renderer behind next/og) can't use variable fonts or font-stretch,
- * so the condensed Noto Serif Display here is a pinned static instance.
+ * Social share card: Regan-style lockup — lowercase "siya", "content creator"
+ * highlight, and the cutout portrait on a buttermilk → pastel wash.
+ * Satori can't use variable fonts or font-stretch, so Jost is a static file.
  */
-const display = await readFile(
-  join(process.cwd(), "assets/og/NotoSerifDisplay-XC-500.ttf")
-);
-const script = await readFile(
-  join(process.cwd(), "assets/og/MonsieurLaDoulaise.ttf")
-);
 const sans = await readFile(join(process.cwd(), "assets/og/Jost-400.ttf"));
-const portrait = await readFile(join(process.cwd(), "assets/og/portrait.jpg"), "base64");
+const portrait = await readFile(join(process.cwd(), "assets/og/siya-cutout.png"), "base64");
 
 const INK = "#43302E";
 const CREAM = "#FFF1B5";
+const PASTEL = "#C1DBE8";
 
 export function renderOgCard() {
   return new ImageResponse(
@@ -35,134 +27,93 @@ export function renderOgCard() {
           color: INK,
         }}
       >
-        {/* hairline frame */}
         <div
           style={{
             position: "absolute",
-            top: 26,
-            left: 26,
-            right: 26,
-            bottom: 26,
-            border: "1.5px solid rgba(67,48,46,0.35)",
-            display: "flex",
-          }}
-        />
-
-        {/* small caps rows */}
-        <div
-          style={{
-            position: "absolute",
-            top: 58,
+            top: 48,
             left: 64,
-            right: 64,
-            display: "flex",
-            justifyContent: "space-between",
             fontFamily: "Jost",
-            fontSize: 20,
-            letterSpacing: 5,
-            textTransform: "uppercase",
+            fontSize: 26,
+            letterSpacing: 4,
+            display: "flex",
           }}
         >
-          <span>Creator · Storyteller</span>
-          <span>@heartsfromsiya</span>
-        </div>
-        <div
-          style={{
-            position: "absolute",
-            bottom: 58,
-            left: 64,
-            right: 64,
-            display: "flex",
-            justifyContent: "space-between",
-            fontFamily: "Jost",
-            fontSize: 20,
-            letterSpacing: 5,
-            textTransform: "uppercase",
-          }}
-        >
-          <span>Pune, India</span>
-          <span>Brand collaborations</span>
+          heartsfromsiya
         </div>
 
-        {/* Paint order = DOM order (no z-index in Satori): the lettering, then
-            the script written across it, then the portrait covering the
-            script's tail, exactly like the hero on the site. */}
         <div
           style={{
             position: "absolute",
-            top: 100,
-            left: 0,
-            right: 0,
-            height: 430,
+            left: 64,
+            top: 170,
+            bottom: 64,
+            width: 520,
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
             justifyContent: "center",
           }}
         >
           <div
             style={{
-              fontFamily: "Noto Serif Display",
-              fontWeight: 500,
-              fontSize: 430,
-              lineHeight: 1,
+              fontFamily: "Jost",
+              fontSize: 200,
+              fontWeight: 400,
+              fontStyle: "italic",
+              lineHeight: 0.9,
               letterSpacing: -6,
               display: "flex",
-              marginRight: 18,
-              marginTop: 18,
             }}
           >
-            SI
+            siya
           </div>
-          {/* The script is absolutely positioned (no layout effect) but sits
-              between SI and the portrait so the portrait paints over its tail. */}
           <div
             style={{
-              position: "absolute",
-              left: 66,
-              top: 293,
-              fontFamily: "Monsieur La Doulaise",
-              fontSize: 100,
-              lineHeight: 1,
-              transform: "rotate(-6deg)",
+              marginTop: 28,
+              alignSelf: "flex-start",
+              background: "rgba(193,219,232,0.88)",
+              padding: "12px 22px",
+              borderRadius: 999,
+              fontFamily: "Jost",
+              fontSize: 32,
               display: "flex",
-              textShadow: `3px 3px 0 ${CREAM}, -3px -3px 0 ${CREAM}, 3px -3px 0 ${CREAM}, -3px 3px 0 ${CREAM}`,
             }}
           >
-            hearts from
+            content creator
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={`data:image/jpeg;base64,${portrait}`}
-            width={252}
-            height={336}
-            alt=""
-            style={{ objectFit: "cover", border: `1.5px solid ${INK}` }}
-          />
           <div
             style={{
-              fontFamily: "Noto Serif Display",
-              fontWeight: 500,
-              fontSize: 430,
-              lineHeight: 1,
-              letterSpacing: -6,
+              marginTop: 36,
+              fontFamily: "Jost",
+              fontSize: 22,
+              letterSpacing: 2,
+              opacity: 0.78,
               display: "flex",
-              marginLeft: 18,
-              marginTop: 18,
             }}
           >
-            YA
+            pune, india · 2M+ monthly reach
           </div>
         </div>
+
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`data:image/png;base64,${portrait}`}
+          width={460}
+          height={680}
+          alt=""
+          style={{
+            position: "absolute",
+            right: 40,
+            bottom: 0,
+            objectFit: "contain",
+            objectPosition: "bottom center",
+          }}
+        />
       </div>
     ),
     {
       width: 1200,
       height: 630,
-      fonts: [
-        { name: "Noto Serif Display", data: display, weight: 500, style: "normal" },
-        { name: "Monsieur La Doulaise", data: script, weight: 400, style: "normal" },
-        { name: "Jost", data: sans, weight: 400, style: "normal" },
-      ],
+      fonts: [{ name: "Jost", data: sans, weight: 400, style: "normal" }],
     }
   );
 }

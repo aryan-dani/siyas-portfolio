@@ -9,30 +9,90 @@ import { whenIntroRevealing } from "@/lib/intro";
 import { prefersReducedMotionNow } from "@/lib/hooks";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
 import { MobileMenu } from "@/components/chrome/MobileMenu";
+import { useNavCurtain } from "@/components/chrome/NavCurtain";
 
 const SECTION_IDS = NAV.map((n) => n.href.slice(1));
+const DOCK_AT = 72;
+const IDLE_MS = 5000;
 
 export function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const { scrollTo, subscribe } = useSmoothScroll();
+  const { goToSection } = useNavCurtain();
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolledAway, setScrolledAway] = useState(false);
+  const [idleHidden, setIdleHidden] = useState(false);
+  const [docked, setDocked] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const innerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const idleTimerRef = useRef<number | null>(null);
+  const dockedRef = useRef(false);
+  const menuOpenRef = useRef(false);
 
-  /* Hide while reading down, return on any scroll up. */
+  menuOpenRef.current = menuOpen;
+
+  const clearIdle = () => {
+    if (idleTimerRef.current != null) {
+      window.clearTimeout(idleTimerRef.current);
+      idleTimerRef.current = null;
+    }
+  };
+
+  const bumpActivity = () => {
+    setIdleHidden(false);
+    clearIdle();
+    if (!dockedRef.current || menuOpenRef.current) return;
+    idleTimerRef.current = window.setTimeout(() => {
+      if (!menuOpenRef.current && dockedRef.current) setIdleHidden(true);
+    }, IDLE_MS);
+  };
+
+  /* Stay visible while scrolling; hide only after idle once docked. */
   useEffect(() => {
-    return subscribe(({ y, direction }) => {
-      setScrolledAway(y > 140 && direction === 1);
+    let wasDocked = false;
+    const unsub = subscribe(({ y }) => {
+      const nextDocked = y > DOCK_AT;
+      if (nextDocked !== wasDocked) {
+        wasDocked = nextDocked;
+        dockedRef.current = nextDocked;
+        setDocked(nextDocked);
+      }
+      if (!nextDocked) {
+        clearIdle();
+        setIdleHidden(false);
+        return;
+      }
+      bumpActivity();
     });
+
+    const onActivity = () => bumpActivity();
+    window.addEventListener("pointerdown", onActivity, { passive: true });
+    window.addEventListener("keydown", onActivity);
+    window.addEventListener("touchstart", onActivity, { passive: true });
+    window.addEventListener("wheel", onActivity, { passive: true });
+
+    return () => {
+      unsub();
+      clearIdle();
+      window.removeEventListener("pointerdown", onActivity);
+      window.removeEventListener("keydown", onActivity);
+      window.removeEventListener("touchstart", onActivity);
+      window.removeEventListener("wheel", onActivity);
+    };
   }, [subscribe]);
 
-  /* Which chapter is under the middle of the screen (home only). The hero is
-     observed too, so scrolling back to the top clears the highlight. */
+  useEffect(() => {
+    if (menuOpen) {
+      clearIdle();
+      setIdleHidden(false);
+      return;
+    }
+    if (dockedRef.current) bumpActivity();
+  }, [menuOpen]);
+
   useEffect(() => {
     if (!isHome) return;
     const targets = ["top", ...SECTION_IDS]
@@ -47,13 +107,12 @@ export function SiteHeader() {
           }
         }
       },
-      { rootMargin: "-50% 0px -50% 0px", threshold: 0 }
+      { rootMargin: "-50% 0px -50% 0px", threshold: 0 },
     );
     targets.forEach((t) => io.observe(t));
     return () => io.disconnect();
   }, [isHome]);
 
-  /* The header arrives with the page, once the intro lifts. */
   useGSAP(
     () => {
       const el = innerRef.current;
@@ -71,22 +130,22 @@ export function SiteHeader() {
             gsap.set(el, { clearProps: "transform,opacity" });
             el.dataset.revealed = "true";
           },
-        }
+        },
       );
       const disarm = whenIntroRevealing(() => tween.play());
       return () => disarm();
     },
-    { scope: innerRef }
+    { scope: innerRef },
   );
 
-  const goTo = (href: string) => (e: React.MouseEvent) => {
-    if (!isHome) return; // normal navigation to /#section
+  const goTo = (href: string, label: string) => (e: React.MouseEvent) => {
+    if (!isHome) return;
     e.preventDefault();
     setMenuOpen(false);
-    scrollTo(href);
+    goToSection(href, label);
   };
 
-  const hidden = scrolledAway && !menuOpen;
+  const hidden = idleHidden && !menuOpen;
 
   return (
     <>
@@ -108,27 +167,33 @@ export function SiteHeader() {
         >
           <Link
             href="/"
-            aria-label="Siya Pawar, home"
+            aria-label="heartsfromsiya, home"
+            data-docked={docked ? "true" : "false"}
             onClick={(e) => {
               if (!isHome) return;
               e.preventDefault();
               setMenuOpen(false);
-              scrollTo(0);
+              if (docked || activeSection) goToSection("#top", "siya");
+              else scrollTo(0);
             }}
-            className="type-script text-[2.3rem] leading-none md:text-[2.7rem]"
-            style={{ WebkitTextStroke: "0.35px currentColor" }}
+            className="brand-mark"
           >
-            Siya
+            <span className="brand-mark__lead">heartsfrom</span>
+            <span className="brand-mark__script">Siya</span>
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-center gap-11 md:flex">
+          <nav
+            aria-label="Primary"
+            data-docked={docked ? "true" : "false"}
+            className="nav-menu hidden md:flex"
+          >
             {NAV.map((item) => (
               <a
                 key={item.href}
                 href={isHome ? item.href : `/${item.href}`}
-                onClick={goTo(item.href)}
+                onClick={goTo(item.href, item.label)}
                 data-active={activeSection === item.href.slice(1) ? "true" : "false"}
-                className="type-label link-u"
+                className="nav-menu__link type-nav"
               >
                 {item.label}
               </a>
@@ -141,15 +206,15 @@ export function SiteHeader() {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             onClick={() => setMenuOpen((v) => !v)}
-            className="type-label has-roll -mr-1 px-1 py-2 md:hidden"
+            className="type-nav has-roll -mr-1 px-1 py-2 md:hidden"
           >
             <span className="roll" aria-hidden="true">
               <span className="roll__inner">
-                <span>{menuOpen ? "Close" : "Menu"}</span>
-                <span>{menuOpen ? "Close" : "Menu"}</span>
+                <span>{menuOpen ? "close" : "menu"}</span>
+                <span>{menuOpen ? "close" : "menu"}</span>
               </span>
             </span>
-            <span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>
+            <span className="sr-only">{menuOpen ? "close menu" : "open menu"}</span>
           </button>
         </div>
       </header>

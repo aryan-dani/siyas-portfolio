@@ -80,10 +80,11 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
 
     if (!reducedMotion) {
       lenis = new Lenis({
-        duration: 1.2,
+        duration: 0.95,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
-        wheelMultiplier: 0.9,
+        wheelMultiplier: 0.85,
+        touchMultiplier: 1.1,
       });
       lenisRef.current = lenis;
       window.__siyaLenis = lenis;
@@ -91,7 +92,7 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
 
       tick = (time: number) => lenis?.raf(time * 1000);
       gsap.ticker.add(tick);
-      gsap.ticker.lagSmoothing(0);
+      gsap.ticker.lagSmoothing(500, 33);
 
       if (lockCountRef.current > 0) lenis.stop();
     }

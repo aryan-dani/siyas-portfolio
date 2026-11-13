@@ -4,46 +4,84 @@ import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { useFinePointer, usePrefersReducedMotion } from "@/lib/hooks";
 
+/* Short labels only for media controls — socials stay as the heart chip */
+const LABEL_MODES = new Set(["play", "pause", "view"]);
+
+const CLICKABLE =
+  'a[href], button:not([disabled]), [role="button"], summary, label[for], input[type="submit"], input[type="button"], .btn, .brand-link, .link-u, .nav-menu__link, .brand-mark, .carousel__btn, .gallery__btn, .hero-social, [data-cursor]';
+
+function resolveCursor(el: Element): { mode: "heart" | "label"; text: string; hot: boolean } {
+  const explicit = el.closest<HTMLElement>("[data-cursor]");
+  if (explicit) {
+    const raw = (explicit.getAttribute("data-cursor") ?? "").trim();
+    const lower = raw.toLowerCase();
+    if (LABEL_MODES.has(lower)) {
+      return { mode: "label", text: raw || "view", hot: true };
+    }
+    return { mode: "heart", text: "heart", hot: true };
+  }
+
+  const clickable = el.closest<HTMLElement>(CLICKABLE);
+  if (clickable) return { mode: "heart", text: "heart", hot: true };
+  return { mode: "heart", text: "heart", hot: false };
+}
+
 /**
- * The normal system cursor everywhere, except over photos and videos: those
- * (marked data-cursor="Play" / "Siya" ...) get a buttermilk disc that follows
- * the pointer, and the arrow is hidden while that disc is the cursor.
+ * Permanent heart cursor on fine pointers. Grows + labels on media targets;
+ * paints a darker page wash while over clickables.
  */
 export function MediaCursor() {
   const fine = useFinePointer();
   const reduced = usePrefersReducedMotion();
   const dotRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
+  const heartRef = useRef<HTMLSpanElement>(null);
 
   useGSAP(
     () => {
       const dot = dotRef.current;
       const label = labelRef.current;
-      if (!dot || !label || !fine) return;
+      const heart = heartRef.current;
+      if (!dot || !label || !heart || !fine) return;
 
-      gsap.set(dot, { xPercent: -50, yPercent: -50, scale: 0, autoAlpha: 0 });
-      const xTo = gsap.quickTo(dot, "x", { duration: reduced ? 0 : 0.55, ease: "power3" });
-      const yTo = gsap.quickTo(dot, "y", { duration: reduced ? 0 : 0.55, ease: "power3" });
+      const root = document.documentElement;
+      root.classList.add("has-heart-cursor");
+      root.style.setProperty("cursor", "none", "important");
+      document.body.style.setProperty("cursor", "none", "important");
 
-      let active: Element | null = null;
+      gsap.set(dot, { xPercent: -50, yPercent: -50, scale: 1, autoAlpha: 1 });
+      const xTo = gsap.quickTo(dot, "x", { duration: reduced ? 0 : 0.45, ease: "power3" });
+      const yTo = gsap.quickTo(dot, "y", { duration: reduced ? 0 : 0.45, ease: "power3" });
+
+      let activeKey: string | null = null;
       let x = 0;
       let y = 0;
       let raf = 0;
 
-      const show = (text: string) => {
-        label.textContent = text;
-        gsap.to(dot, { scale: 1, autoAlpha: 1, duration: 0.55, ease: "expo.out", overwrite: "auto" });
-      };
-      const hide = () => {
-        gsap.to(dot, { scale: 0, autoAlpha: 0, duration: 0.4, ease: "expo.out", overwrite: "auto" });
+      const applyMode = (mode: "heart" | "label", text: string, hot: boolean) => {
+        dot.dataset.mode = mode;
+        dot.dataset.hot = hot ? "1" : "0";
+        label.textContent = mode === "label" ? text.toLowerCase() : "";
+        label.hidden = mode === "heart";
+        heart.hidden = mode !== "heart";
+        root.dataset.hot = hot ? "1" : "0";
       };
 
       const retarget = (target: EventTarget | null) => {
-        const el = target instanceof Element ? target.closest("[data-cursor]") : null;
-        if (el === active) return;
-        active = el;
-        if (el) show(el.getAttribute("data-cursor") ?? "");
-        else hide();
+        const el = target instanceof Element ? target : null;
+        const resolved = el
+          ? resolveCursor(el)
+          : { mode: "heart" as const, text: "heart", hot: false };
+        const key = `${resolved.mode}:${resolved.text}:${resolved.hot ? "1" : "0"}`;
+        if (key === activeKey) return;
+        activeKey = key;
+        applyMode(resolved.mode, resolved.text, resolved.hot);
+        gsap.to(dot, {
+          scale: resolved.hot ? 1.06 : 1,
+          duration: 0.3,
+          ease: "expo.out",
+          overwrite: "auto",
+        });
       };
 
       const onMove = (e: PointerEvent) => {
@@ -54,7 +92,6 @@ export function MediaCursor() {
         retarget(e.target);
       };
 
-      // Smooth scrolling moves content under a still pointer: re-check then.
       const onScroll = () => {
         if (raf) return;
         raf = requestAnimationFrame(() => {
@@ -64,39 +101,49 @@ export function MediaCursor() {
       };
 
       const onLeave = () => {
-        active = null;
-        hide();
+        activeKey = null;
+        applyMode("heart", "heart", false);
+        root.dataset.hot = "0";
+        gsap.to(dot, { autoAlpha: 0, duration: 0.25, ease: "expo.out", overwrite: "auto" });
       };
 
-      // A hovered element changed its own label (e.g. Play <-> Pause).
-      const onRefresh = () => {
-        if (active) label.textContent = active.getAttribute("data-cursor") ?? "";
+      const onEnter = () => {
+        gsap.to(dot, { autoAlpha: 1, duration: 0.3, ease: "expo.out", overwrite: "auto" });
       };
 
       window.addEventListener("pointermove", onMove, { passive: true });
       window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("siya:cursor-refresh", onRefresh);
       document.documentElement.addEventListener("mouseleave", onLeave);
+      document.documentElement.addEventListener("mouseenter", onEnter);
       return () => {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("siya:cursor-refresh", onRefresh);
         document.documentElement.removeEventListener("mouseleave", onLeave);
+        document.documentElement.removeEventListener("mouseenter", onEnter);
         if (raf) cancelAnimationFrame(raf);
+        root.classList.remove("has-heart-cursor");
+        delete root.dataset.hot;
+        root.style.removeProperty("cursor");
+        document.body.style.removeProperty("cursor");
       };
     },
-    { dependencies: [fine, reduced] }
+    { dependencies: [fine, reduced] },
   );
 
   if (!fine) return null;
 
   return (
-    <div
-      ref={dotRef}
-      aria-hidden="true"
-      className="pointer-events-none fixed top-0 left-0 z-[120] grid size-[84px] place-items-center rounded-full bg-buttermilk text-burgundy opacity-0 shadow-[0_0_0_1px_rgba(67,48,46,0.18)]"
-    >
-      <span ref={labelRef} className="type-label !text-[0.64rem]" />
+    <div ref={dotRef} aria-hidden="true" className="media-cursor" data-mode="heart" data-hot="0">
+      <span ref={labelRef} className="media-cursor__label type-label" hidden />
+      <span ref={heartRef} className="media-cursor__heart">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+          <path
+            d="M12 19.2c-.4 0-8-4.7-8-10a4.4 4.4 0 0 1 8-2.5A4.4 4.4 0 0 1 20 9.2c0 5.3-7.6 10-8 10Z"
+            fill="currentColor"
+            fillOpacity="0.92"
+          />
+        </svg>
+      </span>
     </div>
   );
 }

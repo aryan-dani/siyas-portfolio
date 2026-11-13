@@ -7,14 +7,10 @@ export function Numbers() {
   const { numbers } = CONTENT;
 
   return (
-    <section
-      aria-label="By the numbers"
-      data-theme-section="cream"
-      className="numbers"
-    >
+    <section aria-label="By the numbers" className="section numbers">
       <div className="wrap">
         <Reveal>
-          <Eyebrow index="02">By the numbers</Eyebrow>
+          <Eyebrow index="03">by the numbers</Eyebrow>
         </Reveal>
         <div className="mt-8">
           <DrawLine />
@@ -39,9 +35,16 @@ export function Numbers() {
         <Reveal className="numbers__clients" y={18}>
           <span className="type-label">{numbers.clientsLead}</span>
           {numbers.clients.map((client, i) => (
-            <span key={client} className="numbers__client-wrap">
+            <span key={client.name} className="numbers__client-wrap">
               {i > 0 ? <span aria-hidden="true" className="numbers__dot" /> : null}
-              <span className="numbers__client type-display">{client}</span>
+              <a
+                href={client.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="numbers__client type-display brand-link"
+              >
+                {client.name}
+              </a>
             </span>
           ))}
         </Reveal>

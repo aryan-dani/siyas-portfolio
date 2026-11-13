@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import {
-  Bodoni_Moda,
   Jost,
   Monsieur_La_Doulaise,
   Noto_Serif_Display,
@@ -12,18 +11,10 @@ import { SiteShell } from "@/components/chrome/SiteShell";
 import "./globals.css";
 import "./sections.css";
 
-/* Free, permanently-licensed stand-ins for the reference typefaces:
-   - Bodoni Moda                         -> fashion Didone for "siya" / brand
+/* Typefaces:
    - Noto Serif Display, narrowest width  -> condensed section display
    - Monsieur La Doulaise                 -> copperplate script accent
    - Jost                                 -> quiet geometric sans for text */
-const bodoni = Bodoni_Moda({
-  variable: "--font-bodoni",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  display: "swap",
-});
-
 const display = Noto_Serif_Display({
   variable: "--font-noto-display",
   subsets: ["latin"],
@@ -120,7 +111,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bodoni.variable} ${display.variable} ${script.variable} ${sans.variable}`}
+      className={`${display.variable} ${script.variable} ${sans.variable}`}
       suppressHydrationWarning
     >
       <head>

@@ -3,6 +3,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Eyebrow, Heading } from "@/components/ui/Heading";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { CopyEmail } from "@/components/sections/CopyEmail";
+import { BrowserLaunchLink } from "@/components/chrome/BrowserLaunch";
 
 export function Contact() {
   const { contact, profile } = CONTENT;
@@ -32,14 +33,9 @@ export function Contact() {
               <p className="type-label">direct inbox</p>
               <CopyEmail email={profile.email} />
               <p className="type-label contact__social">
-                <a
-                  href={profile.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="link-u"
-                >
+                <BrowserLaunchLink href={profile.instagramUrl} label="instagram" className="link-u">
                   instagram
-                </a>
+                </BrowserLaunchLink>
                 <a
                   href={profile.instagramDumpUrl}
                   target="_blank"

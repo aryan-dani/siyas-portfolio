@@ -90,21 +90,25 @@ export function RevealText({
             disarm = undefined;
             const targets =
               by === "chars" ? self.chars : by === "words" ? self.words : self.lines;
+            if (fired) {
+              gsap.set(targets, { yPercent: 0 });
+              gsap.set(el, { opacity: 1 });
+              markRevealed(el);
+              return;
+            }
             const tween = gsap.from(targets, {
               yPercent: 112,
               duration,
               delay,
               stagger: stagger ?? (by === "chars" ? 0.028 : MOTION.stagger),
-              paused: !fired,
+              paused: true,
               onComplete: () => markRevealed(el),
             });
             gsap.set(el, { opacity: 1 });
-            if (!fired) {
-              disarm = arm(el, trigger, start, () => {
-                fired = true;
-                tween.play();
-              });
-            }
+            disarm = arm(el, trigger, start, () => {
+              fired = true;
+              tween.play();
+            });
             return tween;
           },
         });

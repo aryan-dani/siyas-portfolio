@@ -70,7 +70,7 @@ export function renderOgCard() {
             style={{
               marginTop: 28,
               alignSelf: "flex-start",
-              background: "rgba(193,219,232,0.88)",
+              background: PASTEL,
               padding: "12px 22px",
               borderRadius: 999,
               fontFamily: "Jost",

@@ -12,7 +12,10 @@ const LOOPS = 3;
 
 export function ReelGallery({ reels }: { reels: readonly Reel[] }) {
   const [active, setActive] = useState(0);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [open, setOpen] = useState<OpenState | null>(null);
+  const [inView, setInView] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<{ id: string; stop: () => void } | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
@@ -89,6 +92,7 @@ export function ReelGallery({ reels }: { reels: readonly Reel[] }) {
     });
 
     setActive(best % reels.length);
+    setActiveCardIndex(best);
 
     const setWidth = measureSetWidth();
     if (setWidth <= 0) return;
@@ -142,11 +146,24 @@ export function ReelGallery({ reels }: { reels: readonly Reel[] }) {
     };
   }, [reels.length, scrollToLogical, syncActive]);
 
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const openReel = open ? reels.find((r) => r.id === open.id) : undefined;
 
   return (
     <>
-      <div className="carousel">
+      <div ref={containerRef} className="carousel">
         <div className="carousel__toolbar">
           <button
             type="button"
@@ -171,6 +188,15 @@ export function ReelGallery({ reels }: { reels: readonly Reel[] }) {
           className="carousel__track"
           tabIndex={0}
           aria-label="featured reels"
+          onKeyDown={(e) => {
+            if (e.key === "ArrowLeft") {
+              e.preventDefault();
+              scrollByCard(-1);
+            } else if (e.key === "ArrowRight") {
+              e.preventDefault();
+              scrollByCard(1);
+            }
+          }}
         >
           {looped.map((reel, i) => {
             const logical = i % reels.length;
@@ -178,9 +204,10 @@ export function ReelGallery({ reels }: { reels: readonly Reel[] }) {
               <ReelCard
                 key={`${reel.id}-${i}`}
                 reel={reel}
-                active={logical === active}
+                active={i === activeCardIndex}
                 favourite={logical === 0}
                 favouriteLabel={work.favouriteBadge}
+                inView={inView}
                 onOpen={handleOpen}
                 claimPreview={claimPreview}
                 releasePreview={releasePreview}
@@ -210,6 +237,7 @@ function ReelCard({
   active,
   favourite,
   favouriteLabel,
+  inView,
   onOpen,
   claimPreview,
   releasePreview,
@@ -219,6 +247,7 @@ function ReelCard({
   active: boolean;
   favourite: boolean;
   favouriteLabel: string;
+  inView: boolean;
   onOpen: (id: string, origin: HTMLElement, time: number) => void;
   claimPreview: (id: string, stop: () => void) => void;
   releasePreview: (id: string) => void;
@@ -230,7 +259,13 @@ function ReelCard({
   const [live, setLive] = useState(false);
 
   const stop = useCallback(() => {
-    videoRef.current?.pause();
+    const v = videoRef.current;
+    if (!v) return;
+    v.pause();
+    if (v.getAttribute("src")) {
+      v.removeAttribute("src");
+      v.load();
+    }
   }, []);
 
   const start = useCallback(() => {
@@ -243,7 +278,7 @@ function ReelCard({
   }, [claimPreview, reel.id, reel.video, stop]);
 
   useEffect(() => {
-    if (reduced || !active) {
+    if (reduced || !active || !inView) {
       stop();
       releasePreview(reel.id);
       return;
@@ -253,7 +288,7 @@ function ReelCard({
       stop();
       releasePreview(reel.id);
     };
-  }, [active, reduced, start, stop, releasePreview, reel.id]);
+  }, [active, inView, reduced, start, stop, releasePreview, reel.id]);
 
   return (
     <article

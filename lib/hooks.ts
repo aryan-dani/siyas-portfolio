@@ -2,6 +2,21 @@
 
 import { useSyncExternalStore } from "react";
 
+const subscribers = new Map<string, (onChange: () => void) => () => void>();
+
+function getMediaQuerySubscriber(query: string) {
+  let sub = subscribers.get(query);
+  if (!sub) {
+    sub = (onChange: () => void) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    };
+    subscribers.set(query, sub);
+  }
+  return sub;
+}
+
 /**
  * Subscribe to a CSS media query without effects or hydration mismatches.
  * The server snapshot is always `false`, so server HTML never depends on the
@@ -9,11 +24,7 @@ import { useSyncExternalStore } from "react";
  */
 export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(
-    (onChange) => {
-      const mq = window.matchMedia(query);
-      mq.addEventListener("change", onChange);
-      return () => mq.removeEventListener("change", onChange);
-    },
+    getMediaQuerySubscriber(query),
     () => window.matchMedia(query).matches,
     () => false
   );

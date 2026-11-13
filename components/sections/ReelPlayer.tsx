@@ -286,6 +286,7 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
                 ({reel.id}) {reel.kind} · {reel.duration}
               </p>
               <p className="type-display player__mobile-title">{reel.title}</p>
+              {/* Direct link on purpose: reel deep-links stay one tap, not BrowserLaunch. */}
               <a
                 href={reel.instagramUrl}
                 target="_blank"
@@ -314,6 +315,7 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
             “{reel.caption}”
           </p>
           <div data-player-item className="player__actions">
+            {/* Direct link on purpose: reel deep-links stay one tap, not BrowserLaunch. */}
             <a
               href={reel.instagramUrl}
               target="_blank"

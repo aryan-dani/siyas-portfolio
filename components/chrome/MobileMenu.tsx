@@ -135,7 +135,10 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
   }, [open, onClose, toggleRef]);
 
   const handleNav = (href: string, label: string) => (e: React.MouseEvent) => {
-    if (!isHome) return;
+    if (!isHome) {
+      onClose();
+      return;
+    }
     e.preventDefault();
     onClose();
     window.setTimeout(() => goToSection(href, label), 280);

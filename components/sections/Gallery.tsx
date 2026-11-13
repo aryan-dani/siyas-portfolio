@@ -160,7 +160,21 @@ export function Gallery() {
         </Reveal>
       </div>
 
-      <div ref={trackRef} className="gallery__track" tabIndex={0} aria-label="photo gallery">
+      <div
+        ref={trackRef}
+        className="gallery__track"
+        tabIndex={0}
+        aria-label="photo gallery"
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            scrollByCard(-1);
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            scrollByCard(1);
+          }
+        }}
+      >
         {looped.map((photo, i) => (
           <figure
             key={`${photo.src}-${i}`}
@@ -178,9 +192,8 @@ export function Gallery() {
                 sizes="(min-width: 1100px) 18vw, (min-width: 768px) 28vw, 55vw"
                 placeholder="blur"
                 blurDataURL={photo.blur}
-                quality={90}
+                quality={75}
                 className="gallery-card__img"
-                priority={i < photos.length + 2 && i >= photos.length}
               />
             </div>
           </figure>

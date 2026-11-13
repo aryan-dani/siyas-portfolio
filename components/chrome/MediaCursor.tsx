@@ -5,7 +5,7 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { useFinePointer, usePrefersReducedMotion } from "@/lib/hooks";
 
 /* Short labels only for media controls — socials stay as the heart chip */
-const LABEL_MODES = new Set(["play", "pause", "view"]);
+const LABEL_MODES = new Set(["play", "pause", "view", "open", "close"]);
 
 const CLICKABLE =
   'a[href], button:not([disabled]), [role="button"], summary, label[for], input[type="submit"], input[type="button"], .btn, .brand-link, .link-u, .nav-menu__link, .brand-mark, .carousel__btn, .gallery__btn, .hero-social, [data-cursor]';
@@ -56,7 +56,6 @@ export function MediaCursor() {
       let activeKey: string | null = null;
       let x = 0;
       let y = 0;
-      let raf = 0;
 
       const applyMode = (mode: "heart" | "label", text: string, hot: boolean) => {
         /* Hot only tints the cursor chip — never the page background */
@@ -92,12 +91,12 @@ export function MediaCursor() {
         retarget(e.target);
       };
 
+      let scrollTimer = 0;
       const onScroll = () => {
-        if (raf) return;
-        raf = requestAnimationFrame(() => {
-          raf = 0;
+        if (scrollTimer) window.clearTimeout(scrollTimer);
+        scrollTimer = window.setTimeout(() => {
           retarget(document.elementFromPoint(x, y));
-        });
+        }, 120);
       };
 
       const onLeave = () => {
@@ -117,9 +116,9 @@ export function MediaCursor() {
       return () => {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("scroll", onScroll);
+        if (scrollTimer) window.clearTimeout(scrollTimer);
         document.documentElement.removeEventListener("mouseleave", onLeave);
         document.documentElement.removeEventListener("mouseenter", onEnter);
-        if (raf) cancelAnimationFrame(raf);
         root.classList.remove("has-heart-cursor");
         root.style.removeProperty("cursor");
         document.body.style.removeProperty("cursor");

@@ -33,7 +33,7 @@ export function Heading({
         <Reveal className="heading-line" y={18}>
           <span className={mark === "caps" ? "heading-text hl" : "heading-text"}>
             {caps.toLowerCase()}
-          </span>
+          </span>{" "}
           <span className={mark === "script" ? "heading-text hl" : "heading-text"}>
             {script.toLowerCase()}
           </span>

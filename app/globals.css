@@ -48,7 +48,6 @@
   --color-ink-muted: var(--fg-muted);
   --color-line: var(--fg-line);
 
-  --font-didone: var(--font-bodoni), "Didot", "Bodoni MT", "Times New Roman", serif;
   --font-display: var(--font-noto-display), "Times New Roman", serif;
   --font-script: var(--font-monsieur), "Snell Roundhand", cursive;
   --font-sans: var(--font-jost), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -115,13 +114,16 @@
     text-decoration: none;
   }
 
-  /* Permanent custom cursor — hide the system pointer everywhere */
+  /* Permanent custom cursor — hide the system pointer */
   @media (hover: hover) and (pointer: fine) {
     html.has-heart-cursor,
     html.has-heart-cursor body,
-    html.has-heart-cursor *,
-    html.has-heart-cursor *::before,
-    html.has-heart-cursor *::after {
+    html.has-heart-cursor a,
+    html.has-heart-cursor button,
+    html.has-heart-cursor [role="button"],
+    html.has-heart-cursor input,
+    html.has-heart-cursor textarea,
+    html.has-heart-cursor select {
       cursor: none !important;
     }
   }

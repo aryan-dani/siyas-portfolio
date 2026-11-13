@@ -7,6 +7,7 @@ import { BRAND_LINKS, CONTENT } from "@/lib/content";
 import { useInquiry } from "@/lib/inquiry";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
 import { Reveal } from "@/components/motion/Reveal";
+import { BrowserLaunchLink } from "@/components/chrome/BrowserLaunch";
 
 function LinkedBio({ text }: { text: string }) {
   const parts = text.split(/(pharmeasy|mokobara)/gi);
@@ -120,16 +121,14 @@ export function Hero() {
             >
               <IconMail className="hero-social__icon" />
             </a>
-            <a
+            <BrowserLaunchLink
               href={profile.instagramUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              label="instagram"
               className="hero-social"
               aria-label="instagram"
-              data-cursor="instagram"
             >
               <IconInstagram className="hero-social__icon" />
-            </a>
+            </BrowserLaunchLink>
             <a
               href={profile.youtubeUrl}
               target="_blank"
@@ -175,7 +174,7 @@ export function Hero() {
                 width={photos.hero.width}
                 height={photos.hero.height}
                 preload
-                unoptimized
+                quality={90}
                 sizes="(min-width: 1024px) 46vw, (min-width: 768px) 50vw, 92vw"
                 placeholder="blur"
                 blurDataURL={photos.hero.blur}

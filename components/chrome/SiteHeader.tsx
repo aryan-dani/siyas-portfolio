@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { NAV } from "@/lib/content";
 import { whenIntroRevealing } from "@/lib/intro";
@@ -32,23 +32,21 @@ export function SiteHeader() {
   const dockedRef = useRef(false);
   const menuOpenRef = useRef(false);
 
-  menuOpenRef.current = menuOpen;
-
-  const clearIdle = () => {
+  const clearIdle = useCallback(() => {
     if (idleTimerRef.current != null) {
       window.clearTimeout(idleTimerRef.current);
       idleTimerRef.current = null;
     }
-  };
+  }, []);
 
-  const bumpActivity = () => {
+  const bumpActivity = useCallback(() => {
     setIdleHidden(false);
     clearIdle();
     if (!dockedRef.current || menuOpenRef.current) return;
     idleTimerRef.current = window.setTimeout(() => {
       if (!menuOpenRef.current && dockedRef.current) setIdleHidden(true);
     }, IDLE_MS);
-  };
+  }, [clearIdle]);
 
   /* Stay visible while scrolling; hide only after idle once docked. */
   useEffect(() => {
@@ -82,16 +80,16 @@ export function SiteHeader() {
       window.removeEventListener("touchstart", onActivity);
       window.removeEventListener("wheel", onActivity);
     };
-  }, [subscribe]);
+  }, [subscribe, clearIdle, bumpActivity]);
 
   useEffect(() => {
+    menuOpenRef.current = menuOpen;
     if (menuOpen) {
       clearIdle();
-      setIdleHidden(false);
-      return;
+    } else if (dockedRef.current) {
+      bumpActivity();
     }
-    if (dockedRef.current) bumpActivity();
-  }, [menuOpen]);
+  }, [menuOpen, clearIdle, bumpActivity]);
 
   useEffect(() => {
     if (!isHome) return;

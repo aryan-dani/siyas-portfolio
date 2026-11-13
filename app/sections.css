@@ -18,6 +18,19 @@
     background: var(--fg-faint);
   }
 
+  /* Soft paper halo so script words stay readable over capitals / photos */
+  .halo {
+    text-shadow:
+      3px 0 0 var(--bg),
+      -3px 0 0 var(--bg),
+      0 3px 0 var(--bg),
+      0 -3px 0 var(--bg),
+      2.2px 2.2px 0 var(--bg),
+      -2.2px 2.2px 0 var(--bg),
+      2.2px -2.2px 0 var(--bg),
+      -2.2px -2.2px 0 var(--bg);
+  }
+
   .heading {
     position: relative;
     display: grid;
@@ -178,15 +191,20 @@
     position: relative;
     align-self: end;
     width: 100%;
-    /* Tall enough to read as hero; still clears nav and sits on baseline */
-    height: min(74svh, calc(100svh - 6.5rem));
+    /* Tall enough to read as hero; clears nav and sits flush on baseline */
+    height: min(78svh, calc(100svh - 6rem));
     min-height: 0;
     margin-right: calc(var(--gutter) * -1);
+    margin-bottom: 0;
     overflow: visible;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
   }
   .hero-portrait__reveal {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: flex-end;
     justify-content: flex-end;
@@ -194,10 +212,13 @@
   }
   .hero-portrait__figure {
     position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
     height: 100%;
     width: auto;
-    max-width: min(100%, 560px);
-    display: block;
+    max-width: min(100%, 580px);
+    margin: 0;
     line-height: 0;
     overflow: visible;
     /* Avoid filter/shadow stacking that paints a rectangular wash behind the PNG */
@@ -207,14 +228,17 @@
   .hero-portrait__img {
     display: block;
     width: auto !important;
-    height: 100% !important;
-    max-width: 100%;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
     object-fit: contain;
-    object-position: bottom right;
+    object-position: 100% 100%;
+    margin-bottom: 0;
+    vertical-align: bottom;
     user-select: none;
     pointer-events: none;
   }
-  /* 100svh baseline — dress hem must sit on this rule */
+  /* 100svh baseline — dress hem sits plush on this rule */
   .hero__baseline {
     position: absolute;
     left: 0;
@@ -228,37 +252,63 @@
 
   @media (max-width: 767px) {
     .hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       height: auto;
       min-height: 100svh;
       max-height: none;
     }
     .hero-layout {
-      grid-template-columns: 1fr;
-      align-items: start;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      width: 100%;
+      min-height: 100svh;
       gap: 0.35rem;
-      height: auto;
     }
     .hero-copy {
       order: 1;
-      padding-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
       padding-top: 4.6rem;
     }
     .hero-portrait {
       order: 2;
-      height: 62svh;
+      height: clamp(48svh, 58svh, 64svh);
       max-width: none;
       margin-inline: -0.35rem;
       margin-right: -0.35rem;
-    }
-    .hero-portrait__reveal {
+      margin-top: auto;
+      margin-bottom: 0;
+      align-self: center;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
       justify-content: center;
     }
+    .hero-portrait__reveal {
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+      align-items: flex-end;
+    }
     .hero-portrait__figure {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
       max-width: min(92vw, 520px);
+      height: 100%;
       margin-inline: auto;
+      margin-bottom: 0;
     }
     .hero-portrait__img {
-      object-position: bottom center;
+      object-position: 50% 100%;
+      max-width: 92vw !important;
+      max-height: 100% !important;
+      margin-bottom: 0;
+      vertical-align: bottom;
     }
     .hero-name {
       font-size: clamp(4.2rem, 20vw, 6.2rem);
@@ -519,13 +569,57 @@
     pointer-events: auto;
     cursor: pointer;
   }
-  .player__video {
+  .player__frame--photo {
+    height: min(88svh, 60rem);
+    width: min(92vw, calc(min(88svh, 60rem) * var(--photo-ar, 0.75)));
+    max-width: min(92vw, 70rem);
+    aspect-ratio: var(--photo-ar, 3 / 4);
+    cursor: default;
+  }
+  .player__video,
+  .player__image {
     position: relative;
     width: 100%;
     height: 100%;
     object-fit: cover;
     background: var(--old-burgundy);
     border-radius: calc(var(--radius-dock) - 4px);
+  }
+  .player__image {
+    object-fit: contain;
+    display: block;
+  }
+  .player__nav {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    border: 1px solid color-mix(in srgb, var(--buttermilk) 42%, transparent);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--old-burgundy) 55%, transparent);
+    color: var(--buttermilk);
+    font-size: 1.6rem;
+    line-height: 1;
+    pointer-events: auto;
+    transition:
+      background 0.4s var(--ease-out),
+      border-color 0.4s var(--ease-out);
+  }
+  .player__nav:hover,
+  .player__nav:focus-visible {
+    background: var(--buttermilk);
+    border-color: var(--buttermilk);
+    color: var(--old-burgundy);
+  }
+  .player__nav--prev {
+    left: max(0.75rem, calc(var(--gutter) - 0.4rem));
+  }
+  .player__nav--next {
+    right: max(0.75rem, calc(var(--gutter) - 0.4rem));
   }
   .player__ui {
     position: absolute;
@@ -846,15 +940,21 @@
   }
   .gallery-card__frame {
     position: relative;
+    display: block;
+    width: 100%;
     aspect-ratio: 3 / 4;
     overflow: hidden;
+    padding: 0;
+    border: 0;
     border-radius: var(--radius-dock);
     background: var(--fg-faint);
+    cursor: pointer;
   }
   .gallery-card__img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    pointer-events: none;
   }
   @media (min-width: 768px) {
     .gallery__track {
@@ -1067,16 +1167,6 @@
   @media (max-width: 767px) {
     .form__pair {
       grid-template-columns: 1fr;
-    }
-    .rate__line {
-      flex-wrap: wrap;
-      row-gap: 0.4rem;
-    }
-    .rate__leader {
-      display: none;
-    }
-    .rate__price {
-      margin-left: auto;
     }
   }
 
@@ -1698,5 +1788,6 @@
       background: linear-gradient(to top, var(--buttermilk) 70%, transparent);
     }
   }
+
 }
 

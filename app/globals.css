@@ -114,16 +114,12 @@
     text-decoration: none;
   }
 
-  /* Permanent custom cursor — hide the system pointer */
+  /* Permanent custom cursor — hide the system pointer everywhere it is set
+     (buttons, cards, chips, etc. all declare cursor:pointer and would otherwise
+     show both cursors at once). */
   @media (hover: hover) and (pointer: fine) {
     html.has-heart-cursor,
-    html.has-heart-cursor body,
-    html.has-heart-cursor a,
-    html.has-heart-cursor button,
-    html.has-heart-cursor [role="button"],
-    html.has-heart-cursor input,
-    html.has-heart-cursor textarea,
-    html.has-heart-cursor select {
+    html.has-heart-cursor * {
       cursor: none !important;
     }
   }

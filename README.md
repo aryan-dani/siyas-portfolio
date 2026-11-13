@@ -13,10 +13,10 @@ The site reads like a fashion-magazine page: huge condensed capitals, one script
 | Colour | Hex | Role |
 | --- | --- | --- |
 | Buttermilk | `#FFF1B5` | The page |
-| Pastel Blue | `#C1DBE8` | Selected Work chapter, text selection, hover fills |
-| Old Burgundy | `#43302E` | Ink, and the dark Rates / Contact / footer chapter |
+| Pastel Blue | `#C1DBE8` | Accents, chips, text selection, hover fills |
+| Old Burgundy | `#43302E` | Ink |
 
-Every other tone is one of these three mixed with transparency (body text, hairlines, tints). The whole page cross-fades between chapters (buttermilk, then blue, then burgundy) as you scroll; it is a pure CSS transition on two registered custom properties (`--bg`, `--fg`) driven by `components/motion/SectionTheme.tsx`.
+Every other tone is one of these three mixed with transparency (body text, hairlines, tints). The page stays buttermilk throughout — no scroll colour shifts. Gallery and the full featured-reel set stay in the live site; Instagram profile links open in the in-page BrowserLaunch window.
 
 ### Typefaces
 
@@ -36,7 +36,7 @@ One easing (`expo.out`) is used everywhere. Animations are GSAP (ScrollTrigger, 
 - headlines revealed line by line from behind masks; script words "written" with a feathered clip wipe
 - the hero lettering parts and the portrait opens as you scroll
 - reel cards preview silently on hover (or when mostly in view on phones) and grow into a full-screen player with GSAP Flip
-- odometer numbers, a rolling price counter, a rising footer wordmark
+- odometer numbers and a rising footer wordmark
 - page-to-page crossfade (`/` and `/copyright`) with React `<ViewTransition>`
 
 `prefers-reduced-motion` turns all of it off: no intro, no smooth scroll, no hidden-until-revealed content, instant states.
@@ -47,18 +47,17 @@ One easing (`expo.out`) is used everywhere. Animations are GSAP (ScrollTrigger, 
 
 | What | Where |
 | --- | --- |
-| All copy, reels, stats, rates, inquiry options | `lib/content.ts` |
-| Reel-pack pricing maths (3 for ₹8,000, +₹2,000 each) | `lib/pricing.ts` |
+| All copy, reels, stats, inquiry options | `lib/content.ts` |
 | Colours and type roles | `app/globals.css` |
 | Section layouts | `app/sections.css` |
 | Legal text | `components/pages/CopyrightPage.tsx` |
 
-The contact form never posts anywhere. It builds a `mailto:` link (subject and cc included) and opens the sender's email app. Choosing a format anywhere on the page (Rates, the hero button, the reel player) updates the form's chips, subject line and a prefilled note.
+The contact form never posts anywhere. It builds a `mailto:` link (subject and cc included) and opens the sender's email app. Choosing a format on the hero button or reel player updates the form's chips, subject line and a prefilled note.
 
 ### Photos and reels
 
-- **Photos** live in `public/siya/photos/` (`siya-7510.jpg` hero, `siya-7512.jpg` About, `siya-7514.jpg` About inset). They were converted from the original HEIC files and all metadata (including GPS) was stripped.
-- **Reels** live in `public/siya/reels/` as `featured-01.mp4`, `featured-02.mp4`, `featured-03.mp4` plus a `-poster.jpg` for each (720x1280 H.264, fast-start). To swap one, replace the MP4 and poster under the same name and update its caption in `lib/content.ts`.
+- **Photos** live in `public/siya/photos/` (hero cutout plus gallery stills including `siya-7510.jpg`, `siya-7512.jpg`, `siya-7514.jpg`). Metadata (including GPS) was stripped.
+- **Reels** live in `public/siya/reels/` as `featured-01.mp4` … `featured-08.mp4` (seven featured cards; ids map in `lib/content.ts`) plus a `-poster.jpg` for each (720x1280 H.264, fast-start). To swap one, replace the MP4 and poster under the same name and update its caption in `lib/content.ts`.
 - `lib/blur-data.ts` holds the tiny blur placeholders. If you replace a photo, regenerate its entry (12px-wide JPEG, base64).
 - Older files in `public/siya/` (`polaroids/`, `hero-*.png`, `siya-portrait.jpg`, the original reels) are no longer used by the site and can be deleted whenever you like.
 
@@ -114,16 +113,16 @@ app/
   globals.css           tokens, type roles, base, reveal states, intro
   sections.css          section layouts
 components/
-  chrome/               SiteShell, SiteHeader, MobileMenu, MediaCursor
+  chrome/               SiteShell, SiteHeader, MobileMenu, MediaCursor, BrowserLaunch
   motion/               SmoothScroll, Reveal (text/image/script/fade/line), Intro, Signature,
-                        Odometer, SectionTheme
-  sections/             Hero, Statement, SelectedWork + ReelGallery + ReelPlayer, Numbers, About,
-                        Rates + RatesList, Contact + ContactForm + CopyEmail, Footer
+                        Odometer
+  sections/             Hero, SelectedWork + ReelGallery + ReelPlayer, Gallery, Numbers,
+                        Contact + ContactForm + CopyEmail, Footer
   ui/Heading.tsx        caps + one script word
   pages/CopyrightPage.tsx
 lib/
   content.ts            single source of truth for copy and data
-  pricing.ts, inquiry.tsx, hooks.ts, gsap.ts, intro.ts, site.ts
+  inquiry.tsx, hooks.ts, gsap.ts, intro.ts, site.ts
   signature-paths.ts, blur-data.ts, og-card.tsx
 assets/og/              font subsets and portrait for the share card
 public/siya/            photos/, reels/
@@ -131,7 +130,7 @@ public/siya/            photos/, reels/
 
 ## Accessibility notes
 
-Content waiting to be revealed is only transparent (never `display:none` or `visibility:hidden`), so screen readers can read every section without scrolling. Menus and the reel player trap focus, set the page behind them `inert`, close on Esc, and return focus to where they were opened. Muted text colours are tuned per chapter to keep at least 4.5:1 contrast on all three backgrounds. There is a skip link, visible focus rings, and the form uses native inputs and radio buttons.
+Content waiting to be revealed is only transparent (never `display:none` or `visibility:hidden`), so screen readers can read every section without scrolling. Menus and the reel player trap focus, set the page behind them `inert`, close on Esc, and return focus to where they were opened. Burgundy on buttermilk keeps strong contrast. There is a skip link, visible focus rings, and the form uses native inputs and radio buttons.
 
 ## Credits
 

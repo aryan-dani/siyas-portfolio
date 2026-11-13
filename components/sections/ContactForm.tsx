@@ -7,7 +7,7 @@ import { useInquiry } from "@/lib/inquiry";
 /**
  * The inquiry form never posts anywhere: it builds a mailto: link (subject and
  * cc included) and opens the sender's email app, exactly like the old site.
- * Picking a format anywhere on the page (Rates, the hero, the reel player)
+ * Picking a format anywhere on the page (the hero, the reel player)
  * updates the chips, the subject line and an optional prefilled note.
  */
 export function ContactForm() {

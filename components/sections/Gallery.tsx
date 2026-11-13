@@ -4,16 +4,21 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CONTENT } from "@/lib/content";
 import { Reveal } from "@/components/motion/Reveal";
+import { PhotoViewer } from "@/components/sections/PhotoViewer";
 
 const LOOPS = 3;
+
+type OpenState = { index: number; origin: HTMLElement };
 
 export function Gallery() {
   const { gallery } = CONTENT;
   const photos = gallery.images;
   const trackRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const frameRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const jumpingRef = useRef(false);
   const [active, setActive] = useState(0);
+  const [open, setOpen] = useState<OpenState | null>(null);
 
   const looped = useMemo(
     () => Array.from({ length: LOOPS }, () => photos).flat(),
@@ -95,6 +100,29 @@ export function Gallery() {
     [active, scrollToLogical],
   );
 
+  const originFor = useCallback(
+    (logical: number) => {
+      const mid = photos.length + ((logical % photos.length) + photos.length) % photos.length;
+      return frameRefs.current[mid] ?? frameRefs.current[logical] ?? null;
+    },
+    [photos.length],
+  );
+
+  const handleOpen = useCallback((logical: number, origin: HTMLElement) => {
+    setOpen({ index: logical, origin });
+  }, []);
+
+  const handleIndexChange = useCallback(
+    (next: number) => {
+      setOpen((prev) => {
+        if (!prev) return prev;
+        const origin = originFor(next) ?? prev.origin;
+        return { index: next, origin };
+      });
+    },
+    [originFor],
+  );
+
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
@@ -166,6 +194,7 @@ export function Gallery() {
         tabIndex={0}
         aria-label="photo gallery"
         onKeyDown={(e) => {
+          if (open) return;
           if (e.key === "ArrowLeft") {
             e.preventDefault();
             scrollByCard(-1);
@@ -175,30 +204,53 @@ export function Gallery() {
           }
         }}
       >
-        {looped.map((photo, i) => (
-          <figure
-            key={`${photo.src}-${i}`}
-            ref={(el) => {
-              cardRefs.current[i] = el;
-            }}
-            className="gallery-card"
-          >
-            <div className="gallery-card__frame" data-cursor="siya">
-              <Image
-                src={photo.src}
-                alt={photo.alt}
-                width={photo.width}
-                height={photo.height}
-                sizes="(min-width: 1100px) 18vw, (min-width: 768px) 28vw, 55vw"
-                placeholder="blur"
-                blurDataURL={photo.blur}
-                quality={75}
-                className="gallery-card__img"
-              />
-            </div>
-          </figure>
-        ))}
+        {looped.map((photo, i) => {
+          const logical = i % photos.length;
+          const id = String(logical + 1).padStart(2, "0");
+          return (
+            <figure
+              key={`${photo.src}-${i}`}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
+              className="gallery-card"
+            >
+              <button
+                type="button"
+                ref={(el) => {
+                  frameRefs.current[i] = el;
+                }}
+                className="gallery-card__frame"
+                data-cursor="view"
+                aria-label={`view photo ${id}: ${photo.alt}`}
+                onClick={(e) => handleOpen(logical, e.currentTarget)}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={photo.width}
+                  height={photo.height}
+                  sizes="(min-width: 1100px) 18vw, (min-width: 768px) 28vw, 55vw"
+                  placeholder="blur"
+                  blurDataURL={photo.blur}
+                  quality={75}
+                  className="gallery-card__img"
+                />
+              </button>
+            </figure>
+          );
+        })}
       </div>
+
+      {open ? (
+        <PhotoViewer
+          photos={photos}
+          index={open.index}
+          originEl={open.origin}
+          onIndexChange={handleIndexChange}
+          onClosed={() => setOpen(null)}
+        />
+      ) : null}
     </section>
   );
 }

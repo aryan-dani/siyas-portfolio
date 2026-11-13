@@ -166,7 +166,7 @@ export function Hero() {
         </div>
 
         <div className="hero-portrait" data-part="portrait">
-          <Reveal trigger="intro" delay={0.2} className="hero-portrait__reveal">
+          <Reveal trigger="intro" delay={0.2} y={0} className="hero-portrait__reveal">
             <div className="hero-portrait__figure" data-cursor="siya">
               <Image
                 src={photos.hero.src}

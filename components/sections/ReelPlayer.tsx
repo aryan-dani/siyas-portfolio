@@ -220,7 +220,7 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
       ref={rootRef}
       role="dialog"
       aria-modal="true"
-      aria-label={`Reel ${reel.id}: ${reel.title}`}
+      aria-label={`Reel: ${reel.seoCaption}`}
       data-lenis-prevent
       className="player scope-dark"
     >
@@ -256,6 +256,9 @@ export function ReelPlayer({ reel, originEl, startTime, onClosed }: Props) {
             className="player__video"
             loop
             playsInline
+            preload="metadata"
+            title={reel.seoCaption}
+            aria-label={reel.seoCaption}
             onPlay={() => setPaused(false)}
             onPause={() => setPaused(true)}
             onTimeUpdate={(e) => {

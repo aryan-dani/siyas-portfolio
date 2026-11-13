@@ -89,7 +89,7 @@ export function Hero() {
       <div className="hero-layout wrap">
         <div className="hero-copy" data-part="copy">
           <h1 className="sr-only">
-            {profile.fullName}: content creator based in {profile.location}.
+            {`${profile.fullName} (${profile.handle}) — Lifestyle, Fashion & UGC Content Creator in Pune`}
           </h1>
 
           <Reveal

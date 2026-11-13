@@ -5,6 +5,7 @@ import { SelectedWork } from "@/components/sections/SelectedWork";
 import { Gallery } from "@/components/sections/Gallery";
 import { Numbers } from "@/components/sections/Numbers";
 import { Contact } from "@/components/sections/Contact";
+import { CollabFaq } from "@/components/sections/CollabFaq";
 import { Footer } from "@/components/sections/Footer";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
         <Gallery />
         <Numbers />
         <Contact />
+        <CollabFaq />
         <Footer />
       </main>
     </ViewTransition>

@@ -296,57 +296,64 @@ function ReelCard({
       className="carousel-card"
       data-active={active ? "true" : "false"}
     >
-      {favourite && active ? <span className="carousel-card__fav">{favouriteLabel}</span> : null}
+      <figure className="carousel-card__figure">
+        {favourite && active ? (
+          <span className="carousel-card__fav">{favouriteLabel}</span>
+        ) : null}
 
-      <button
-        ref={frameRef}
-        type="button"
-        className="carousel-card__frame"
-        data-cursor="play"
-        aria-label={`play reel ${reel.id}: ${reel.title}`}
-        aria-current={active ? "true" : undefined}
-        onClick={() => {
-          if (frameRef.current) {
-            onOpen(reel.id, frameRef.current, videoRef.current?.currentTime ?? 0);
-          }
-        }}
-      >
-        <Image
-          src={reel.poster}
-          alt=""
-          fill
-          sizes="(min-width: 1100px) 15vw, (min-width: 768px) 22vw, 48vw"
-          placeholder="blur"
-          blurDataURL={reel.blur}
-          className="carousel-card__poster"
-        />
-        <video
-          ref={videoRef}
-          className="carousel-card__video"
-          data-live={live}
-          muted
-          loop
-          playsInline
-          preload="none"
-          tabIndex={-1}
-          aria-hidden="true"
-          onPlaying={() => setLive(true)}
-          onPause={() => setLive(false)}
-        />
-        <span className="carousel-card__id" aria-hidden="true">
-          {reel.id}
-        </span>
-      </button>
+        <button
+          ref={frameRef}
+          type="button"
+          className="carousel-card__frame"
+          data-cursor="play"
+          aria-label={`Play reel: ${reel.seoCaption}`}
+          title={reel.seoCaption}
+          aria-current={active ? "true" : undefined}
+          onClick={() => {
+            if (frameRef.current) {
+              onOpen(reel.id, frameRef.current, videoRef.current?.currentTime ?? 0);
+            }
+          }}
+        >
+          <Image
+            src={reel.poster}
+            alt={reel.seoCaption}
+            fill
+            sizes="(min-width: 1100px) 15vw, (min-width: 768px) 22vw, 48vw"
+            placeholder="blur"
+            blurDataURL={reel.blur}
+            className="carousel-card__poster"
+          />
+          <video
+            ref={videoRef}
+            className="carousel-card__video"
+            data-live={live}
+            muted
+            loop
+            playsInline
+            preload="none"
+            title={reel.seoCaption}
+            tabIndex={-1}
+            aria-hidden="true"
+            onPlaying={() => setLive(true)}
+            onPause={() => setLive(false)}
+          />
+          <span className="carousel-card__id" aria-hidden="true">
+            {reel.id}
+          </span>
+        </button>
 
-      <div className="carousel-card__meta">
-        <p className="type-label">
-          <span>{reel.kind}</span>
-          <span aria-hidden="true"> · </span>
-          <span>{reel.duration}</span>
-        </p>
-        <h3 className="carousel-card__title">{reel.title}</h3>
-        <p className="type-body carousel-card__caption">“{reel.caption}”</p>
-      </div>
+        <figcaption className="carousel-card__meta">
+          <p className="type-label">
+            <span>{reel.kind}</span>
+            <span aria-hidden="true"> · </span>
+            <span>{reel.duration}</span>
+          </p>
+          <h3 className="carousel-card__title">{reel.title}</h3>
+          <p className="type-body carousel-card__caption">“{reel.caption}”</p>
+          <p className="sr-only">{reel.seoCaption}</p>
+        </figcaption>
+      </figure>
     </article>
   );
 }

@@ -16,10 +16,13 @@ const CYCLE = Array.from({ length: 20 }, (_, i) => i % 10);
 export function Odometer({
   value,
   suffix = "",
+  label = "",
   className = "",
 }: {
   value: number;
   suffix?: string;
+  /** Accessible full phrase for crawlers / screen readers (e.g. "peak monthly reach"). */
+  label?: string;
   className?: string;
 }) {
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -85,6 +88,7 @@ export function Odometer({
       <span className="sr-only">
         {value}
         {suffix}
+        {label ? ` ${label}` : ""}
       </span>
       <span className="odo__digits" aria-hidden="true">
         {digits.map((d, i) => (

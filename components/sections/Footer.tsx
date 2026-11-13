@@ -13,6 +13,10 @@ export function Footer() {
         <div className="footer__row type-label">
           <p>{footer.copyright}</p>
           <p className="footer__links">
+            <Link href="/collaborate" transitionTypes={["nav-forward"]} className="link-u">
+              media kit
+            </Link>
+            <span aria-hidden="true"> · </span>
             <Link href="/copyright" transitionTypes={["nav-forward"]} className="link-u">
               copyright &amp; ip
             </Link>

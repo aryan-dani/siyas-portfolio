@@ -5,7 +5,15 @@ import {
   Noto_Serif_Display,
 } from "next/font/google";
 import { CONTENT } from "@/lib/content";
-import { getSiteUrl } from "@/lib/site";
+import {
+  CREATOR_NAME,
+  GEO,
+  HANDLE,
+  PRIMARY_KEYWORDS,
+  SITE_NAME,
+  getSiteUrl,
+} from "@/lib/site";
+import { buildSiteJsonLd } from "@/components/seo/JsonLd";
 import { BootInject } from "@/components/chrome/BootInject";
 import { SiteShell } from "@/components/chrome/SiteShell";
 import "./globals.css";
@@ -45,40 +53,56 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL("https://www.heartsfromsiya.com"),
   title: {
     default: CONTENT.meta.siteTitle,
-    template: `%s · ${CONTENT.profile.fullName}`,
+    template: `%s | ${SITE_NAME}`,
   },
   description: CONTENT.meta.siteDescription,
-  applicationName: CONTENT.profile.fullName,
-  keywords: [
-    "Siya Pawar",
-    "heartsfromsiya",
-    "UGC creator India",
-    "Instagram reels creator Pune",
-    "startup content creator",
-    "brand collaborations",
-    "reel editor for startups",
-  ],
+  applicationName: SITE_NAME,
+  keywords: [...PRIMARY_KEYWORDS],
   authors: [
-    { name: `${CONTENT.profile.fullName} (${CONTENT.profile.handle})`, url: CONTENT.profile.instagramUrl },
+    {
+      name: `${CREATOR_NAME} (${HANDLE})`,
+      url: CONTENT.profile.instagramUrl,
+    },
     { name: CONTENT.profile.developerName, url: CONTENT.profile.developerUrl },
   ],
-  creator: CONTENT.profile.developerName,
+  creator: CREATOR_NAME,
+  publisher: CREATOR_NAME,
   alternates: { canonical: "/" },
   openGraph: {
-    type: "website",
+    type: "profile",
     url: "/",
-    siteName: CONTENT.profile.fullName,
+    siteName: SITE_NAME,
     locale: "en_IN",
-    title: CONTENT.meta.siteTitle,
+    title: CONTENT.meta.ogTitle,
     description: CONTENT.meta.siteDescription,
+    firstName: "Siya",
+    lastName: "Pawar",
+    username: "heartsfromsiya",
   },
   twitter: {
     card: "summary_large_image",
-    title: CONTENT.meta.siteTitle,
+    title: CONTENT.meta.ogTitle,
     description: CONTENT.meta.siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  other: {
+    "geo.region": GEO.region,
+    "geo.placename": GEO.placename,
+    "geo.position": `${GEO.latitude};${GEO.longitude}`,
+    ICBM: `${GEO.latitude}, ${GEO.longitude}`,
   },
 };
 
@@ -87,26 +111,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const personJsonLd = JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: CONTENT.profile.fullName,
-    alternateName: [CONTENT.profile.handle, CONTENT.profile.secondaryHandle],
-    jobTitle: "Content creator, storyteller and brand collaborator",
-    email: CONTENT.profile.email,
-    url: siteUrl,
-    image: `${siteUrl}${CONTENT.photos.hero.src}`,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Pune",
-      addressCountry: "IN",
-    },
-    sameAs: [
-      CONTENT.profile.instagramUrl,
-      CONTENT.profile.instagramDumpUrl,
-      CONTENT.profile.youtubeUrl,
-    ],
-  }).replace(/</g, "\\u003c");
+  const jsonLd = buildSiteJsonLd(siteUrl);
 
   return (
     <html
@@ -120,7 +125,7 @@ export default function RootLayout({
         </noscript>
       </head>
       <body>
-        <BootInject jsonLd={personJsonLd} />
+        <BootInject jsonLd={jsonLd} />
         <a href="#main" className="skip-link">
           Skip to content
         </a>

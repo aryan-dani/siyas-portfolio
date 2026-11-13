@@ -7,11 +7,14 @@ export function Numbers() {
   const { numbers } = CONTENT;
 
   return (
-    <section aria-label="By the numbers" className="section numbers">
+    <section aria-labelledby="numbers-title" className="section numbers">
       <div className="wrap">
         <Reveal>
           <Eyebrow index="03">by the numbers</Eyebrow>
         </Reveal>
+        <h2 id="numbers-title" className="sr-only">
+          Reach metrics — Siya Pawar (@heartsfromsiya)
+        </h2>
         <div className="mt-8">
           <DrawLine />
         </div>
@@ -22,10 +25,13 @@ export function Numbers() {
               <Odometer
                 value={stat.value}
                 suffix={stat.suffix}
+                label={stat.label}
                 className="numbers__value type-display"
               />
               <Reveal delay={0.25 + i * 0.1} y={18}>
-                <p className="type-label numbers__label">{stat.label}</p>
+                <p className="type-label numbers__label" aria-hidden="true">
+                  {stat.label}
+                </p>
               </Reveal>
             </li>
           ))}

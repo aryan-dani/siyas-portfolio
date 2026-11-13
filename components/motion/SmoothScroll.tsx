@@ -78,7 +78,12 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     let lenis: Lenis | null = null;
     let tick: ((time: number) => void) | null = null;
 
-    if (!reducedMotion) {
+    /* Skip Lenis on touch / coarse pointers and reduced motion — keeps INP low. */
+    const coarse =
+      typeof window !== "undefined" &&
+      window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
+    if (!reducedMotion && !coarse) {
       lenis = new Lenis({
         duration: 0.95,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

@@ -18,6 +18,8 @@ export type Reel = {
   title: string;
   /** The caption as posted on Instagram (emoji omitted for display). */
   caption: string;
+  /** Crawlable category for figcaption / VideoObject schema. */
+  seoCaption: string;
   kind: string;
   posted: string;
   duration: string;
@@ -25,6 +27,11 @@ export type Reel = {
   poster: string;
   blur: string;
   instagramUrl: string;
+};
+
+export type FaqItem = {
+  question: string;
+  answer: string;
 };
 
 export type Stat = {
@@ -86,30 +93,43 @@ const PHOTOS = {
     src: "/siya/photos/siya-hero-cutout-5.png",
     width: 1536,
     height: 2372,
-    alt: "Siya looking back over her shoulder in a teal floral dress",
+    alt: "Siya Pawar (@heartsfromsiya) editorial fashion portrait in a teal floral kurti — Pune lifestyle & UGC creator",
     blur: BLUR.hero,
   },
   about: {
     src: "/siya/photos/siya-7512.jpg",
     width: 1800,
     height: 2400,
-    alt: "Siya in glasses and a leopard-print top, smiling over her shoulder in a warmly lit café",
+    alt: "Siya Pawar (@heartsfromsiya) in glasses and a leopard-print top, smiling over her shoulder in a warmly lit Pune café",
     blur: BLUR.about,
   },
   inset: {
     src: "/siya/photos/siya-7514.jpg",
     width: 2400,
     height: 1350,
-    alt: "Close-up selfie of Siya in soft afternoon light with ivy on the wall behind her",
+    alt: "Lifestyle and beauty UGC photography by Pune content creator Siya Pawar in soft afternoon light",
     blur: BLUR.inset,
+  },
+  /** Primary portrait for Person JSON-LD / media kit. */
+  profilePhoto: {
+    src: "/siya/photos/siya-7510.jpg",
+    width: 1800,
+    height: 2400,
+    alt: "Siya Pawar (@heartsfromsiya) editorial portrait for brand collaborations and UGC media kit",
+    blur: BLUR.gallery7510,
   },
 } satisfies Record<string, Photo>;
 
 export const CONTENT = {
   meta: {
-    siteTitle: "Siya Pawar — Creator, Storyteller & Brand Collaborations",
+    siteTitle:
+      "Siya Pawar (@heartsfromsiya) — Lifestyle, Fashion & UGC Creator in Pune",
     siteDescription:
-      "Warm, high-retention reels, UGC and monthly account management by Siya Pawar (@heartsfromsiya). 2M peak monthly reach, multiple 1M+ reels. From ₹8,000 for 3 reels and ₹24,000 a month for account management.",
+      "Official portfolio and media kit of Siya Pawar (@heartsfromsiya) — Pune-based lifestyle, fashion, and beauty influencer & UGC content creator crafting high-converting short-form reels, editorial photography, and brand collaborations across India.",
+    ogTitle: "Siya Pawar (@heartsfromsiya) — Lifestyle & UGC Creator, Pune",
+    collaborateTitle: "Hire UGC Creator in Pune — Siya Pawar Media Kit & Brand Collaborations",
+    collaborateDescription:
+      "Media kit and collaboration rates for Siya Pawar (@heartsfromsiya): Instagram Reels, UGC ad creatives, product photography, and monthly account management for D2C brands across Pune, Mumbai, and India.",
   },
 
   profile: {
@@ -118,14 +138,16 @@ export const CONTENT = {
     handle: "@heartsfromsiya",
     secondaryHandle: "@siyasideup",
     location: "pune, india",
+    locationFull: "Pune, Maharashtra, India",
     timezone: "Asia/Kolkata",
     status: "open for collaborations",
+    jobTitle: "Lifestyle, Fashion & UGC Content Creator",
     email: "siyapawar@gmail.com",
     ccEmail: "daniaryan212@gmail.com",
     instagramUrl: "https://www.instagram.com/heartsfromsiya/",
     instagramReelsUrl: "https://www.instagram.com/heartsfromsiya/reels/",
     instagramDumpUrl: "https://www.instagram.com/siyasideup/",
-    youtubeUrl: "https://m.youtube.com/@heartsfromsiya",
+    youtubeUrl: "https://www.youtube.com/@heartsfromsiya",
     developerName: "Aryan Dani",
     developerUrl: "https://www.aryandani.com",
   },
@@ -155,6 +177,7 @@ export const CONTENT = {
         id: "01",
         title: "california burrito",
         caption: "@californiaburrito_in lover 4life",
+        seoCaption: "Pune lifestyle mini vlog & café skit reel by Siya Pawar (@heartsfromsiya)",
         kind: "skit",
         posted: "oct 2026",
         duration: "0:17",
@@ -167,6 +190,7 @@ export const CONTENT = {
         id: "02",
         title: "back in the frame",
         caption: "i’m back after so long",
+        seoCaption: "Campus & Gen-Z lifestyle story reel — Siya Pawar, Pune content creator",
         kind: "story",
         posted: "sep 2026",
         duration: "0:20",
@@ -179,6 +203,7 @@ export const CONTENT = {
         id: "03",
         title: "phirse bolo",
         caption: "phirse bolo",
+        seoCaption: "Fashion & styling mood reel by Pune influencer Siya Pawar (@heartsfromsiya)",
         kind: "mood",
         posted: "jun 2026",
         duration: "0:17",
@@ -191,6 +216,7 @@ export const CONTENT = {
         id: "04",
         title: "sundae backpack",
         caption: "the functional but chic, sundae backpack by @mokobara",
+        seoCaption: "D2C brand collab UGC — Mokobara Sundae backpack product reel by Siya Pawar",
         kind: "collab",
         posted: "sep 2026",
         duration: "0:52",
@@ -203,6 +229,7 @@ export const CONTENT = {
         id: "05",
         title: "memo crossbody",
         caption: "the effortlessly put together memo crossbody by @mokobara",
+        seoCaption: "Aesthetic product photography & UGC reel — Mokobara Memo crossbody with Siya Pawar",
         kind: "collab",
         posted: "sep 2026",
         duration: "0:48",
@@ -215,6 +242,7 @@ export const CONTENT = {
         id: "06",
         title: "traditional transitions",
         caption: "transitions, traditional, reels",
+        seoCaption: "Fashion & styling traditional transition reel by Siya Pawar (@heartsfromsiya)",
         kind: "edit",
         posted: "oct 2025",
         duration: "0:13",
@@ -227,6 +255,7 @@ export const CONTENT = {
         id: "07",
         title: "thanks dad",
         caption: "thanks dad",
+        seoCaption: "Warm lifestyle storytelling reel — Siya Pawar, Gen-Z influencer in Pune",
         kind: "story",
         posted: "dec 2025",
         duration: "0:21",
@@ -269,39 +298,109 @@ export const CONTENT = {
         src: "/siya/photos/siya-7510.jpg",
         width: 1800,
         height: 2400,
-        alt: "siya in soft light, looking toward the camera",
+        alt: "Siya Pawar (@heartsfromsiya) editorial fashion portrait in soft light — Pune lifestyle influencer",
         blur: BLUR.gallery7510,
       },
       {
         src: "/siya/photos/siya-7512.jpg",
         width: 1800,
         height: 2400,
-        alt: "siya in glasses and a leopard-print top, smiling over her shoulder",
+        alt: "Siya Pawar in glasses and leopard-print top, café lifestyle UGC photography in Pune",
         blur: BLUR.about,
       },
       {
         src: "/siya/photos/siya-8445.jpg",
         width: 768,
         height: 1024,
-        alt: "siya under warm fairy lights in a teal printed kurti",
+        alt: "Siya Pawar under warm fairy lights in a teal printed kurti — fashion & beauty creator Pune",
         blur: BLUR.gallery8445,
       },
       {
         src: "/siya/photos/siya-8447.jpg",
         width: 1800,
         height: 3201,
-        alt: "siya posing outdoors at night in warm patio light",
+        alt: "Siya Pawar posing outdoors at night in warm patio light — Gen-Z influencer Pune editorial",
         blur: BLUR.gallery8447,
       },
       {
         src: "/siya/photos/siya-7514.jpg",
         width: 2400,
         height: 1350,
-        alt: "close-up of siya in soft afternoon light",
+        alt: "Close-up lifestyle and beauty UGC photography by Pune content creator Siya Pawar",
         blur: BLUR.inset,
       },
     ] satisfies Photo[],
   },
+
+  /** Collaboration niches — crawlable authority copy. */
+  niches: [
+    "Fashion & styling",
+    "Beauty & skincare",
+    "Campus & Gen-Z lifestyle",
+    "Cafés & dining",
+    "Tech & everyday carry",
+  ] as const,
+
+  /** Deliverables brands can book. */
+  deliverables: [
+    {
+      name: "Dedicated Instagram Reels",
+      detail: "Concept, script, shoot and edit — high-retention short-form for brand feeds and ads.",
+    },
+    {
+      name: "UGC ad creatives",
+      detail: "Hook / body / CTA variants for paid social and D2C performance campaigns.",
+    },
+    {
+      name: "Story sets",
+      detail: "Multi-frame Instagram Stories for launches, drops, and always-on brand presence.",
+    },
+    {
+      name: "Product & lookbook photography",
+      detail: "Aesthetic stills and editorial product photography for site and social.",
+    },
+    {
+      name: "Event & store launch coverage",
+      detail: "On-ground coverage for offline events, store openings, and shoots in Pune and Mumbai.",
+    },
+    {
+      name: "YouTube Shorts / vlog cuts",
+      detail: "Longer lifestyle cuts and Shorts for YouTube @heartsfromsiya and brand channels.",
+    },
+  ] as const,
+
+  faqs: [
+    {
+      question: "How can brands collaborate with Siya Pawar (@heartsfromsiya) in Pune?",
+      answer:
+        "Email siyapawar@gmail.com or use the inquiry form on heartsfromsiya.com. Choose a 3-reel starter, multi-reel pack, monthly account management, or a custom brief. Siya works creator-direct with D2C and lifestyle brands across Pune, Mumbai, and India.",
+    },
+    {
+      question: "What UGC and influencer deliverables does Siya offer?",
+      answer:
+        "Dedicated Instagram Reels, UGC ad creatives (hook/body/CTA), Story sets, product and lookbook photography, event and store launch coverage in Pune/Mumbai, and YouTube Shorts or vlog cuts. Packages start at ₹8,000 for three reels.",
+    },
+    {
+      question: "Does Siya shoot D2C product UGC remotely across India?",
+      answer:
+        "Yes. Siya delivers remote UGC for D2C brands across India, plus on-location shoots and events in Pune and Mumbai. Product seeding and briefs are handled directly — no agency markup.",
+    },
+    {
+      question: "What niches does @heartsfromsiya specialize in?",
+      answer:
+        "Lifestyle, fashion & styling, beauty & skincare, campus and Gen-Z culture, cafés & dining, and tech / everyday carry. Past brand partners include PharmEasy and Mokobara.",
+    },
+    {
+      question: "What is the typical turnaround time for UGC reels and brand campaigns?",
+      answer:
+        "A standard three-reel pack is delivered in about 5–7 days after briefing and product receipt. Monthly account management covers strategy, scripting, shooting, editing, and posting on an agreed calendar.",
+    },
+    {
+      question: "Is Siya available for offline events, store launches, and shoots in Pune and Mumbai?",
+      answer:
+        "Yes. Siya is based in Pune, Maharashtra and is available for offline events, store launches, and editorial shoots across Pune and Mumbai, with remote UGC available nationally.",
+    },
+  ] satisfies FaqItem[],
 
   rates: {
     title: { caps: "transparent", script: "rates" } satisfies HeadingParts,
@@ -349,6 +448,14 @@ export const CONTENT = {
   footer: {
     copyright: "© 2026 siya pawar. all rights reserved.",
     credit: "designed & developed by",
+  },
+
+  collabFaq: {
+    eyebrow: "collaborations",
+    title: { caps: "deliverables &", script: "faq" } satisfies HeadingParts,
+    lead: "ugc, reels, photography and brand collabs for teams hiring a lifestyle creator in pune — or remotely across india.",
+    mediaKitLabel: "full media kit",
+    mediaKitHref: "/collaborate",
   },
 } as const;
 

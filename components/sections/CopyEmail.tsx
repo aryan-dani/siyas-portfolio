@@ -28,7 +28,12 @@ export function CopyEmail({ email }: { email: string }) {
       <a href={`mailto:${email}`} className="copy-email__link">
         {email}
       </a>
-      <button type="button" className="type-label link-u copy-email__btn" onClick={copy}>
+      <button
+        type="button"
+        className="type-label link-u copy-email__btn"
+        onClick={copy}
+        aria-label={copied ? `Copied ${email}` : `Copy ${email} to clipboard`}
+      >
         <span aria-live="polite">{copied ? "Copied ✓" : "Copy email"}</span>
       </button>
     </div>

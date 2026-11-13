@@ -3,11 +3,11 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 /**
- * Social share card: Regan-style lockup — lowercase "siya", "content creator"
- * highlight, and the cutout portrait on a buttermilk → pastel wash.
- * Satori can't use variable fonts or font-stretch, so Jost is a static file.
+ * Social share card (1200×630): script “Siya”, brand mark, cutout on buttermilk.
+ * Satori needs static font files — Jost + Monsieur La Doulaise.
  */
 const sans = await readFile(join(process.cwd(), "assets/og/Jost-400.ttf"));
+const script = await readFile(join(process.cwd(), "assets/og/MonsieurLaDoulaise.ttf"));
 const portrait = await readFile(join(process.cwd(), "assets/og/siya-cutout.png"), "base64");
 
 const INK = "#43302E";
@@ -23,31 +23,50 @@ export function renderOgCard() {
           height: "100%",
           display: "flex",
           position: "relative",
+          overflow: "hidden",
           background: CREAM,
           color: INK,
         }}
       >
+        {/* Soft pastel wash behind portrait */}
         <div
           style={{
             position: "absolute",
-            top: 48,
-            left: 64,
-            fontFamily: "Jost",
-            fontSize: 26,
-            letterSpacing: 4,
+            right: -80,
+            top: -120,
+            width: 720,
+            height: 720,
+            borderRadius: 999,
+            background: PASTEL,
+            opacity: 0.42,
             display: "flex",
           }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            top: 44,
+            left: 56,
+            fontFamily: "Jost",
+            fontSize: 24,
+            letterSpacing: 3,
+            display: "flex",
+            alignItems: "baseline",
+            gap: 6,
+          }}
         >
-          heartsfromsiya
+          <span style={{ opacity: 0.72 }}>heartsfrom</span>
+          <span style={{ fontFamily: "Script", fontSize: 36, letterSpacing: 0 }}>Siya</span>
         </div>
 
         <div
           style={{
             position: "absolute",
-            left: 64,
-            top: 170,
-            bottom: 64,
-            width: 520,
+            left: 56,
+            top: 0,
+            bottom: 0,
+            width: 560,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -55,26 +74,25 @@ export function renderOgCard() {
         >
           <div
             style={{
-              fontFamily: "Jost",
-              fontSize: 200,
-              fontWeight: 400,
-              fontStyle: "italic",
-              lineHeight: 0.9,
-              letterSpacing: -6,
+              fontFamily: "Script",
+              fontSize: 168,
+              lineHeight: 0.88,
+              letterSpacing: 0,
               display: "flex",
             }}
           >
-            siya
+            Siya
           </div>
           <div
             style={{
-              marginTop: 28,
+              marginTop: 18,
               alignSelf: "flex-start",
               background: PASTEL,
-              padding: "12px 22px",
+              padding: "14px 26px",
               borderRadius: 999,
               fontFamily: "Jost",
-              fontSize: 32,
+              fontSize: 28,
+              letterSpacing: 1,
               display: "flex",
             }}
           >
@@ -82,30 +100,44 @@ export function renderOgCard() {
           </div>
           <div
             style={{
-              marginTop: 36,
+              marginTop: 28,
               fontFamily: "Jost",
-              fontSize: 22,
-              letterSpacing: 2,
+              fontSize: 24,
+              letterSpacing: 1,
               opacity: 0.78,
               display: "flex",
             }}
           >
-            pune, india · 2M+ monthly reach
+            Pune, India · 2M+ peak monthly reach
           </div>
         </div>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`data:image/png;base64,${portrait}`}
-          width={460}
-          height={680}
+          width={520}
+          height={770}
           alt=""
           style={{
             position: "absolute",
-            right: 40,
+            right: 8,
             bottom: 0,
             objectFit: "contain",
             objectPosition: "bottom center",
+          }}
+        />
+
+        {/* Baseline hairline like the site */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 2,
+            background: INK,
+            opacity: 0.18,
+            display: "flex",
           }}
         />
       </div>
@@ -113,7 +145,10 @@ export function renderOgCard() {
     {
       width: 1200,
       height: 630,
-      fonts: [{ name: "Jost", data: sans, weight: 400, style: "normal" }],
-    }
+      fonts: [
+        { name: "Jost", data: sans, weight: 400, style: "normal" },
+        { name: "Script", data: script, weight: 400, style: "normal" },
+      ],
+    },
   );
 }

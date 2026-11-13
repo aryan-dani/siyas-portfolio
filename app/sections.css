@@ -178,8 +178,8 @@
     position: relative;
     align-self: end;
     width: 100%;
-    /* Shorter than full viewport so the cutout clears the nav and reads smaller */
-    height: min(56svh, calc(100svh - 8rem));
+    /* Tall enough to read as hero; still clears nav and sits on baseline */
+    height: min(74svh, calc(100svh - 6.5rem));
     min-height: 0;
     margin-right: calc(var(--gutter) * -1);
     overflow: visible;
@@ -196,7 +196,7 @@
     position: relative;
     height: 100%;
     width: auto;
-    max-width: min(100%, 400px);
+    max-width: min(100%, 560px);
     display: block;
     line-height: 0;
     overflow: visible;
@@ -245,7 +245,7 @@
     }
     .hero-portrait {
       order: 2;
-      height: 58svh;
+      height: 62svh;
       max-width: none;
       margin-inline: -0.35rem;
       margin-right: -0.35rem;
@@ -254,7 +254,7 @@
       justify-content: center;
     }
     .hero-portrait__figure {
-      max-width: min(88vw, 420px);
+      max-width: min(92vw, 520px);
       margin-inline: auto;
     }
     .hero-portrait__img {

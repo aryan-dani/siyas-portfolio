@@ -83,9 +83,9 @@ export const INQUIRY_OPTIONS: InquiryOption[] = [
 
 const PHOTOS = {
   hero: {
-    src: "/siya/photos/siya-hero-cutout.png?v=3",
-    width: 1400,
-    height: 2203,
+    src: "/siya/photos/siya-hero-cutout.png?v=7",
+    width: 1566,
+    height: 2379,
     alt: "Siya looking back over her shoulder in a teal floral dress",
     blur: BLUR.hero,
   },

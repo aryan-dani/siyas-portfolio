@@ -8,6 +8,7 @@ import { useInquiry } from "@/lib/inquiry";
 import { useSmoothScroll } from "@/components/motion/SmoothScroll";
 import { Reveal } from "@/components/motion/Reveal";
 import { BrowserLaunchLink } from "@/components/chrome/BrowserLaunch";
+import { OutboundLink } from "@/components/chrome/NavCurtain";
 
 function LinkedBio({ text }: { text: string }) {
   const parts = text.split(/(pharmeasy|mokobara)/gi);
@@ -113,14 +114,15 @@ export function Hero() {
           </Reveal>
 
           <Reveal trigger="intro" delay={0.9} className="hero-socials">
-            <a
+            <OutboundLink
               href={`mailto:${profile.email}`}
+              label="opening email"
               className="hero-social"
               aria-label="email"
               data-cursor="email"
             >
               <IconMail className="hero-social__icon" />
-            </a>
+            </OutboundLink>
             <BrowserLaunchLink
               href={profile.instagramUrl}
               label="instagram"
@@ -129,8 +131,9 @@ export function Hero() {
             >
               <IconInstagram className="hero-social__icon" />
             </BrowserLaunchLink>
-            <a
+            <OutboundLink
               href={profile.youtubeUrl}
+              label="opening youtube"
               target="_blank"
               rel="noopener noreferrer"
               className="hero-social"
@@ -138,7 +141,7 @@ export function Hero() {
               data-cursor="youtube"
             >
               <IconYoutube className="hero-social__icon" />
-            </a>
+            </OutboundLink>
           </Reveal>
 
           <Reveal trigger="intro" delay={1.05} className="hero-cta-row">

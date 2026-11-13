@@ -275,7 +275,8 @@
   .nav-curtain {
     position: fixed;
     inset: 0;
-    z-index: 70;
+    /* Above BrowserLaunch (z 90) so “opening Instagram” covers the preview */
+    z-index: 100;
     display: grid;
     place-items: center;
     background: var(--buttermilk);
@@ -288,11 +289,14 @@
   }
   .nav-curtain__title {
     margin: 0;
+    max-width: min(92vw, 18ch);
     font-family: var(--font-script);
-    font-size: clamp(4.8rem, 16vw, 10rem);
+    font-size: clamp(3.4rem, 12vw, 8.5rem);
     font-weight: 400;
-    line-height: 0.9;
+    line-height: 0.92;
     letter-spacing: 0;
+    text-align: center;
+    text-wrap: balance;
     text-transform: none;
     color: var(--old-burgundy);
     padding-inline: 0.08em;

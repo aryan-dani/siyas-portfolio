@@ -4,6 +4,7 @@ import { Eyebrow, Heading } from "@/components/ui/Heading";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { CopyEmail } from "@/components/sections/CopyEmail";
 import { BrowserLaunchLink } from "@/components/chrome/BrowserLaunch";
+import { OutboundLink } from "@/components/chrome/NavCurtain";
 
 export function Contact() {
   const { contact, profile } = CONTENT;
@@ -44,14 +45,16 @@ export function Contact() {
                 >
                   {profile.secondaryHandle}
                 </a>
-                <a
+                <OutboundLink
                   href={profile.youtubeUrl}
+                  label="opening youtube"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="link-u"
+                  data-cursor="youtube"
                 >
                   youtube
-                </a>
+                </OutboundLink>
               </p>
             </Reveal>
           </div>

@@ -1438,8 +1438,8 @@
   .browser__chrome {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 10;
-    max-height: min(78svh, 820px);
+    height: min(72svh, 680px);
+    max-height: min(72svh, 680px);
     pointer-events: auto;
     transform-origin: center center;
   }
@@ -1454,8 +1454,8 @@
     background: var(--buttermilk);
     color: var(--old-burgundy);
     box-shadow:
-      0 1px 0 color-mix(in srgb, var(--old-burgundy) 10%, transparent),
-      0 28px 80px color-mix(in srgb, var(--old-burgundy) 22%, transparent);
+      0 2px 8px color-mix(in srgb, var(--old-burgundy) 12%, transparent),
+      0 40px 120px color-mix(in srgb, var(--old-burgundy) 18%, transparent);
     transform-style: preserve-3d;
   }
   .browser__titlebar {
@@ -1587,9 +1587,11 @@
     letter-spacing: 0.03em;
   }
   .browser__lock {
+    display: inline-grid;
+    place-items: center;
     flex: 0 0 auto;
-    opacity: 0.7;
-    font-size: 0.7rem;
+    color: var(--old-burgundy);
+    opacity: 0.72;
   }
   .browser__url {
     position: relative;
@@ -1623,26 +1625,30 @@
     transform-origin: left center;
   }
   .browser__content {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
     min-height: 0;
-    padding: 1.1rem 1.15rem 1.2rem;
-    overflow: auto;
+    padding: 1.1rem 1.25rem 1.2rem;
+    overflow: hidden;
   }
   .browser__preview {
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.15fr);
-    gap: 1.25rem 1.5rem;
-    align-items: end;
-    flex: 1;
+    gap: 1rem 1.5rem;
+    align-items: center;
+    flex: 1 1 auto;
     min-height: 0;
+    overflow: hidden;
   }
   .browser__portrait {
     display: grid;
-    gap: 0.65rem;
-    align-content: end;
+    gap: 0.55rem;
+    align-content: center;
+    justify-items: start;
+    min-height: 0;
+    height: 100%;
   }
   .browser__portrait-mask {
     position: relative;
@@ -1650,24 +1656,29 @@
     border-radius: calc(var(--radius-dock) - 0.05rem);
     background: color-mix(in srgb, var(--pastel-blue) 28%, var(--buttermilk));
     aspect-ratio: 3 / 4;
+    max-height: min(48svh, 420px);
+    width: min(100%, 280px);
+    justify-self: start;
   }
   .browser__portrait-img {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    object-position: bottom center;
+    object-fit: cover;
+    object-position: center top;
   }
   .browser__script {
     margin: 0;
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-size: clamp(1.45rem, 2.6vw, 2.1rem);
     line-height: 1;
     color: var(--old-burgundy);
   }
   .browser__meta {
     display: grid;
-    gap: 0.7rem;
-    align-content: end;
+    gap: 0.55rem;
+    align-content: center;
+    min-height: 0;
+    overflow: hidden;
   }
   .browser__handle {
     margin: 0;
@@ -1679,34 +1690,38 @@
   .browser__stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.65rem;
+    gap: 0.55rem;
     margin: 0.35rem 0 0;
     padding: 0;
     list-style: none;
   }
   .browser__stat {
     display: grid;
-    gap: 0.25rem;
+    gap: 0.18rem;
   }
   .browser__stat-value {
-    font-family: var(--font-serif);
-    font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+    font-family: var(--font-display);
+    font-stretch: 62.5%;
+    font-size: clamp(1.25rem, 2.2vw, 1.7rem);
     line-height: 1;
   }
   .browser__stat-label {
     opacity: 0.72;
+    font-size: 0.62rem;
   }
   .browser__posters {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.55rem;
     margin-top: 0.35rem;
+    max-height: min(22svh, 11rem);
   }
   .browser__poster {
     overflow: hidden;
     border-radius: calc(var(--radius-dock) - 0.15rem);
     border: 1px solid color-mix(in srgb, var(--old-burgundy) 14%, transparent);
     aspect-ratio: 9 / 16;
+    max-height: min(22svh, 11rem);
     background: var(--fg-faint);
   }
   .browser__poster-img {
@@ -1715,12 +1730,41 @@
     height: 100%;
     object-fit: cover;
   }
-  .browser__actions {
+  /* Centered handoff popup — pops after the preview loads */
+  .browser__handoff {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-content: center;
+    place-items: center;
+    gap: 0.65rem;
+    padding: 1.25rem;
+    text-align: center;
+    background: color-mix(in srgb, var(--buttermilk) 72%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    visibility: hidden;
+    opacity: 0;
+  }
+  .browser__handoff-script {
+    margin: 0;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+    line-height: 0.95;
+    color: var(--old-burgundy);
+  }
+  .browser__handoff-lead {
+    margin: 0;
+    max-width: 22rem;
+    opacity: 0.82;
+  }
+  .browser__handoff-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.9rem 1.4rem;
-    padding-top: 0.2rem;
+    justify-content: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 0.35rem;
   }
   .browser__dismiss {
     background: none;
@@ -1737,19 +1781,15 @@
       perspective: none;
     }
     .browser__chrome {
-      aspect-ratio: auto;
-      max-height: 80svh;
-      height: auto;
-    }
-    .browser__settle {
-      max-height: 80svh;
+      height: min(82svh, 640px);
+      max-height: min(82svh, 640px);
     }
     .browser__lights {
       display: none;
     }
     .browser__titlebar {
       justify-content: center;
-      min-height: 2.3rem;
+      min-height: 2.2rem;
     }
     .browser__tab {
       max-width: 70%;
@@ -1757,35 +1797,43 @@
     .browser__nav {
       display: none;
     }
+    .browser__content {
+      padding: 0.75rem 0.85rem 0.9rem;
+    }
     .browser__preview {
       grid-template-columns: 1fr;
-      gap: 0.9rem;
+      gap: 0.75rem;
+      align-content: center;
     }
     .browser__portrait {
-      grid-template-columns: 5.5rem 1fr;
+      grid-template-columns: 5.2rem 1fr;
       align-items: center;
+      height: auto;
     }
     .browser__portrait-mask {
       aspect-ratio: 1 / 1.15;
-      max-width: 5.5rem;
+      max-width: 5.2rem;
+      max-height: 6.2rem;
+      width: 100%;
     }
     .browser__script {
-      font-size: 1.45rem;
+      font-size: 1.35rem;
     }
     .browser__stats {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .browser__posters {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-height: 7.5rem;
+    }
+    .browser__poster {
+      max-height: 7.5rem;
     }
     .browser__posters .browser__poster:last-child {
       display: none;
     }
-    .browser__actions {
-      position: sticky;
-      bottom: 0;
-      padding-bottom: 0.2rem;
-      background: linear-gradient(to top, var(--buttermilk) 70%, transparent);
+    .browser__handoff-script {
+      font-size: clamp(1.7rem, 8vw, 2.4rem);
     }
   }
 

@@ -28,7 +28,7 @@ function resolveCursor(el: Element): { mode: "heart" | "label"; text: string; ho
 
 /**
  * Permanent heart cursor on fine pointers. Grows + labels on media targets;
- * paints a darker page wash while over clickables.
+ * hot state tints only the cursor chip — never the page background.
  */
 export function MediaCursor() {
   const fine = useFinePointer();
@@ -59,12 +59,12 @@ export function MediaCursor() {
       let raf = 0;
 
       const applyMode = (mode: "heart" | "label", text: string, hot: boolean) => {
+        /* Hot only tints the cursor chip — never the page background */
         dot.dataset.mode = mode;
         dot.dataset.hot = hot ? "1" : "0";
         label.textContent = mode === "label" ? text.toLowerCase() : "";
         label.hidden = mode === "heart";
         heart.hidden = mode !== "heart";
-        root.dataset.hot = hot ? "1" : "0";
       };
 
       const retarget = (target: EventTarget | null) => {
@@ -103,7 +103,6 @@ export function MediaCursor() {
       const onLeave = () => {
         activeKey = null;
         applyMode("heart", "heart", false);
-        root.dataset.hot = "0";
         gsap.to(dot, { autoAlpha: 0, duration: 0.25, ease: "expo.out", overwrite: "auto" });
       };
 
@@ -122,7 +121,6 @@ export function MediaCursor() {
         document.documentElement.removeEventListener("mouseenter", onEnter);
         if (raf) cancelAnimationFrame(raf);
         root.classList.remove("has-heart-cursor");
-        delete root.dataset.hot;
         root.style.removeProperty("cursor");
         document.body.style.removeProperty("cursor");
       };

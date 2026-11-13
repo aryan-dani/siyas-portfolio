@@ -12,12 +12,9 @@
    ========================================================================== */
 
 :root {
-  --buttermilk-base: #fff1b5;
-  --buttermilk: var(--buttermilk-base);
+  --buttermilk: #fff1b5;
   --pastel-blue: #c1dbe8;
   --old-burgundy: #43302e;
-  /* Deeper buttermilk — page wash while hovering clickables */
-  --buttermilk-deep: color-mix(in srgb, var(--buttermilk-base) 70%, var(--old-burgundy));
 
   --bg: var(--buttermilk);
   --fg: var(--old-burgundy);
@@ -81,14 +78,6 @@
     scroll-padding-top: 6rem;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--fg) 32%, transparent) transparent;
-    transition: background-color 0.55s var(--ease-out);
-  }
-
-  /* Retint every surface that reads --buttermilk / --bg */
-  html[data-hot="1"] {
-    --buttermilk: var(--buttermilk-deep);
-    --bg: var(--buttermilk-deep);
-    background-color: var(--buttermilk-deep);
   }
 
   body {
@@ -96,7 +85,6 @@
     font-size: 1rem;
     line-height: 1.6;
     overflow-x: clip;
-    background-color: transparent;
   }
 
   ::selection {

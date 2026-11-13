@@ -76,15 +76,14 @@
     padding: 0;
     overflow: clip;
     background: var(--bg);
-    transition: background-color 0.55s var(--ease-out);
   }
   .hero-layout {
     position: relative;
     z-index: 1;
     flex: 1;
     display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
     gap: clamp(1rem, 3vw, 2.5rem);
     width: 100%;
     height: 100%;
@@ -177,11 +176,11 @@
   }
   .hero-portrait {
     position: relative;
-    align-self: stretch;
+    align-self: end;
     width: 100%;
-    height: 100%;
+    /* Shorter than full viewport so the cutout clears the nav and reads smaller */
+    height: min(56svh, calc(100svh - 8rem));
     min-height: 0;
-    /* Bleed past the gutter so full-height aspect isn’t width-capped */
     margin-right: calc(var(--gutter) * -1);
     overflow: visible;
   }
@@ -197,22 +196,20 @@
     position: relative;
     height: 100%;
     width: auto;
-    /* Real cutout ratio — full viewport tall, hem on the baseline */
-    aspect-ratio: 2000 / 2257;
-    max-width: none;
+    max-width: min(100%, 400px);
     display: block;
     line-height: 0;
-    overflow: hidden;
+    overflow: visible;
+    /* Avoid filter/shadow stacking that paints a rectangular wash behind the PNG */
+    filter: none;
+    box-shadow: none;
   }
   .hero-portrait__img {
-    position: absolute !important;
-    inset: 0;
     display: block;
-    width: 100% !important;
+    width: auto !important;
     height: 100% !important;
-    max-width: none;
-    /* Cover + bottom anchor = source hem flush on the box / baseline */
-    object-fit: cover;
+    max-width: 100%;
+    object-fit: contain;
     object-position: bottom right;
     user-select: none;
     pointer-events: none;
@@ -248,7 +245,8 @@
     }
     .hero-portrait {
       order: 2;
-      height: 68svh;
+      height: 58svh;
+      max-width: none;
       margin-inline: -0.35rem;
       margin-right: -0.35rem;
     }
@@ -256,12 +254,11 @@
       justify-content: center;
     }
     .hero-portrait__figure {
+      max-width: min(88vw, 420px);
       margin-inline: auto;
     }
     .hero-portrait__img {
       object-position: bottom center;
-      max-width: 96vw;
-      width: auto !important;
     }
     .hero-name {
       font-size: clamp(4.2rem, 20vw, 6.2rem);
@@ -344,19 +341,17 @@
     scroll-snap-align: center;
     scroll-snap-stop: always;
     opacity: 0.68;
-    filter: saturate(0.9);
+    /* No CSS filter — filter layers paint a rectangular “shadow” wash behind cards */
     transform: translateY(0) scale(var(--reel-side-scale));
     transform-origin: center bottom;
     transition:
       transform 0.55s var(--ease-out),
-      opacity 0.4s var(--ease-out),
-      filter 0.4s var(--ease-out);
+      opacity 0.4s var(--ease-out);
     will-change: transform;
   }
   .carousel-card[data-active="true"] {
     z-index: 2;
     opacity: 1;
-    filter: none;
     transform: translateY(calc(var(--reel-lift) * -1)) scale(1);
   }
   .carousel-card__fav {
@@ -386,11 +381,12 @@
     border: 1px solid color-mix(in srgb, var(--old-burgundy) 18%, transparent);
     background: var(--fg-faint);
     cursor: pointer;
-    box-shadow: 0 8px 22px color-mix(in srgb, var(--old-burgundy) 8%, transparent);
-    transition: box-shadow 0.45s var(--ease-out);
+    box-shadow: none;
+    transition: border-color 0.45s var(--ease-out);
   }
   .carousel-card[data-active="true"] .carousel-card__frame {
-    box-shadow: 0 18px 40px color-mix(in srgb, var(--old-burgundy) 16%, transparent);
+    box-shadow: none;
+    border-color: color-mix(in srgb, var(--old-burgundy) 32%, transparent);
   }
   .carousel-card__poster,
   .carousel-card__video {

@@ -31,7 +31,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   images: {
-    formats: ["image/avif", "image/webp"],
+    /* WebP only: AVIF pads this site’s transparent hero cutout and floats the
+       dress above the baseline. WebP keeps the alpha bbox flush. */
+    formats: ["image/webp"],
     // Next 16 only serves qualities listed here; 90 is used for the hero portrait.
     qualities: [60, 75, 90],
   },

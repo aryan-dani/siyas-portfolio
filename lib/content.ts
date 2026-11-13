@@ -59,6 +59,12 @@ export const NAV = [
 export const BRAND_LINKS = {
   pharmeasy: "https://pharmeasy.in/",
   mokobara: "https://mokobara.com/",
+  ally21salon: "https://ally21salon.com/",
+  "whatsup wellness": "https://www.whatsupwellness.in/",
+  "flash.co": "https://flash.co/home",
+  "jersey junction": "https://www.jerseyjunction.com/",
+  nailholic: "https://www.instagram.com/nailholic.studio/",
+  "california burrito": "https://www.californiaburrito.in/",
 } as const;
 
 export const INQUIRY_OPTIONS: InquiryOption[] = [
@@ -277,6 +283,12 @@ export const CONTENT = {
     clients: [
       { name: "pharmeasy", href: BRAND_LINKS.pharmeasy },
       { name: "mokobara", href: BRAND_LINKS.mokobara },
+      { name: "ally21salon", href: BRAND_LINKS.ally21salon },
+      { name: "whatsup wellness", href: BRAND_LINKS["whatsup wellness"] },
+      { name: "flash.co", href: BRAND_LINKS["flash.co"] },
+      { name: "jersey junction", href: BRAND_LINKS["jersey junction"] },
+      { name: "nailholic", href: BRAND_LINKS.nailholic },
+      { name: "california burrito", href: BRAND_LINKS["california burrito"] },
     ],
   },
 

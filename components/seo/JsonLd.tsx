@@ -8,7 +8,7 @@ import { CREATOR_NAME, HANDLE, LOCATION } from "@/lib/site";
  */
 export function buildSiteJsonLd(siteUrl: string): string {
   const base = siteUrl.replace(/\/$/, "");
-  const { profile, photos, work, rates, faqs, deliverables, niches, numbers } =
+  const { profile, photos, work, rates, faqs, deliverables, niches } =
     CONTENT;
 
   const personId = `${base}/#person`;
@@ -116,11 +116,26 @@ export function buildSiteJsonLd(siteUrl: string): string {
           "Editorial Modelling",
           ...niches,
         ],
-        interactionStatistic: numbers.stats.map((s) => ({
-          "@type": "InteractionCounter",
-          interactionType: "https://schema.org/WatchAction",
-          userInteractionCount: `${s.value}${s.suffix} ${s.label}`,
-        })),
+        interactionStatistic: [
+          {
+            "@type": "InteractionCounter",
+            name: "2M+ peak monthly reach",
+            interactionType: { "@type": "WatchAction" },
+            userInteractionCount: 2000000,
+          },
+          {
+            "@type": "InteractionCounter",
+            name: "1M+ views on viral reels",
+            interactionType: { "@type": "WatchAction" },
+            userInteractionCount: 1000000,
+          },
+          {
+            "@type": "InteractionCounter",
+            name: "9K+ community on Instagram",
+            interactionType: { "@type": "FollowAction" },
+            userInteractionCount: 9000,
+          },
+        ],
       },
       {
         "@type": "ProfessionalService",

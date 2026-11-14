@@ -57,6 +57,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    const key = process.env.INDEXNOW_KEY?.trim();
+    if (!key) return [];
+    return [
+      {
+        source: `/${key}.txt`,
+        destination: "/api/indexnow-key",
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

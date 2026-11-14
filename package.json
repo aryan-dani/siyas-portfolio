@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "indexnow": "node scripts/indexnow.mjs",
+    "prepare": "git config core.hooksPath .githooks || true"
   },
   "allowScripts": {
     "unrs-resolver": true,

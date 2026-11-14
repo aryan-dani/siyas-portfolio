@@ -1,0 +1,4 @@
+#!/bin/sh
+# Pre-commit Quality Gate: IndexNow verification & push
+echo "[Quality Gate] Running: npm run indexnow"
+npm run indexnow

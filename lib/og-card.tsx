@@ -110,7 +110,54 @@ export function renderOgCard() {
           >
             Pune, India · 2M+ peak monthly reach
           </div>
+          <div
+            style={{
+              marginTop: 18,
+              fontFamily: "Jost",
+              fontSize: 15,
+              letterSpacing: 1.5,
+              opacity: 0.62,
+              textTransform: "uppercase",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <span>PharmEasy</span>
+            <span>·</span>
+            <span>Mokobara</span>
+            <span>·</span>
+            <span>Lifestyle &amp; UGC</span>
+          </div>
         </div>
+
+        {/* Portfolio year tag */}
+        <div
+          style={{
+            position: "absolute",
+            top: 48,
+            right: 56,
+            fontFamily: "Jost",
+            fontSize: 14,
+            letterSpacing: 3,
+            opacity: 0.55,
+            textTransform: "uppercase",
+            display: "flex",
+          }}
+        >
+          Portfolio · 2026
+        </div>
+
+        {/* Editorial inset hairline frame */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 24,
+            border: "1px solid rgba(67, 48, 46, 0.14)",
+            borderRadius: 20,
+            display: "flex",
+          }}
+        />
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

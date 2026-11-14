@@ -10,8 +10,9 @@ const securityHeaders = [
     value: "max-age=63072000; includeSubDomains; preload",
   },
   {
-    key: "X-Frame-Options",
-    value: "SAMEORIGIN",
+    key: "Content-Security-Policy",
+    value:
+      "frame-ancestors 'self' https://aryandani.com https://www.aryandani.com http://localhost:* http://127.0.0.1:*;",
   },
   {
     key: "X-Content-Type-Options",

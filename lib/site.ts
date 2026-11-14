@@ -44,7 +44,7 @@ export const PRIMARY_KEYWORDS = [
   "Instagram Reels Creator for Brands",
   "Aesthetic Product Photography & UGC",
   "PR & Brand Collab Portfolio",
-  "Influencer Media Kit & Rates India",
+  "Influencer Media Kit & Brand Collaborations India",
   "Lifestyle Fashion Beauty Influencer Pune",
 ] as const;
 

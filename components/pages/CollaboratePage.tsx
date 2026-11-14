@@ -77,10 +77,7 @@ export function CollaboratePage() {
                 <li key={pkg.id}>
                   <Reveal>
                     <h3 className="type-display collaborate__pkg-name">{pkg.name}</h3>
-                    <p className="type-label">
-                      {pkg.prefix}₹{pkg.amount.toLocaleString("en-IN")}
-                      {pkg.suffix ? ` ${pkg.suffix}` : ""}
-                    </p>
+                    <p className="type-label collaborate__pkg-format">{pkg.format}</p>
                     <p className="type-body">{pkg.detail}</p>
                   </Reveal>
                 </li>

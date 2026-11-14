@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   keywords: [
     "Hire UGC Creator in Pune",
     "Siya Pawar Media Kit",
-    "Influencer Media Kit & Rates India",
+    "Influencer Media Kit & Brand Collaborations India",
     "UGC Creator India",
     "Brand Collaborations Pune",
     "@heartsfromsiya",

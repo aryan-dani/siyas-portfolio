@@ -71,19 +71,19 @@ export const INQUIRY_OPTIONS: InquiryOption[] = [
   {
     value: "single-reel",
     label: "3-reel starter",
-    fullLabel: "3-reel starter — ₹8,000",
+    fullLabel: "3-reel starter pack",
     subjectPrefix: "inquiry: 3-reel starter",
   },
   {
     value: "multi-reel-campaign",
     label: "multi-reel pack",
-    fullLabel: "multi-reel pack — ₹8,000 / 3 · +₹2,000 each extra",
+    fullLabel: "multi-reel brand campaign",
     subjectPrefix: "inquiry: multi-reel pack",
   },
   {
     value: "account-management",
     label: "monthly management",
-    fullLabel: "monthly account management — ₹24,000 / mo (adjustable)",
+    fullLabel: "monthly account management & content creation",
     subjectPrefix: "inquiry: monthly management",
   },
   {
@@ -135,7 +135,7 @@ export const CONTENT = {
     ogTitle: "Siya Pawar (@heartsfromsiya) — Lifestyle & UGC Creator, Pune",
     collaborateTitle: "Hire UGC Creator in Pune — Siya Pawar Media Kit & Brand Collaborations",
     collaborateDescription:
-      "Media kit and collaboration rates for Siya Pawar (@heartsfromsiya): Instagram Reels, UGC ad creatives, product photography, and monthly account management for D2C brands across Pune, Mumbai, and India.",
+      "Media kit and collaboration packages for Siya Pawar (@heartsfromsiya): Instagram Reels, UGC ad creatives, product photography, and monthly account management for D2C brands across Pune, Mumbai, and India.",
   },
 
   profile: {
@@ -390,7 +390,7 @@ export const CONTENT = {
     {
       question: "What UGC and influencer deliverables does Siya offer?",
       answer:
-        "Dedicated Instagram Reels, UGC ad creatives (hook/body/CTA), Story sets, product and lookbook photography, event and store launch coverage in Pune/Mumbai, and YouTube Shorts or vlog cuts. Packages start at ₹8,000 for three reels.",
+        "Dedicated Instagram Reels, UGC ad creatives (hook/body/CTA), Story sets, product and lookbook photography, event and store launch coverage in Pune/Mumbai, and YouTube Shorts or vlog cuts. Collaboration packages are tailored directly to each brand brief.",
     },
     {
       question: "Does Siya shoot D2C product UGC remotely across India?",
@@ -415,38 +415,36 @@ export const CONTENT = {
   ] satisfies FaqItem[],
 
   rates: {
-    title: { caps: "transparent", script: "rates" } satisfies HeadingParts,
-    lead: "creator-direct pricing with zero agency markups.",
+    title: { caps: "collaboration", script: "formats" } satisfies HeadingParts,
+    lead: "creator-direct partnerships tailored to your brand’s campaign requirements. custom deliverables and scopes available upon inquiry.",
     list: [
       {
         id: "starter",
         name: "three reels",
-        amount: 8000,
-        prefix: "",
-        suffix: "",
-        detail: "concept, script, shoot and edit. delivered in 5–7 days.",
+        format: "Dedicated Short-Form Content",
+        detail: "concept, script, shoot and edit. hook-tested and delivered ready to post in 5–7 days.",
       },
       {
-        id: "extra",
-        name: "each extra reel",
-        amount: 2000,
-        prefix: "+",
-        suffix: "",
-        detail: "four reels is ₹10,000, five is ₹12,000, and so on.",
+        id: "campaign",
+        name: "multi-reel campaign",
+        format: "Brand Narrative & Product Series",
+        detail: "cohesive multi-part storyline, episodic skits, or repeated product integrations across multiple reels.",
       },
       {
         id: "monthly",
         name: "monthly management",
-        amount: 24000,
-        prefix: "",
-        suffix: "/ month",
+        format: "End-to-End Creator Retainer",
         detail:
           "strategy, scripting, shooting, editing and posting. adjustable to what you actually require.",
       },
+      {
+        id: "ugc",
+        name: "ugc ad creatives",
+        format: "Paid Social Performance",
+        detail:
+          "high-converting hooks, direct-response angles, and organic-feel product demos for Meta and YouTube ads.",
+      },
     ],
-    counterLabel: "estimate your pack",
-    counterMin: 3,
-    counterMax: 12,
   },
 
   contact: {

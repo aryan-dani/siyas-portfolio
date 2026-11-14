@@ -33,8 +33,7 @@ export function buildSiteJsonLd(siteUrl: string): string {
       "@type": "Offer",
       name: pkg.name,
       description: pkg.detail,
-      price: String(pkg.amount),
-      priceCurrency: "INR",
+      category: pkg.format,
       url: `${base}/collaborate`,
     })),
     ...deliverables.map((d) => ({

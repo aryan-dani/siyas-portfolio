@@ -30,7 +30,9 @@ export async function generateMetadata({
   const description = study.summary;
 
   return {
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     alternates: {
       canonical: `/work/${study.slug}`,

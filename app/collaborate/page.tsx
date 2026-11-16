@@ -5,7 +5,9 @@ import { CollaboratePage } from "@/components/pages/CollaboratePage";
 import { Footer } from "@/components/sections/Footer";
 
 export const metadata: Metadata = {
-  title: CONTENT.meta.collaborateTitle,
+  title: {
+    absolute: CONTENT.meta.collaborateTitle,
+  },
   description: CONTENT.meta.collaborateDescription,
   alternates: { canonical: "/collaborate" },
   keywords: [

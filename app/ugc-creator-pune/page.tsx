@@ -10,7 +10,9 @@ import { DrawLine, Reveal } from "@/components/motion/Reveal";
 import { Eyebrow, Heading } from "@/components/ui/Heading";
 
 export const metadata: Metadata = {
-  title: "UGC Content Creator in Pune — Siya Pawar (@heartsfromsiya)",
+  title: {
+    absolute: "UGC Content Creator in Pune — Siya Pawar (@heartsfromsiya)",
+  },
   description:
     "Looking for a UGC creator in Pune? Siya Pawar creates relatable short-form Reels, product demos, and paid Meta ad creatives for D2C and lifestyle brands.",
   alternates: {

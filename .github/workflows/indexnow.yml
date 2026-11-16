@@ -16,15 +16,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
+          node-version: 22
 
       - name: Run IndexNow Push
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
           NEXT_PUBLIC_SITE_URL: https://www.heartsfromsiya.com
           CI: true
-        run: npm run indexnow
+        run: node scripts/indexnow.mjs

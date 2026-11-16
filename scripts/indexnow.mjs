@@ -55,7 +55,25 @@ const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/IndexNow";
 const KEY_REGEX = /^[a-zA-Z0-9-]{8,128}$/;
 const MAX_BATCH_SIZE = 10000;
 
-const key = process.env.INDEXNOW_KEY?.trim();
+let key = process.env.INDEXNOW_KEY?.trim();
+
+if (!key) {
+  try {
+    const publicFiles = fs.readdirSync(path.join(rootDir, "public"));
+    const keyFile = publicFiles.find(
+      (f) =>
+        f.endsWith(".txt") &&
+        f !== "robots.txt" &&
+        f !== "llms.txt" &&
+        f !== "llms-full.txt" &&
+        KEY_REGEX.test(f.replace(/\.txt$/, "")),
+    );
+    if (keyFile) {
+      key = keyFile.replace(/\.txt$/, "");
+    }
+  } catch {}
+}
+
 const isStrict =
   process.argv.includes("--strict") ||
   Boolean(process.env.CI) ||

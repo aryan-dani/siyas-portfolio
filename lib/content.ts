@@ -27,6 +27,10 @@ export type Reel = {
   poster: string;
   blur: string;
   instagramUrl: string;
+  brand?: string;
+  caseStudySlug?: string;
+  deliverableType?: string;
+  hookSummary?: string;
 };
 
 export type FaqItem = {
@@ -103,14 +107,14 @@ const PHOTOS = {
     blur: BLUR.hero,
   },
   about: {
-    src: "/siya/photos/siya-7512.jpg",
+    src: "/siya/photos/siya-pawar-cafe-lifestyle-ugc-pune.jpg",
     width: 1800,
     height: 2400,
     alt: "Siya Pawar (@heartsfromsiya) in glasses and a leopard-print top, smiling over her shoulder in a warmly lit Pune café",
     blur: BLUR.about,
   },
   inset: {
-    src: "/siya/photos/siya-7514.jpg",
+    src: "/siya/photos/siya-pawar-beauty-afternoon-light-pune.jpg",
     width: 2400,
     height: 1350,
     alt: "Lifestyle and beauty UGC photography by Pune content creator Siya Pawar in soft afternoon light",
@@ -118,7 +122,7 @@ const PHOTOS = {
   },
   /** Primary portrait for Person JSON-LD / media kit. */
   profilePhoto: {
-    src: "/siya/photos/siya-7510.jpg",
+    src: "/siya/photos/siya-pawar-editorial-portrait-pune.jpg",
     width: 1800,
     height: 2400,
     alt: "Siya Pawar (@heartsfromsiya) editorial portrait for brand collaborations and UGC media kit",
@@ -129,13 +133,14 @@ const PHOTOS = {
 export const CONTENT = {
   meta: {
     siteTitle:
-      "Siya Pawar (@heartsfromsiya) — Lifestyle, Fashion & UGC Creator in Pune",
+      "Siya Pawar (@heartsfromsiya) — Pune UGC & Lifestyle Creator",
     siteDescription:
-      "Official portfolio and media kit of Siya Pawar (@heartsfromsiya) — Pune-based lifestyle, fashion, and beauty influencer & UGC content creator crafting high-converting short-form reels, editorial photography, and brand collaborations across India.",
+      "Siya Pawar is a Pune-based UGC creator and lifestyle influencer partnering with brands like PharmEasy and Mokobara on high-converting short-form video ads.",
     ogTitle: "Siya Pawar (@heartsfromsiya) — Lifestyle & UGC Creator, Pune",
-    collaborateTitle: "Hire UGC Creator in Pune — Siya Pawar Media Kit & Brand Collaborations",
+    collaborateTitle:
+      "Hire Siya Pawar — UGC Packages, Rates & Brand Collaborations",
     collaborateDescription:
-      "Media kit and collaboration packages for Siya Pawar (@heartsfromsiya): Instagram Reels, UGC ad creatives, product photography, and monthly account management for D2C brands across Pune, Mumbai, and India.",
+      "Book Pune UGC creator Siya Pawar (@heartsfromsiya) for organic Reels, paid ad hooks, product demos, and lifestyle campaigns. View deliverables and FAQs.",
   },
 
   profile: {
@@ -191,6 +196,10 @@ export const CONTENT = {
         poster: "/siya/reels/featured-01-poster.jpg",
         blur: BLUR.reel01,
         instagramUrl: "https://www.instagram.com/reel/Dewiv69IuFY/",
+        brand: "california burrito",
+        caseStudySlug: "california-burrito-pune",
+        deliverableType: "Dining Skit & Mini Vlog",
+        hookSummary: "Humorous café skit & cravings for California Burrito in Pune",
       },
       {
         id: "02",
@@ -230,6 +239,10 @@ export const CONTENT = {
         poster: "/siya/reels/featured-04-poster.jpg",
         blur: BLUR.reel04,
         instagramUrl: "https://www.instagram.com/reel/DdYjCahxxti/",
+        brand: "mokobara",
+        caseStudySlug: "mokobara-sundae-backpack",
+        deliverableType: "D2C Product Demo & Unboxing",
+        hookSummary: "Aesthetic fit-check & functional pocket walkthrough",
       },
       {
         id: "05",
@@ -243,6 +256,10 @@ export const CONTENT = {
         poster: "/siya/reels/featured-05-poster.jpg",
         blur: BLUR.reel05,
         instagramUrl: "https://www.instagram.com/reel/DdOjhsUNG8a/",
+        brand: "mokobara",
+        caseStudySlug: "mokobara-memo-crossbody",
+        deliverableType: "Accessories Styling & What's In My Bag",
+        hookSummary: "Tactical day-to-night styling transition & essentials layout",
       },
       {
         id: "06",
@@ -307,35 +324,35 @@ export const CONTENT = {
     title: "photos",
     images: [
       {
-        src: "/siya/photos/siya-7510.jpg",
+        src: "/siya/photos/siya-pawar-editorial-portrait-pune.jpg",
         width: 1800,
         height: 2400,
         alt: "Siya Pawar (@heartsfromsiya) editorial fashion portrait in soft light — Pune lifestyle influencer",
         blur: BLUR.gallery7510,
       },
       {
-        src: "/siya/photos/siya-7512.jpg",
+        src: "/siya/photos/siya-pawar-cafe-lifestyle-ugc-pune.jpg",
         width: 1800,
         height: 2400,
         alt: "Siya Pawar in glasses and leopard-print top, café lifestyle UGC photography in Pune",
         blur: BLUR.about,
       },
       {
-        src: "/siya/photos/siya-8445.jpg",
+        src: "/siya/photos/siya-pawar-fashion-kurti-fairy-lights-pune.jpg",
         width: 768,
         height: 1024,
         alt: "Siya Pawar under warm fairy lights in a teal printed kurti — fashion & beauty creator Pune",
         blur: BLUR.gallery8445,
       },
       {
-        src: "/siya/photos/siya-8447.jpg",
+        src: "/siya/photos/siya-pawar-outdoor-night-patio-pune.jpg",
         width: 1800,
         height: 3201,
         alt: "Siya Pawar posing outdoors at night in warm patio light — Gen-Z influencer Pune editorial",
         blur: BLUR.gallery8447,
       },
       {
-        src: "/siya/photos/siya-7514.jpg",
+        src: "/siya/photos/siya-pawar-beauty-afternoon-light-pune.jpg",
         width: 2400,
         height: 1350,
         alt: "Close-up lifestyle and beauty UGC photography by Pune content creator Siya Pawar",

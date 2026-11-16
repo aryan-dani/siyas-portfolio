@@ -1,10 +1,18 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site";
+import { CASE_STUDIES } from "@/lib/case-studies";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = getSiteUrl();
   /* Fixed stamp — Cache Components forbids impure `new Date()` at prerender. */
   const lastModified = new Date("2026-11-13T00:00:00.000Z");
+
+  const caseStudyEntries: MetadataRoute.Sitemap = CASE_STUDIES.map((cs) => ({
+    url: `${siteUrl}/work/${cs.slug}`,
+    lastModified,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }));
 
   return [
     {
@@ -20,10 +28,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${siteUrl}/copyright`,
+      url: `${siteUrl}/ugc-creator-pune`,
       lastModified,
-      changeFrequency: "monthly",
-      priority: 0.4,
+      changeFrequency: "weekly",
+      priority: 0.85,
     },
+    ...caseStudyEntries,
   ];
 }

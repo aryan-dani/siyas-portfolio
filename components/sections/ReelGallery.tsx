@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import {
   memo,
@@ -272,6 +273,16 @@ const ReelCard = memo(function ReelCard({
           </p>
           <h3 className="carousel-card__title">{reel.title}</h3>
           <p className="type-body carousel-card__caption">“{reel.caption}”</p>
+          {reel.caseStudySlug ? (
+            <p className="mt-1">
+              <Link
+                href={`/work/${reel.caseStudySlug}`}
+                className="type-label text-[0.72rem] link-u font-medium"
+              >
+                case study →
+              </Link>
+            </p>
+          ) : null}
           <p className="sr-only">{reel.seoCaption}</p>
         </figcaption>
       </figure>

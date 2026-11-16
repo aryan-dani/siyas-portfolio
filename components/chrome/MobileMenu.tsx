@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, type RefObject } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { CONTENT, NAV } from "@/lib/content";
@@ -178,6 +179,25 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
               />
             </li>
           ))}
+          <li className="overflow-hidden">
+            <Link
+              data-menu-item
+              href="/collaborate"
+              onClick={() => onClose()}
+              className="type-display mobile-menu__link flex items-start gap-4 py-[0.05em] text-[clamp(4rem,21vw,7.5rem)] leading-[0.95] normal-case"
+              style={{ textTransform: "none" }}
+            >
+              <span className="type-nav mt-[0.9em] w-6 shrink-0 text-[0.7rem] opacity-70">
+                04
+              </span>
+              collaborate
+            </Link>
+            <span
+              data-menu-line
+              className="mobile-menu__line"
+              aria-hidden="true"
+            />
+          </li>
         </ul>
       </nav>
 
@@ -190,6 +210,13 @@ export function MobileMenu({ open, onClose, toggleRef, isHome }: Props) {
           {CONTENT.profile.email}
         </a>
         <div data-menu-fade className="type-nav flex flex-wrap gap-x-7 gap-y-3">
+          <Link
+            href="/ugc-creator-pune"
+            onClick={() => onClose()}
+            className="link-u touch-target"
+          >
+            ugc creator pune
+          </Link>
           <a
             href={CONTENT.profile.instagramUrl}
             target="_blank"

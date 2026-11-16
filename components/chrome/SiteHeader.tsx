@@ -195,7 +195,7 @@ export function SiteHeader() {
           <nav
             aria-label="Primary"
             data-docked={docked ? "true" : "false"}
-            className="nav-menu hidden md:flex"
+            className="nav-menu hidden md:flex items-center gap-6"
           >
             {NAV.map((item) => (
               <a
@@ -209,6 +209,13 @@ export function SiteHeader() {
                 {item.label}
               </a>
             ))}
+            <Link
+              href="/collaborate"
+              data-magnetic
+              className="nav-menu__link type-nav font-medium opacity-90 hover:opacity-100"
+            >
+              collaborate
+            </Link>
           </nav>
 
           <button

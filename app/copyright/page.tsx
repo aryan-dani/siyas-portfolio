@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: "Copyright & licensing",
   description: `Copyright notice for the ${CONTENT.profile.fullName} (${CONTENT.profile.handle}) portfolio: ownership of content, design and brand materials.`,
   alternates: { canonical: "/copyright" },
+  robots: {
+    index: false,
+    follow: true,
+  },
   openGraph: {
     title: `Copyright & licensing · ${CONTENT.profile.fullName}`,
     description: `Copyright notice for the ${CONTENT.profile.fullName} portfolio site.`,

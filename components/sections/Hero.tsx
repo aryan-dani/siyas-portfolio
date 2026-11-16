@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
@@ -176,7 +177,7 @@ export function Hero() {
             </OutboundLink>
           </div>
 
-          <div className="hero-cta-row hero-in" style={{ ["--i" as string]: 4 }}>
+          <div className="hero-cta-row hero-in flex items-center gap-4 flex-wrap" style={{ ["--i" as string]: 4 }}>
             <a
               href="#contact"
               className="btn btn--solid has-roll hero-btn"
@@ -198,6 +199,13 @@ export function Hero() {
                 →
               </span>
             </a>
+            <Link
+              href="/collaborate"
+              className="type-label link-u text-sm font-medium opacity-90 hover:opacity-100"
+              data-magnetic
+            >
+              hire for ugc ↗
+            </Link>
           </div>
         </div>
 
@@ -212,7 +220,7 @@ export function Hero() {
                 alt={photos.hero.alt}
                 width={photos.hero.width}
                 height={photos.hero.height}
-                preload
+                priority
                 quality={90}
                 sizes="(min-width: 1024px) 46vw, (min-width: 768px) 50vw, 92vw"
                 placeholder="blur"

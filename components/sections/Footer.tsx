@@ -14,7 +14,11 @@ export function Footer() {
           <p>{footer.copyright}</p>
           <p className="footer__links">
             <Link href="/collaborate" transitionTypes={["nav-forward"]} className="link-u">
-              media kit
+              collaborate &amp; media kit
+            </Link>
+            <span aria-hidden="true"> · </span>
+            <Link href="/ugc-creator-pune" transitionTypes={["nav-forward"]} className="link-u">
+              ugc creator in pune
             </Link>
             <span aria-hidden="true"> · </span>
             <Link href="/copyright" transitionTypes={["nav-forward"]} className="link-u">

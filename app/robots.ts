@@ -5,6 +5,7 @@ export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl();
   const allowAll = {
     allow: "/",
+    disallow: "/api/",
   } as const;
 
   return {
@@ -14,10 +15,12 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "Bingbot", ...allowAll },
       { userAgent: "GPTBot", ...allowAll },
       { userAgent: "OAI-SearchBot", ...allowAll },
+      { userAgent: "ChatGPT-User", ...allowAll },
       { userAgent: "PerplexityBot", ...allowAll },
       { userAgent: "ClaudeBot", ...allowAll },
-      { userAgent: "Google-Extended", ...allowAll },
       { userAgent: "anthropic-ai", ...allowAll },
+      { userAgent: "Google-Extended", ...allowAll },
+      { userAgent: "Applebot-Extended", ...allowAll },
       { userAgent: "CCBot", ...allowAll },
     ],
     sitemap: `${siteUrl}/sitemap.xml`,

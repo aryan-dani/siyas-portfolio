@@ -141,7 +141,11 @@ if (targetUrls.length === 0) {
     targetUrls = [
       `${siteUrl}/`,
       `${siteUrl}/collaborate`,
-      `${siteUrl}/copyright`,
+      `${siteUrl}/ugc-creator-pune`,
+      `${siteUrl}/work/mokobara-sundae-backpack`,
+      `${siteUrl}/work/mokobara-memo-crossbody`,
+      `${siteUrl}/work/pharmeasy-healthcare-delivery`,
+      `${siteUrl}/work/california-burrito-pune`,
     ];
   }
 }

@@ -1,5 +1,6 @@
 import { CONTENT } from "@/lib/content";
 import { CREATOR_NAME, HANDLE, LOCATION } from "@/lib/site";
+import type { CaseStudy } from "@/lib/case-studies";
 
 /**
  * Builds the sitewide JSON-LD @graph for ProfilePage / Person /
@@ -217,4 +218,106 @@ function isoDuration(duration: string): string {
     return `PT${h ? `${h}H` : ""}${min ? `${min}M` : ""}${sec}S`;
   }
   return "PT0S";
+}
+
+export function buildBreadcrumbJsonLd(
+  items: { name: string; url: string }[],
+): string {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+  return JSON.stringify(schema).replace(/</g, "\\u003c");
+}
+
+export function buildFaqJsonLd(
+  faqs: readonly { question: string; answer: string }[],
+): string {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+  return JSON.stringify(schema).replace(/</g, "\\u003c");
+}
+
+export function buildCaseStudyJsonLd(
+  study: CaseStudy,
+  siteUrl: string,
+): string {
+  const base = siteUrl.replace(/\/$/, "");
+  const studyUrl = `${base}/work/${study.slug}`;
+  const personId = `${base}/#person`;
+
+  const graph: Record<string, unknown>[] = [
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: base },
+        { "@type": "ListItem", position: 2, name: "Work", item: `${base}/#work` },
+        { "@type": "ListItem", position: 3, name: study.title, item: studyUrl },
+      ],
+    },
+    {
+      "@type": "CreativeWork",
+      "@id": `${studyUrl}#case-study`,
+      name: study.title,
+      headline: study.title,
+      description: study.summary,
+      url: studyUrl,
+      datePublished: study.publishedDate,
+      author: {
+        "@type": "Person",
+        name: CREATOR_NAME,
+        url: base,
+      },
+      creator: { "@id": personId },
+      about: [
+        { "@type": "Brand", name: study.brand, url: study.brandUrl },
+        { "@type": "Thing", name: study.category },
+      ],
+    },
+  ];
+
+  if (study.videoUrl) {
+    graph.push({
+      "@type": "VideoObject",
+      "@id": `${studyUrl}#video`,
+      name: study.title,
+      description: study.summary,
+      thumbnailUrl: `${base}${study.posterUrl}`,
+      contentUrl: `${base}${study.videoUrl}`,
+      uploadDate: study.publishedDate,
+      url: study.instagramUrl,
+      creator: { "@id": personId },
+    });
+  }
+
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": graph,
+  }).replace(/</g, "\\u003c");
+}
+
+export function JsonLdEmbed({ json, id }: { json: string; id?: string }) {
+  return (
+    <script
+      id={id}
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: json }}
+    />
+  );
 }
